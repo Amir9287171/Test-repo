@@ -1,0 +1,819 @@
+name: Complete 24/7 Pipeline
+
+permissions:
+  contents: write
+  actions: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      strategy_name:
+        description: 'نام فایل استراتژی (مثلاً kkk3.js). خالی = همه اجرا شوند'
+        required: false
+        default: ''
+      filter_start_date:
+        description: 'تاریخ شروع فایل‌ها (YYYY-MM-DD)'
+        required: false
+        default: ''
+      filter_end_date:
+        description: 'تاریخ پایان فایل‌ها (YYYY-MM-DD)'
+        required: false
+        default: ''
+
+concurrency:
+  group: backtest-main
+  cancel-in-progress: false
+
+jobs:
+  check-completion:
+    runs-on: ubuntu-latest
+    outputs:
+      all_completed: ${{ steps.check.outputs.all_completed }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: بررسی وجود نتایج قبلی
+        id: check
+        run: echo "all_completed=false" >> $GITHUB_OUTPUT
+
+  prepare:
+    needs: check-completion
+    if: needs.check-completion.outputs.all_completed != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      strategies: ${{ steps.list_strategies.outputs.files }}
+      chunks:   ${{ steps.build_chunks.outputs.chunks }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 2. کش فایل‌های ZIP
+        uses: actions/cache@v4
+        with:
+          path: zips
+          key: zips-${{ hashFiles('encrypted_data/prepare_data.py') }}-${{ github.run_id }}
+          restore-keys: |
+            zips-${{ hashFiles('encrypted_data/prepare_data.py') }}-
+
+      - name: 3. راه‌اندازی پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 4. نصب کتابخانه‌های پایتون
+        run: pip install pandas requests
+
+      - name: 0. ساختن پوشه src
+        run: mkdir -p encrypted_data/src
+
+      - name: 🔓 مدیریت باز کردن قفل
+        id: unlock
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+        run: |
+          echo "unlocked=false" >> $GITHUB_OUTPUT
+          UNLOCK_FILE="encrypted_data/src/unlock.txt"
+          FLAG_FILE="encrypted_data/src/.unlocked.flag"
+          if [ -f "$UNLOCK_FILE" ] && grep -q "^3$" "$UNLOCK_FILE"; then
+            echo "📊 وضعیت unlock=3"
+            if [ -d results ]; then
+              find results -name "results.enc" -type f | while read ENC; do
+                DIR=$(dirname "$ENC")
+                node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.RESULTS_PASSWORD;const data=fs.readFileSync('$ENC');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('$DIR/results.tar.gz',dec);"
+                tar -xzf "$DIR/results.tar.gz" -C "$DIR" && rm -f "$DIR/results.tar.gz"
+              done
+              git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+              git add results/
+              git commit -m "extract results (unlock 3)" || true
+              git pull --rebase && git push
+            fi
+            rm -f "$UNLOCK_FILE" "$FLAG_FILE"
+          elif [ -f "$UNLOCK_FILE" ] && grep -q "^1$" "$UNLOCK_FILE"; then
+            echo "🔓 وضعیت unlock=1"
+            echo "unlocked=true" >> $GITHUB_OUTPUT
+            if [ -f encrypted_data/src.enc ]; then
+              mkdir -p temp_src_restore
+              node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const data=fs.readFileSync('encrypted_data/src.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('src.tar.gz',dec);"
+              tar -xzf src.tar.gz -C temp_src_restore
+              mkdir -p encrypted_data/src
+              cp -r temp_src_restore/* encrypted_data/src/ && rm -rf temp_src_restore src.tar.gz
+            fi
+            git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+            git add encrypted_data/src/*.js encrypted_data/src/.unlocked.flag 2>/dev/null || true
+            git add "$UNLOCK_FILE" 2>/dev/null || true
+            if [ -f "$UNLOCK_FILE" ]; then
+              rm -f "$UNLOCK_FILE"
+              git rm --cached "$UNLOCK_FILE" 2>/dev/null || true
+              git add "$UNLOCK_FILE" 2>/dev/null || true
+            fi
+            git commit -m "unlock source files" || true
+            git stash --include-untracked 2>/dev/null || true
+            git pull --rebase
+            git stash pop 2>/dev/null || true
+            git push
+          else
+            echo "🧹 پاکسازی فایل‌های JSON نتایج"
+            if [ -d "results" ]; then
+              find results -type f ! -name "results.enc" \( -name "*.json" -o -name "*.tar.gz" \) -delete
+              if find results -type f ! -name "results.enc" | grep -q .; then
+                git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+                git add results/ && git commit -m "cleanup results" || true
+                git pull --rebase && git push
+              fi
+            else
+              echo "📁 پوشه results وجود ندارد، نیازی به پاکسازی نیست."
+            fi
+            echo "🔒 حالت عادی (بدون باز کردن قفل)"
+          fi
+
+      - name: 5. آماده‌سازی داده‌های ۲۰۲۵/۲۰۲۶ در صورت نیاز
+        id: prep_2025
+        run: |
+          FLAG="encrypted_data/data_2025_2026_done.flag"
+          if [ ! -f "$FLAG" ]; then
+            echo "🆕 در حال پردازش داده‌های ۲۰۲۵/۲۰۲۶..."
+            python encrypted_data/prepare_2025_2026.py
+            touch "$FLAG"
+            echo "flag_created=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ داده‌ها قبلاً پردازش شده‌اند."
+            echo "flag_created=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 6. ارسال پرچم به مخزن در صورت ایجاد
+        if: steps.prep_2025.outputs.flag_created == 'true'
+        run: |
+          git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+          git pull --rebase
+          git add encrypted_data/data_2025_2026_done.flag
+          git commit -m "mark 2025/2026 prepared" || true
+          git push
+
+      - name: 7. رمزگشایی data.enc در صورت وجود
+        env:
+          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
+        run: |
+          if [ -f encrypted_data/data.enc ]; then
+            node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.DATA_PASSWORD;const data=fs.readFileSync('encrypted_data/data.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('data.tar.gz',dec);"
+            mkdir -p data && tar -xzf data.tar.gz -C data && rm data.tar.gz
+          fi
+
+      - name: 9. بازسازی data.enc
+        env:
+          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
+        run: |
+          cd data && tar -czf ../data.tar.gz All_Coins_Combined && cd ..
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.DATA_PASSWORD;const key=crypto.scryptSync(pass,'salt',32);const iv=crypto.randomBytes(16);const cipher=crypto.createCipheriv('aes-256-cbc',key,iv);const input=fs.readFileSync('data.tar.gz');const enc=Buffer.concat([cipher.update(input),cipher.final()]);fs.writeFileSync('encrypted_data/data.enc',Buffer.concat([iv,enc]));"
+          rm data.tar.gz
+
+      - name: 10. تحلیل فایل‌های سورس
+        id: source_analysis
+        run: |
+          ALL_FULL=true; ONE_FULL=false
+          for f in encrypted_data/src/*.js encrypted_data/src/*.py; do
+            [ -f "$f" ] && [ -s "$f" ] && ONE_FULL=true
+            [ -f "$f" ] && [ ! -s "$f" ] && ALL_FULL=false
+          done
+          echo "all_full=$ALL_FULL" >> $GITHUB_OUTPUT
+          echo "one_full=$ONE_FULL" >> $GITHUB_OUTPUT
+
+      - name: 11. رمزنگاری فایل‌های سورس (ادغام هوشمند)
+        if: steps.source_analysis.outputs.one_full == 'true' && steps.unlock.outputs.unlocked != 'true'
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          if [ "${{ steps.source_analysis.outputs.all_full }}" = "true" ]; then
+            tar -czf src.tar.gz -C encrypted_data/src .
+          else
+            mkdir -p temp_merge
+            if [ -f encrypted_data/src.enc ]; then
+              node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const data=fs.readFileSync('encrypted_data/src.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('src_old.tar.gz',dec);"
+              tar -xzf src_old.tar.gz -C temp_merge && rm src_old.tar.gz
+            fi
+            for f in encrypted_data/src/*.js encrypted_data/src/*.py; do
+              [ -f "$f" ] && [ -s "$f" ] && cp "$f" temp_merge/
+            done
+            tar -czf src.tar.gz -C temp_merge .
+            rm -rf temp_merge
+          fi
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const key=crypto.scryptSync(pass,'salt',32);const iv=crypto.randomBytes(16);const cipher=crypto.createCipheriv('aes-256-cbc',key,iv);const input=fs.readFileSync('src.tar.gz');const enc=Buffer.concat([cipher.update(input),cipher.final()]);fs.writeFileSync('encrypted_data/src.enc',Buffer.concat([iv,enc]));"
+          rm src.tar.gz
+
+      - name: 12. پاک کردن محتوای فایل‌های سورس (نگه داشتن فایل‌ها)
+        if: steps.source_analysis.outputs.one_full == 'true' && steps.unlock.outputs.unlocked != 'true'
+        run: |
+          git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+          for f in encrypted_data/src/*.js encrypted_data/src/*.py; do [ -f "$f" ] && echo -n "" > "$f"; done
+          rm -f encrypted_data/src/.unlocked.flag
+          git add encrypted_data/src/ encrypted_data/src.enc
+          git commit -m "wipe source files and update src.enc" || true
+          git stash --include-untracked 2>/dev/null || true
+          git pull --rebase && git stash pop 2>/dev/null || true
+          git push
+
+      - name: 13. رمزگشایی src.enc برای بکتست
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const data=fs.readFileSync('encrypted_data/src.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('src.tar.gz',dec);"
+          tar -xzf src.tar.gz -C encrypted_data/src
+          rm src.tar.gz
+
+      - name: بررسی کامل بودن فایل‌های سورس پس از بازیابی
+        run: |
+          echo "===== بررسی فایل‌های بازیابی‌شده ====="
+          for f in encrypted_data/src/backtest-core.js encrypted_data/src/divergence-detector.js; do
+            if [ ! -f "$f" ]; then
+              echo "❌ $f وجود ندارد!"
+              exit 1
+            fi
+            SIZE=$(stat -c%s "$f")
+            if [ "$SIZE" -eq 0 ]; then
+              echo "❌ $f خالی است (بازیابی ناموفق)!"
+              exit 1
+            fi
+            echo "✅ $f ($SIZE بایت)"
+          done
+
+      - name: 14. انتقال فایل‌های سورس به مسیر امن
+        run: |
+          mkdir -p /tmp/artifact_src
+          cp -r encrypted_data/src/* /tmp/artifact_src/
+
+      - name: 15. راه‌اندازی Node.js و نصب papaparse
+        uses: actions/setup-node@v4
+        with: { node-version: '18' }
+      - run: npm install papaparse
+
+      - name: 16. لیست کردن استراتژی‌ها
+        id: list_strategies
+        run: |
+          STRAT_INPUT="${{ github.event.inputs.strategy_name }}"
+          if [ -n "$STRAT_INPUT" ]; then
+            if [ -f "strategies/$STRAT_INPUT" ]; then
+              files=$(echo "$STRAT_INPUT" | jq -R -s -c 'split("\n")[:-1]')
+            else
+              echo "❌ فایل $STRAT_INPUT در strategies یافت نشد."; exit 1
+            fi
+          else
+            files=$(find strategies -maxdepth 1 -name "*.js" -exec basename {} \; | jq -R -s -c 'split("\n")[:-1]')
+          fi
+          echo "files=$files" >> $GITHUB_OUTPUT
+
+      - name: 17. فیلتر و ساختن چانک‌های پویا (با هوشمندی progress.json)
+        id: build_chunks
+        run: |
+          START_DATE="${{ github.event.inputs.filter_start_date }}"
+          END_DATE="${{ github.event.inputs.filter_end_date }}"
+          DATA_DIR="data/All_Coins_Combined"
+          PROGRESS_FILE="progress.json"
+
+          mapfile -t ALL_FILES < <(find "$DATA_DIR" -maxdepth 1 -name "*.csv" -printf '%f\n' | sort)
+
+          # خواندن progress.json اگر وجود داشته باشد
+          declare -A DONE_CHUNKS
+          if [ -f "$PROGRESS_FILE" ]; then
+            # دریافت نام استراتژی (اولین مورد چون معمولاً یکی است)
+            STRAT_NAME="${{ github.event.inputs.strategy_name }}"
+            if [ -z "$STRAT_NAME" ]; then
+              # اگر ورودی خالی بود، اولین استراتژی در strategies را بگیر
+              STRAT_NAME=$(find strategies -maxdepth 1 -name "*.js" -exec basename {} \; | head -1)
+            fi
+            if [ -n "$STRAT_NAME" ]; then
+              # استخراج چانک‌های انجام‌شده برای این استراتژی
+              DONE_LIST=$(jq -r --arg s "$STRAT_NAME" '.[$s] // [] | join(" ")' "$PROGRESS_FILE" 2>/dev/null)
+              for chunk in $DONE_LIST; do
+                DONE_CHUNKS[$chunk]=1
+              done
+              echo "📊 چانک‌های انجام‌شده برای $STRAT_NAME: ${!DONE_CHUNKS[*]}"
+            fi
+          fi
+
+          FILTERED=()
+          for f in "${ALL_FILES[@]}"; do
+            # فیلتر تاریخ
+            if [[ $f =~ ([0-9]{4}-[0-9]{2}-[0-9]{2})_ ]]; then
+              FILE_START="${BASH_REMATCH[1]}"
+              if [ -n "$START_DATE" ]; then
+                [[ "$FILE_START" < "$START_DATE" ]] && continue
+              fi
+              if [ -n "$END_DATE" ]; then
+                [[ "$FILE_START" > "$END_DATE" ]] && continue
+              fi
+            fi
+
+            # بررسی اینکه آیا این فایل در چانک‌های انجام‌شده است یا خیر
+            # ایندکس فایل در آرایه ALL_FILES (قبل از فیلتر تاریخ)
+            # ما نیاز داریم ایندکس واقعی فایل را در لیست اصلی بدانیم
+            # چون ALL_FILES قبلاً با فیلتر تاریخ فیلتر شده، ایندکس اصلی عوض شده
+            # پس باید چک کنیم که ایندکس این فایل در لیست ALL_FILES اصلی (قبل از فیلتر) چند بوده
+            # ساده‌ترین راه: چک نکنیم اینجا، چون اندازه چانک پویاست
+            # در عوض می‌توانیم فرض کنیم که اگر فایلی در گذشته پردازش شده،
+            # چانک مربوط به آن در progress.json ثبت شده است.
+            # اما چون ما اینجا فقط فایل‌ها را لیست می‌کنیم و نه چانک‌ها را،
+            # باید بعداً هنگام ساخت چانک‌ها این بررسی را انجام دهیم.
+            # فعلاً فایل را نگه می‌داریم.
+            FILTERED+=("$f")
+          done
+
+          cnt=${#FILTERED[@]}
+          MAX_JOBS=256
+          STRAT_COUNT=$(echo '${{ steps.list_strategies.outputs.files }}' | jq 'length')
+          STRAT_COUNT=${STRAT_COUNT:-1}
+          MAX_CHUNKS=$(( MAX_JOBS / STRAT_COUNT ))
+          SIZE=$(( (cnt + MAX_CHUNKS - 1) / MAX_CHUNKS ))
+          [ $SIZE -lt 5 ] && SIZE=5
+
+          n=$(( (cnt + SIZE - 1) / SIZE ))
+          chunks="["
+          CHUNKS_ADDED=0
+          for ((i=0; i<n; i++)); do
+            s=$((i*SIZE))
+            # بررسی اینکه آیا این چانک قبلاً انجام شده است
+            if [ -n "${DONE_CHUNKS[$s]}" ]; then
+              echo "⏩ چانک $s قبلاً انجام شده. نادیده گرفته می‌شود."
+              continue
+            fi
+            [ $CHUNKS_ADDED -gt 0 ] && chunks+=", "
+            chunks+="$s"
+            CHUNKS_ADDED=$((CHUNKS_ADDED + 1))
+          done
+          chunks+="]"
+          echo "chunks=$chunks" >> $GITHUB_OUTPUT
+          echo "تعداد کل فایل‌های فیلتر شده: $cnt, اندازه چانک: $SIZE, تعداد چانک‌های جدید: $CHUNKS_ADDED از $n"
+
+      - name: تأیید و پاک‌سازی فایل‌ها در مسیر موقت
+        run: |
+          echo "===== بررسی فایل‌های موجود در مسیر موقت ====="
+          ls -l /tmp/artifact_src/
+          # پاک کردن پوشه results اگر به اشتباه در مسیر موقت وجود داشته باشد
+          if [ -d /tmp/artifact_src/results ]; then
+            echo "🧹 پوشه results زائد در مسیر موقت حذف می‌شود..."
+            rm -rf /tmp/artifact_src/results
+          fi
+          for f in /tmp/artifact_src/backtest-core.js /tmp/artifact_src/divergence-detector.js; do
+            if [ ! -f "$f" ]; then
+              echo "❌ $f در مسیر موقت وجود ندارد!"
+              exit 1
+            fi
+            SIZE=$(stat -c%s "$f")
+            if [ "$SIZE" -eq 0 ]; then
+              echo "❌ $f در مسیر موقت خالی است!"
+              exit 1
+            fi
+            echo "✅ $f ($SIZE بایت) آمادهٔ آپلود"
+          done
+
+      - name: 18. بارگذاری محیط آماده شده
+        uses: actions/upload-artifact@v4
+        with:
+          name: prep
+          path: |
+            data/
+            /tmp/artifact_src/
+            strategies/
+            node_modules/
+            package.json
+
+      - name: 19. پاکسازی مسیر موقت
+        run: rm -rf /tmp/artifact_src
+
+  backtest:
+    needs: [check-completion, prepare]
+    if: needs.prepare.outputs.strategies != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        strategy_file: ${{ fromJson(needs.prepare.outputs.strategies) }}
+        chunk: ${{ fromJson(needs.prepare.outputs.chunks) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+      - name: 2. دریافت محیط آماده شده
+        uses: actions/download-artifact@v4
+        with:
+          name: prep
+
+      - name: 3. راه‌اندازی Node.js
+        uses: actions/setup-node@v4
+        with: { node-version: '18' }
+
+      # ========== جستجوی هوشمند فایل‌های سورس ==========
+      - name: بازیابی فایل‌ها از artifact با جستجوی هوشمند
+        run: |
+          mkdir -p encrypted_data/src
+          echo "جستجوی فایل‌های JavaScript غیرخالی در کل workspace..."
+          for f in backtest-core.js divergence-detector.js run-backtest.js; do
+            FOUND=$(find . -name "$f" -type f -size +0c -not -path "./encrypted_data/src/*" 2>/dev/null | head -1)
+            if [ -z "$FOUND" ]; then
+              FOUND=$(find . -name "$f" -type f -size +0c 2>/dev/null | head -1)
+            fi
+            if [ -n "$FOUND" ]; then
+              echo "✅ $f پیدا شد: $FOUND (حجم: $(stat -c%s "$FOUND") بایت)"
+              cp -f "$FOUND" encrypted_data/src/
+            else
+              echo "❌ $f در هیچ‌جای workspace پیدا نشد!"
+              exit 1
+            fi
+          done
+          echo "✅ همه فایل‌ها با موفقیت کپی شدند."
+
+      - name: بررسی قوی فایل‌های سورس (با نمایش و کپی مجدد)
+        run: |
+          echo "===== محتوای encrypted_data/src ====="
+          ls -la encrypted_data/src/ || true
+          for f in backtest-core.js divergence-detector.js run-backtest.js; do
+            TARGET="encrypted_data/src/$f"
+            if [ ! -f "$TARGET" ] || [ ! -s "$TARGET" ]; then
+              echo "⚠️ $f در مسیر هدف موجود نیست یا خالی است. تلاش برای کپی مجدد..."
+              FOUND=$(find . -name "$f" -type f -size +0c | grep -v "encrypted_data/src" | head -1)
+              if [ -z "$FOUND" ]; then
+                echo "❌ فایل $f در هیچ جای workspace یافت نشد."
+                exit 1
+              fi
+              cp -f "$FOUND" "$TARGET"
+              echo "✅ $f از $FOUND کپی شد."
+            fi
+            SIZE=$(stat -c%s "$TARGET")
+            if [ "$SIZE" -eq 0 ]; then
+              echo "❌ $f بعد از کپی باز هم خالی است!"
+              exit 1
+            fi
+            echo "✅ $f ($SIZE بایت) آماده است."
+          done
+      # ========== پایان جستجوی هوشمند ==========
+
+      - name: نصب papaparse
+        run: |
+          cd encrypted_data/src
+          [ ! -d node_modules/papaparse ] && { npm init -y --silent 2>/dev/null || true; npm install papaparse --silent; }
+
+      - name: ساختن پوشه‌های results و logs
+        run: mkdir -p results logs
+
+      - name: 🩺 4. بررسی سلامت قبل از اجرا
+        run: |
+          DATA_DIR="data/All_Coins_Combined"
+          [ ! -d "$DATA_DIR" ] && { echo "❌ پوشه داده وجود ندارد."; exit 1; }
+          echo "✅ پوشه داده: $DATA_DIR"
+
+      - name: 5. اجرای بکتست
+        id: backtest_run
+        run: |
+          set -e
+          echo "شروع بکتست: ${{ matrix.strategy_file }} - چانک ${{ matrix.chunk }}"
+          node encrypted_data/src/run-backtest.js \
+            --strategy-file "strategies/${{ matrix.strategy_file }}" \
+            --start-index ${{ matrix.chunk }} \
+            --chunk-size 5 \
+            --data-dir data/All_Coins_Combined \
+            2>&1 | tee logs/backtest-output-${{ matrix.chunk }}.log
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+
+      - name: کپی نتایج به ریشه
+        if: always()
+        run: |
+          if [ -d encrypted_data/src/results ]; then
+            cp -r encrypted_data/src/results/. results/ 2>/dev/null || true
+          fi
+
+      - name: 6. ثبت نتایج در مخزن (commit و push با ۱۰۰۰۰ تلاش + git stash)
+        if: always()
+        run: |
+          mkdir -p results
+          if [ -n "$(ls -A results 2>/dev/null)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "actions@github.com"
+            # ====== اصلاح نهایی: اتصال قطعی به main ======
+            git fetch origin main && git checkout -B main origin/main
+            git add -A results/
+            git add logs/backtest-output-${{ matrix.chunk }}.log 2>/dev/null || true
+            git commit -m "backtest ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
+            RETRY=0; MAX=10000
+            while [ $RETRY -lt $MAX ]; do
+              # ذخیره تغییرات ناخواسته قبل از pull
+              git stash push --include-untracked --quiet || true
+              if git pull --rebase && git push; then
+                echo "✅ push موفق (تلاش $RETRY)"
+                git stash drop --quiet || true
+                break
+              else
+                git stash drop --quiet || true
+                RETRY=$((RETRY+1))
+                sleep $(( (RANDOM % 10) + 1 ))
+              fi
+            done
+            if [ $RETRY -ge $MAX ]; then
+              echo "❌ push ناموفق پس از $MAX تلاش"
+              exit 1
+            fi
+          else
+            echo "ℹ️ پوشه results خالی است یا وجود ندارد. هیچ کاری انجام نمی‌شود."
+          fi
+
+      - name: 7. بروزرسانی progress.json (با retry 10000 و مدیریت conflict)
+        if: success()
+        run: |
+          STRAT_NAME="${{ matrix.strategy_file }}"
+          CHUNK="${{ matrix.chunk }}"
+          PROGRESS_FILE="progress.json"
+          if [ ! -f "$PROGRESS_FILE" ]; then echo '{}' > $PROGRESS_FILE; fi
+          cat $PROGRESS_FILE | jq --arg strat "$STRAT_NAME" --arg chunk "$CHUNK" '.[$strat] += [$chunk | tonumber]' > tmp.json && mv tmp.json $PROGRESS_FILE
+          # ====== اصلاح نهایی: اتصال قطعی به main ======
+          git fetch origin main && git checkout -B main origin/main
+          git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
+          RETRY=0; MAX=10000
+          while [ $RETRY -lt $MAX ]; do
+            # پاکسازی conflictها قبل از هر تلاش
+            git merge --abort 2>/dev/null || true
+            git reset --hard HEAD 2>/dev/null || true
+            git stash push --include-untracked --quiet || true
+            if git pull --rebase && git push; then
+              git stash drop --quiet || true
+              echo "✅ push progress موفق (تلاش $RETRY)"
+              break
+            else
+              git stash drop --quiet || true
+              RETRY=$((RETRY+1))
+              sleep $(( (RANDOM % 10) + 1 ))
+            fi
+          done
+          if [ $RETRY -ge $MAX ]; then
+            echo "❌ push progress ناموفق پس از $MAX تلاش"
+            exit 1
+          fi
+
+      - name: 8. ذخیره لاگ خطا با اثر انگشت (فقط در صورت شکست)
+        if: failure()
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+        run: |
+          SAFE_STRAT=$(echo "${{ matrix.strategy_file }}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+          ERROR_FILE="error_${SAFE_STRAT}_chunk_${{ matrix.chunk }}_run.enc"
+          if [ -f "logs/backtest-output-${{ matrix.chunk }}.log" ]; then
+            node -e "
+              const crypto=require('crypto'),fs=require('fs');
+              const pass=process.env.RESULTS_PASSWORD;
+              const data=fs.readFileSync('logs/backtest-output-${{ matrix.chunk }}.log');
+              const key=crypto.scryptSync(pass,'salt',32);
+              const iv=crypto.randomBytes(16);
+              const cipher=crypto.createCipheriv('aes-256-cbc',key,iv);
+              const enc=Buffer.concat([cipher.update(data),cipher.final()]);
+              fs.writeFileSync('$ERROR_FILE', Buffer.concat([iv,enc]));
+            "
+            mkdir -p errors && cp $ERROR_FILE errors/
+            # ====== اصلاح نهایی: اتصال قطعی به main ======
+            git fetch origin main && git checkout -B main origin/main
+            git add errors/ && git commit -m "error log for ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
+            RETRY=0; MAX=10000
+            while [ $RETRY -lt $MAX ]; do
+              git stash push --include-untracked --quiet || true
+              if git pull --rebase && git push; then
+                git stash drop --quiet || true
+                break
+              else
+                git stash drop --quiet || true
+                RETRY=$((RETRY+1))
+                sleep $(( (RANDOM % 10) + 1 ))
+              fi
+            done
+            if [ $RETRY -ge $MAX ]; then
+              echo "❌ push error log ناموفق پس از $MAX تلاش"
+              exit 1
+            fi
+          else
+            echo "⚠️ فایل لاگ وجود ندارد، از ذخیره خطا صرف نظر می‌شود."
+          fi
+
+  trigger-loop:
+    needs: [backtest]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: فراخوانی ردفلو چرخه با لاگ کامل
+        run: |
+          echo "=============================================="
+          echo "   🔁 لاگ فراخوانی Loop Workflow"
+          echo "=============================================="
+          echo ""
+
+          # 1. نمایش شاخه جاری
+          echo "1- شاخه جاری: ${{ github.ref_name }}"
+          if [ -z "${{ github.ref_name }}" ]; then
+            echo "⚠️ هشدار: شاخه جاری خالی است!"
+          else
+            echo "✅ شاخه جاری معتبر است."
+          fi
+          echo ""
+
+          # 2. نمایش نام workflow مقصد
+          echo "2- نام Workflow مقصد: loop.yml"
+          echo ""
+
+          # 3. نمایش مخزن جاری
+          echo "3- مخزن جاری: ${{ github.repository }}"
+          echo ""
+
+          # 4. وضعیت توکن
+          if [ -z "$GH_TOKEN" ]; then
+            echo "4- وضعیت GH_TOKEN: ❌ تنظیم نشده است"
+          else
+            echo "4- وضعیت GH_TOKEN: ✅ تنظیم شده (طول: ${#GH_TOKEN} کاراکتر)"
+          fi
+          echo ""
+
+          # 5. بررسی احراز هویت
+          echo "5- بررسی احراز هویت با gh auth status:"
+          gh auth status || echo "⚠️ احراز هویت ناموفق بود"
+          echo ""
+
+          # 6. نسخه gh
+          echo "6- نسخه GitHub CLI:"
+          gh --version
+          echo ""
+
+          # 7. تست دسترسی به مخزن
+          echo "7- تست دسترسی به مخزن جاری:"
+          gh api "repos/${{ github.repository }}" --jq '.full_name' || echo "❌ خطا در دسترسی به مخزن"
+          echo ""
+
+          # 8. لیست workflow های موجود
+          echo "8- لیست workflow های موجود در مخزن:"
+          gh workflow list || echo "❌ خطا در دریافت لیست workflow ها"
+          echo ""
+
+          # 9. جستجوی loop.yml در لیست (اصلاح شده برای نام نمایشی)
+          echo "9- جستجوی loop.yml در لیست workflow ها:"
+          if gh workflow list | grep -E "loop.yml|Loop Workflow"; then
+            echo "✅ loop.yml در لیست workflow ها یافت شد."
+          else
+            echo "❌ loop.yml در لیست workflow ها یافت نشد!"
+          fi
+          echo ""
+
+          # 10. نمایش دستور کامل
+          echo "10- دستور فراخوانی:"
+          echo "    gh workflow run loop.yml --ref ${{ github.ref_name }}"
+          echo ""
+
+          # 11. ذخیره زمان شروع
+          START_TIME=$(date +%s)
+          echo "11- زمان شروع فراخوانی: $(date)"
+          echo ""
+
+          # 12. اجرای دستور با گرفتن خروجی
+          echo "12- اجرای فراخوانی:"
+          set -o pipefail
+          OUTPUT=$(gh workflow run loop.yml --ref "${{ github.ref_name }}" 2>&1)
+          EXIT_CODE=$?
+          echo "$OUTPUT"
+          echo ""
+
+          # 13. نمایش کد خروج
+          echo "13- کد خروج: $EXIT_CODE"
+          echo ""
+
+          # 14. تفسیر کد خروج
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "14- وضعیت: ✅ فراخوانی با موفقیت انجام شد."
+            echo "    خروجی: $OUTPUT"
+          else
+            echo "14- وضعیت: ❌ خطا در فراخوانی"
+            echo "    پیام خطا: $OUTPUT"
+          fi
+          echo ""
+
+          # 15. تحلیل خطاهای احتمالی
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "15- تحلیل خطا:"
+            if echo "$OUTPUT" | grep -q "403"; then
+              echo "    → خطای 403 (Forbidden): احتمالاً توکن دسترسی کافی ندارد یا workflow permissions روی Read-only است."
+            elif echo "$OUTPUT" | grep -q "404"; then
+              echo "    → خطای 404 (Not Found): فایل loop.yml وجود ندارد یا نام workflow اشتباه است."
+            elif echo "$OUTPUT" | grep -q "timeout"; then
+              echo "    → timeout: درخواست زمان زیادی برده است."
+            else
+              echo "    → خطای ناشناخته: $OUTPUT"
+            fi
+          fi
+          echo ""
+
+          # 16. انتظار کوتاه برای ثبت run
+          echo "16- انتظار 5 ثانیه برای ثبت run جدید..."
+          sleep 5
+          echo ""
+
+          # 17. دریافت آخرین run از loop.yml
+          echo "17- دریافت آخرین run از loop.yml:"
+          LOOP_RUN=$(gh run list --workflow=loop.yml --limit=1 --json databaseId,status,conclusion -q '.[0]')
+          if [ -n "$LOOP_RUN" ]; then
+            echo "    $LOOP_RUN"
+          else
+            echo "    ❌ نتوانستیم اطلاعات run را بگیریم."
+          fi
+          echo ""
+
+          # 18. نمایش ID آخرین run
+          if [ -n "$LOOP_RUN" ]; then
+            RUN_ID=$(echo "$LOOP_RUN" | jq -r '.databaseId')
+            echo "18- ID آخرین run: $RUN_ID"
+          else
+            echo "18- ID آخرین run: نامشخص"
+          fi
+          echo ""
+
+          # 19. نمایش status و conclusion
+          if [ -n "$LOOP_RUN" ]; then
+            STATUS=$(echo "$LOOP_RUN" | jq -r '.status')
+            CONCLUSION=$(echo "$LOOP_RUN" | jq -r '.conclusion')
+            echo "19- وضعیت: $STATUS, نتیجه: $CONCLUSION"
+          fi
+          echo ""
+
+          # 20. تعداد کل runهای loop.yml
+          echo "20- تعداد کل runهای loop.yml:"
+          gh run list --workflow=loop.yml --limit=100 --json databaseId | jq length || echo "0"
+          echo ""
+
+          # 21. بررسی وجود run در حال اجرا
+          echo "21- بررسی وجود run در حال اجرا برای loop.yml:"
+          RUNNING=$(gh run list --workflow=loop.yml --status=in_progress --limit=1 --json databaseId -q '.[0].databaseId')
+          if [ -n "$RUNNING" ]; then
+            echo "    ⚠️ یک run در حال اجرا وجود دارد: $RUNNING"
+          else
+            echo "    ✅ هیچ run در حال اجرایی نیست."
+          fi
+          echo ""
+
+          # 22. بررسی دسترسی actions: write
+          echo "22- بررسی دسترسی actions: write:"
+          if gh api "repos/${{ github.repository }}/actions/workflows/loop.yml" --jq '.name' >/dev/null 2>&1; then
+            echo "    ✅ دسترسی به workflow برقرار است."
+          else
+            echo "    ❌ دسترسی به workflow ممکن است محدود باشد."
+          fi
+          echo ""
+
+          # 23. اگر خطا بود، راهنمایی
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "23- راهنمایی:"
+            echo "    - به Settings > Actions > General بروید و Workflow permissions را روی Read and write تنظیم کنید."
+            echo "    - مطمئن شوید loop.yml در شاخه ${{ github.ref_name }} وجود دارد."
+          fi
+          echo ""
+
+          # 24. زمان پایان
+          END_TIME=$(date +%s)
+          echo "24- زمان پایان فراخوانی: $(date)"
+          echo ""
+
+          # 25. مدت زمان صرف شده
+          DURATION=$((END_TIME - START_TIME))
+          echo "25- مدت زمان صرف شده: ${DURATION} ثانیه"
+          echo ""
+
+          # 26. ذخیره خروجی در فایل
+          echo "$OUTPUT" > /tmp/trigger-loop-output.txt
+          echo "26- خروجی کامل در /tmp/trigger-loop-output.txt ذخیره شد."
+          echo ""
+
+          # 27. اگر خطا بود، پیشنهاد بررسی لاگ
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "27- پیشنهاد: لاگ های مرحله قبل را بررسی کنید."
+          fi
+          echo ""
+
+          # 28. بررسی وجود فایل loop.yml در شاخه
+          echo "28- بررسی وجود فایل loop.yml در شاخه:"
+          if git show "${{ github.ref_name }}:.github/workflows/loop.yml" >/dev/null 2>&1; then
+            echo "    ✅ فایل loop.yml در شاخه ${{ github.ref_name }} وجود دارد."
+          else
+            echo "    ❌ فایل loop.yml در شاخه ${{ github.ref_name }} یافت نشد!"
+          fi
+          echo ""
+
+          # 29. آخرین commit شامل loop.yml
+          echo "29- آخرین commit مربوط به loop.yml:"
+          git log -1 --oneline -- ".github/workflows/loop.yml" || echo "    تاریخچه‌ای یافت نشد."
+          echo ""
+
+          # 30. خط جداکننده
+          echo "=============================================="
+          echo "   پایان لاگ فراخوانی Loop Workflow"
+          echo "=============================================="
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
