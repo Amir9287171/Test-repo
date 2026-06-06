@@ -1,0 +1,330 @@
+name: Loop Workflow
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  sync-and-continue:
+    runs-on: ubuntu-latest
+    steps:
+      # ------------------------------------------------------------
+      # 1. دریافت کد مخزن اصلی
+      # ------------------------------------------------------------
+      - name: 1. دریافت کد مخزن
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      # ------------------------------------------------------------
+      # 2. دانلود استراتژی‌های جدید از مخزن سوم
+      # ------------------------------------------------------------
+      - name: 2. دانلود استراتژی‌های جدید از مخزن واسطه
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+        run: |
+          echo "📥 دریافت لیست استراتژی‌ها از مخزن $THIRD_REPO ..."
+          CONTENT=$(gh api "repos/$THIRD_REPO/contents/strategies" -q '.[] | select(.type=="file") | .name' 2>/dev/null || echo "")
+          if [ -z "$CONTENT" ]; then
+            echo "⚠️ پوشه strategies در مخزن سوم خالی یا وجود ندارد."
+            exit 0
+          fi
+          CHANGED=false
+          for FILE in $CONTENT; do
+            if [[ "$FILE" != *.js ]]; then
+              continue
+            fi
+            DEST="strategies/${FILE}"
+            if [ -f "$DEST" ]; then
+              gh api "repos/$THIRD_REPO/contents/strategies/$FILE" -q '.content' | base64 -d > /tmp/new_strategy.tmp
+              if diff -q "$DEST" /tmp/new_strategy.tmp >/dev/null 2>&1; then
+                echo "✅ $FILE بدون تغییر است."
+                rm /tmp/new_strategy.tmp
+                continue
+              fi
+              rm /tmp/new_strategy.tmp
+            fi
+            echo "⬇️ دانلود $FILE ..."
+            gh api "repos/$THIRD_REPO/contents/strategies/$FILE" -q '.content' | base64 -d > "$DEST"
+            CHANGED=true
+          done
+          if $CHANGED; then
+            echo "📌 تغییرات شناسایی شد؛ commit و push انجام می‌شود."
+            git config user.name "github-actions[bot]"
+            git config user.email "actions@github.com"
+            git checkout main || git checkout -b main origin/main
+            git add strategies/
+            git commit -m "download new strategies from 3rd repo" || true
+            git pull --rebase && git push
+          else
+            echo "ℹ️ هیچ استراتژی جدیدی اضافه نشد."
+          fi
+
+      # ------------------------------------------------------------
+      # 3. دریافت آخرین نتایج commit شده از مخزن (جایگزین artifact)
+      # ------------------------------------------------------------
+      - name: 3. دریافت آخرین نتایج با git pull
+        run: |
+          echo "🔃 دریافت آخرین نتایج از مخزن اصلی (git pull)..."
+          git checkout main || git checkout -b main origin/main
+          git pull --rebase
+          if [ -d results ]; then
+            echo "✅ پوشه results موجود است: $(ls -1 results/ | wc -l) فایل"
+          else
+            echo "ℹ️ پوشه results وجود ندارد."
+          fi
+          if [ -d errors ]; then
+            echo "✅ پوشه errors موجود است: $(ls -1 errors/ | wc -l) فایل"
+          else
+            echo "ℹ️ پوشه errors وجود ندارد."
+          fi
+          if [ -d logs ]; then
+            echo "✅ پوشه logs موجود است: $(ls -1 logs/ | wc -l) فایل"
+          else
+            echo "ℹ️ پوشه logs وجود ندارد."
+          fi
+
+      # ------------------------------------------------------------
+      # 4. لاگ‌های اولیه پیش از آپلود
+      # ------------------------------------------------------------
+      - name: 4. لاگ‌های اولیه پیش از آپلود
+        run: |
+          echo "=============================================="
+          echo "   📦 لاگ آپلود به مخزن سوم"
+          echo "=============================================="
+          echo ""
+          echo "1- محتویات پوشه results (در صورت وجود):"
+          if [ -d results ]; then
+            find results -type f -name "results.enc" | wc -l
+          else
+            echo "   (results وجود ندارد)"
+          fi
+          echo ""
+          TOTAL_RESULTS=$(find results -name "results.enc" -type f 2>/dev/null | wc -l)
+          echo "2- تعداد فایل‌های results.enc: $TOTAL_RESULTS"
+          TOTAL_ERRORS=$(find errors -name "*.enc" -type f 2>/dev/null | wc -l)
+          echo "3- تعداد فایل‌های لاگ خطا (.enc): $TOTAL_ERRORS"
+          TOTAL_LOGS=$(find logs -name "*.log" -type f 2>/dev/null | wc -l)
+          echo "4- تعداد فایل‌های لاگ اجرا (.log): $TOTAL_LOGS"
+          if [ "$TOTAL_RESULTS" -eq 0 ] && [ "$TOTAL_ERRORS" -eq 0 ] && [ "$TOTAL_LOGS" -eq 0 ]; then
+            echo "5- ⚠️ هیچ فایل نتیجه یا خطایی برای آپلود وجود ندارد."
+          fi
+          echo "6- مخزن سوم (THIRD_REPO): ${{ secrets.THIRD_REPO }}"
+          echo "7- وضعیت CROSS_REPO_TOKEN: $([ -z "$CROSS_REPO_TOKEN" ] && echo '❌ تنظیم نشده' || echo '✅ تنظیم شده')"
+          echo "8- تست احراز هویت با توکن cross-repo:"
+          gh auth status --hostname github.com || echo "⚠️ احراز هویت ناموفق"
+          echo "9- تست دسترسی به مخزن سوم:"
+          gh api "repos/${{ secrets.THIRD_REPO }}" --jq '.full_name' || echo "❌ خطا در دسترسی به مخزن سوم"
+          echo "10- visibility مخزن سوم:"
+          gh api "repos/${{ secrets.THIRD_REPO }}" --jq '.visibility' || echo "نامشخص"
+          echo "11- شاخه پیش‌فرض مخزن سوم:"
+          gh api "repos/${{ secrets.THIRD_REPO }}" --jq '.default_branch' || echo "main (حدس)"
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+
+      # ------------------------------------------------------------
+      # 4.5. حذف پوشه logs برای جلوگیری از آپلود و صرفه‌جویی در زمان
+      # ------------------------------------------------------------
+      - name: 4.5. حذف پوشه logs
+        run: |
+          if [ -d logs ]; then
+            echo "🧹 حذف پوشه logs و محتویات آن (برای جلوگیری از آپلود)..."
+            rm -rf logs
+          else
+            echo "ℹ️ پوشه logs وجود ندارد."
+          fi
+
+      # ------------------------------------------------------------
+      # 5. آپلود نتایج و لاگ‌های خطا به مخزن سوم (با retry)
+      # ------------------------------------------------------------
+      - name: 5. آپلود نتایج و لاگ‌های خطا به مخزن واسطه
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+        run: |
+          echo "=============================================="
+          echo "   📤 شروع فرآیند آپلود"
+          echo "=============================================="
+          echo ""
+          upload_with_retry() {
+            local FILE=$1
+            local DEST=$2
+            local MAX_RETRY=10
+            local RETRY=0
+            while [ $RETRY -lt $MAX_RETRY ]; do
+              HTTP_CODE=$(gh api "repos/$THIRD_REPO/contents/$DEST" -i 2>/dev/null | head -n 1 | cut -d' ' -f2)
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "    فایل از قبل وجود دارد (skip)."
+                return 0
+              fi
+              UPLOAD_OUTPUT=$(gh api "repos/$THIRD_REPO/contents/$DEST" \
+                -X PUT \
+                -F message="upload results" \
+                -F content="$(base64 -w0 < "$FILE")" \
+                -F branch="main" 2>&1)
+              UPLOAD_EXIT=$?
+              if [ $UPLOAD_EXIT -eq 0 ]; then
+                echo "    ✅ آپلود موفق (تلاش $RETRY)"
+                return 0
+              else
+                echo "    ⚠️ تلاش $RETRY ناموفق: $UPLOAD_OUTPUT"
+                RETRY=$((RETRY+1))
+                sleep $((RANDOM % 5 + 2))
+              fi
+            done
+            echo "    ❌ آپلود ناموفق پس از $MAX_RETRY تلاش"
+            return 1
+          }
+
+          SUCCESS_UPLOADS=0
+          FAILED_UPLOADS=0
+          SKIPPED_UPLOADS=0
+
+          # آپلود فایل‌های results.enc
+          echo "12- جستجوی results.enc و آپلود:"
+          if [ -d results ]; then
+            find results -name "results.enc" -type f | while read ENC; do
+              echo "----------------------------------------"
+              echo "13- فایل محلی: $ENC"
+              REL=${ENC#results/}
+              DEST="backtest_results/$REL"
+              echo "14- مسیر مقصد در مخزن سوم: $DEST"
+              echo "15- اندازه فایل: $(stat -c%s "$ENC") بایت"
+              echo "16- اجرای آپلود..."
+              if upload_with_retry "$ENC" "$DEST"; then
+                SUCCESS_UPLOADS=$((SUCCESS_UPLOADS + 1))
+              else
+                FAILED_UPLOADS=$((FAILED_UPLOADS + 1))
+              fi
+              echo ""
+            done
+          fi
+
+          # آپلود فایل‌های لاگ خطا
+          echo "17- جستجوی لاگ‌های خطا و آپلود:"
+          if [ -d errors ]; then
+            find errors -name "*.enc" -type f | while read ERR; do
+              echo "----------------------------------------"
+              echo "18- فایل لاگ خطا: $ERR"
+              DEST="backtest_results/logs/$(basename "$ERR")"
+              echo "19- مسیر مقصد: $DEST"
+              echo "20- آپلود..."
+              if upload_with_retry "$ERR" "$DEST"; then
+                SUCCESS_UPLOADS=$((SUCCESS_UPLOADS + 1))
+              else
+                FAILED_UPLOADS=$((FAILED_UPLOADS + 1))
+              fi
+              echo ""
+            done
+          fi
+
+          # جمع‌بندی نهایی
+          echo "=============================================="
+          echo "   📊 خلاصه آپلود"
+          echo "=============================================="
+          echo "21- تعداد آپلودهای موفق: $SUCCESS_UPLOADS"
+          echo "22- تعداد آپلودهای ناموفق: $FAILED_UPLOADS"
+          echo "23- تعداد skip شده: $SKIPPED_UPLOADS"
+          echo ""
+          if [ "$SUCCESS_UPLOADS" -eq 0 ] && [ "$FAILED_UPLOADS" -eq 0 ]; then
+            echo "24- ⚠️ هیچ فایلی به مخزن سوم اضافه نشد."
+          else
+            echo "24- ✅ انتقال فایل‌ها به مخزن سوم انجام شد."
+          fi
+          echo ""
+          echo "25- زمان پایان آپلود: $(date)"
+          echo ""
+          echo "=============================================="
+          echo "   پایان لاگ آپلود"
+          echo "=============================================="
+
+      # ------------------------------------------------------------
+      # 6. پاک‌سازی نتایج و خطاها از مخزن اصلی (نسخه مقاوم با flag)
+      # ------------------------------------------------------------
+      - name: 6. پاک‌سازی نتایج و خطاها از مخزن اصلی
+        run: |
+          if [ -d results ] || [ -d errors ] || [ -d logs ]; then
+            echo "🧹 حذف پوشه‌های results, errors, logs از مخزن اصلی..."
+            git config user.name "github-actions[bot]"
+            git config user.email "actions@github.com"
+            git checkout main || git checkout -b main origin/main
+            rm -rf results errors logs
+            git add -A .
+            git commit -m "clean up uploaded results, logs and errors" || true
+            RETRY=0; MAX=1000
+            PUSH_SUCCESS=false
+            while [ $RETRY -lt $MAX ]; do
+              git stash push --include-untracked --quiet 2>/dev/null || true
+              if git pull --rebase && git push; then
+                echo "✅ پاک‌سازی و push موفق بود."
+                git stash drop --quiet 2>/dev/null || true
+                PUSH_SUCCESS=true
+                break
+              else
+                git stash drop --quiet 2>/dev/null || true
+                RETRY=$((RETRY+1))
+                sleep $(( (RANDOM % 10) + 1 ))
+              fi
+            done
+            if [ "$PUSH_SUCCESS" = false ]; then
+              echo "❌ push پاک‌سازی بعد از $MAX تلاش ناموفق ماند"
+              exit 1
+            fi
+          else
+            echo "ℹ️ چیزی برای پاک‌سازی وجود ندارد."
+          fi
+
+      # ------------------------------------------------------------
+      # 7. انتخاب استراتژی بعدی با در نظر گرفتن چانک‌های نیمه‌تمام
+      # ------------------------------------------------------------
+      - name: 7. انتخاب استراتژی بعدی و ادامه چرخه
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 جستجوی استراتژی دارای چانک باقی‌مانده..."
+
+          PROGRESS_FILE="progress.json"
+          if [ ! -f "$PROGRESS_FILE" ]; then
+            echo "{}" > "$PROGRESS_FILE"
+          fi
+
+          # لیست استراتژی‌ها
+          STRATEGIES=$(find strategies -maxdepth 1 -name "*.js" -exec basename {} \; | sort)
+          if [ -z "$STRATEGIES" ]; then
+            echo "❌ هیچ استراتژی‌ای در پوشه strategies یافت نشد. چرخه متوقف می‌شود."
+            exit 0
+          fi
+
+          # تعداد کل فایل‌های CSV برای محاسبه تعداد کل چانک‌ها
+          TOTAL_CSV=$(find data/All_Coins_Combined -maxdepth 1 -name "*.csv" 2>/dev/null | wc -l)
+          if [ "$TOTAL_CSV" -eq 0 ]; then
+            echo "❌ داده‌ای یافت نشد. چرخه متوقف می‌شود."
+            exit 0
+          fi
+          CHUNK_SIZE=5
+          TOTAL_CHUNKS=$(( (TOTAL_CSV + CHUNK_SIZE - 1) / CHUNK_SIZE ))
+
+          SELECTED=""
+          for STRAT in $STRATEGIES; do
+            DONE_COUNT=$(jq -r --arg s "$STRAT" '.[$s] // [] | length' "$PROGRESS_FILE")
+            if [ "$DONE_COUNT" -lt "$TOTAL_CHUNKS" ]; then
+              SELECTED="$STRAT"
+              echo "✅ استراتژی $STRAT: $DONE_COUNT از $TOTAL_CHUNKS چانک انجام شده. انتخاب شد."
+              break
+            else
+              echo "ℹ️ استراتژی $STRAT کامل شده است ($DONE_COUNT از $TOTAL_CHUNKS)."
+            fi
+          done
+
+          if [ -z "$SELECTED" ]; then
+            echo "🎉 همهٔ استراتژی‌ها کامل شده‌اند. چرخه متوقف می‌شود."
+            exit 0
+          fi
+
+          echo "🚀 راه‌اندازی backtest.yml برای $SELECTED ..."
+          gh workflow run backtest.yml --ref main -f strategy_name="$SELECTED"
