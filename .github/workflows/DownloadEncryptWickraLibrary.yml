@@ -1,14 +1,14 @@
-name: Download, Encrypt and Store Wickra Library
+name: Encrypt and Store Wickra Library (Offline)
 
 on:
   workflow_dispatch:
     inputs:
-      library_name:
-        description: 'نام کتابخانه (پیش‌فرض: wickra)'
+      package_name:
+        description: 'نام پکیج (پیش‌فرض: wickra)'
         required: false
         default: 'wickra'
-      library_version:
-        description: 'نسخه کتابخانه (پیش‌فرض: latest)'
+      package_version:
+        description: 'نسخه (مثلاً latest یا 0.4.4)'
         required: false
         default: 'latest'
 
@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 jobs:
-  build-and-encrypt:
+  encrypt:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,38 +29,30 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Download library from npm
+      - name: Download package from npm
         run: |
-          LIB_NAME="${{ github.event.inputs.library_name }}"
-          LIB_VER="${{ github.event.inputs.library_version }}"
-          if [ "$LIB_VER" = "latest" ]; then
-            PKG="$LIB_NAME@latest"
+          PKG="${{ github.event.inputs.package_name }}"
+          VER="${{ github.event.inputs.package_version }}"
+          if [ "$VER" = "latest" ]; then
+            npm pack "$PKG@latest"
           else
-            PKG="$LIB_NAME@$LIB_VER"
+            npm pack "$PKG@$VER"
           fi
-          echo "📥 Downloading $PKG ..."
-          npm pack $PKG
-          # فایل tgz تولید شده را پیدا کنید
-          TGZ_FILE=$(ls *.tgz | head -1)
-          if [ -z "$TGZ_FILE" ]; then
-            echo "❌ فایل tgz ساخته نشد."
-            exit 1
-          fi
-          echo "✅ دانلود شد: $TGZ_FILE"
-          echo "TGZ_FILE=$TGZ_FILE" >> $GITHUB_ENV
+          echo "TGZ_FILE=$(ls *.tgz)" >> $GITHUB_ENV
 
-      - name: Encrypt the tgz file
+      - name: Encrypt the .tgz file (AES-256-CBC)
         env:
-          ENCRYPTION_PASSWORD: ${{ secrets.ENCRYPTION_PASSWORD }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_PASSWORD }}
         run: |
-          if [ -z "$ENCRYPTION_PASSWORD" ]; then
-            echo "❌ رمز عبور در secret ENCRYPTION_PASSWORD تنظیم نشده است."
+          if [ -z "$ENCRYPTION_KEY" ]; then
+            echo "❌ خطا: secret ENCRYPTION_PASSWORD تنظیم نشده است."
             exit 1
           fi
+          mkdir -p vendor
           node -e "
             const crypto = require('crypto');
             const fs = require('fs');
-            const pass = process.env.ENCRYPTION_PASSWORD;
+            const pass = process.env.ENCRYPTION_KEY;
             const tgzFile = process.env.TGZ_FILE;
             const data = fs.readFileSync(tgzFile);
             const key = crypto.scryptSync(pass, 'salt', 32);
@@ -68,14 +60,9 @@ jobs:
             const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
             const encrypted = Buffer.concat([cipher.update(data), cipher.final()]);
             const output = Buffer.concat([iv, encrypted]);
-            fs.writeFileSync('wickra.enc', output);
-            console.log('✅ فایل wickra.enc ساخته شد.');
+            fs.writeFileSync('vendor/wickra.enc', output);
+            console.log('✅ فایل vendor/wickra.enc ساخته شد.');
           "
-
-      - name: Move encrypted file to vendor directory
-        run: |
-          mkdir -p vendor
-          mv wickra.enc vendor/
 
       - name: Commit and push encrypted file
         run: |
@@ -83,16 +70,16 @@ jobs:
           git config user.email "actions@github.com"
           git add vendor/wickra.enc
           if git diff --cached --quiet; then
-            echo "ℹ️ هیچ تغییری برای commit وجود ندارد."
+            echo "ℹ️ فایل vendor/wickra.enc قبلاً وجود داشت و تغییری نکرده است."
           else
-            git commit -m "Add encrypted Wickra library (offline package)"
+            git commit -m "Add encrypted wickra package (offline)"
             git pull --rebase
             git push
             echo "✅ فایل رمزنگاری شده به مخزن اضافه شد."
           fi
 
-      - name: Optional: also store the original tgz as artifact (for backup)
+      - name: Upload original .tgz as artifact (optional)
         uses: actions/upload-artifact@v4
         with:
-          name: wickra-tgz
+          name: wickra-original-tgz
           path: ${{ env.TGZ_FILE }}
