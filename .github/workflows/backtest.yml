@@ -120,7 +120,7 @@ jobs:
             if [ -d "results" ]; then
               find results -type f ! -name "results.enc" \( -name "*.json" -o -name "*.tar.gz" \) -delete
               if find results -type f ! -name "results.enc" | grep -q .; then
-                git config user.name "github-actions[bot]" && git config.user.email "actions@github.com"
+                git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
                 git add results/ && git commit -m "cleanup results" || true
                 git pull --rebase && git push
               fi
@@ -147,7 +147,7 @@ jobs:
       - name: 6. ارسال پرچم به مخزن در صورت ایجاد
         if: steps.prep_2025.outputs.flag_created == 'true'
         run: |
-          git config user.name "github-actions[bot]" && git config.user.email "actions@github.com"
+          git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
           git pull --rebase
           git add encrypted_data/data_2025_2026_done.flag
           git commit -m "mark 2025/2026 prepared" || true
@@ -206,14 +206,12 @@ jobs:
       - name: 12. پاک کردن محتوای فایل‌های سورس (نگه داشتن فایل‌ها)
         if: steps.source_analysis.outputs.one_full == 'true' && steps.unlock.outputs.unlocked != 'true'
         run: |
-          git config user.name "github-actions[bot]" && git config.user.email "actions@github.com"
+          git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
           for f in encrypted_data/src/*.js encrypted_data/src/*.py; do [ -f "$f" ] && echo -n "" > "$f"; done
           rm -f encrypted_data/src/.unlocked.flag
           git add encrypted_data/src/ encrypted_data/src.enc
           git commit -m "wipe source files and update src.enc" || true
-          git stash --include-untracked 2>/dev/null || true
-          git pull --rebase && git stash pop 2>/dev/null || true
-          git push
+          git pull --rebase && git push
 
       - name: 13. رمزگشایی src.enc برای بکتست
         env:
@@ -453,37 +451,36 @@ jobs:
           done
       # ========== پایان جستجوی هوشمند ==========
 
+      - name: رمزگشایی و نصب Wickra (آفلاین)
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+        run: |
+          if [ -f "vendor/wickra.enc" ]; then
+            echo "🔓 در حال رمزگشایی vendor/wickra.enc ..."
+            node -e "
+              const crypto=require('crypto'),fs=require('fs');
+              const pass=process.env.RESULTS_PASSWORD;
+              const data=fs.readFileSync('vendor/wickra.enc');
+              const key=crypto.scryptSync(pass,'salt',32);
+              const iv=data.slice(0,16), enc=data.slice(16);
+              const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);
+              const dec=Buffer.concat([decipher.update(enc),decipher.final()]);
+              fs.writeFileSync('wickra.tgz',dec);
+            "
+            echo "📦 نصب wickra از فایل محلی ..."
+            cd encrypted_data/src
+            npm install ../../wickra.tgz --silent
+            cd ../..
+            rm -f wickra.tgz
+            echo "✅ Wickra با موفقیت نصب شد."
+          else
+            echo "⚠️ فایل vendor/wickra.enc یافت نشد. نصب Wickra رد شد."
+          fi
+
       - name: نصب papaparse
         run: |
           cd encrypted_data/src
           [ ! -d node_modules/papaparse ] && { npm init -y --silent 2>/dev/null || true; npm install papaparse --silent; }
-
-      # ========== اضافه شدن: رمزگشایی و نصب Wickra ==========
-      - name: Decrypt and install Wickra (offline)
-        env:
-          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
-        run: |
-          # رمزگشایی vendor/wickra.enc
-          node -e "
-            const crypto = require('crypto');
-            const fs = require('fs');
-            const pass = process.env.RESULTS_PASSWORD;
-            if (!pass) throw new Error('RESULTS_PASSWORD not set');
-            const encData = fs.readFileSync('vendor/wickra.enc');
-            const key = crypto.scryptSync(pass, 'salt', 32);
-            const iv = encData.subarray(0, 16);
-            const encrypted = encData.subarray(16);
-            const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-            const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
-            fs.writeFileSync('wickra.tgz', decrypted);
-            console.log('✅ wickra.tgz created');
-          "
-          # نصب در encrypted_data/src
-          cd encrypted_data/src
-          npm init -y --silent 2>/dev/null || true
-          npm install ../../wickra.tgz --silent
-          echo "✅ Wickra installed"
-      # ========== پایان بخش Wickra ==========
 
       - name: ساختن پوشه‌های results و logs
         run: mkdir -p results logs
@@ -525,19 +522,16 @@ jobs:
             # ====== اصلاح نهایی: اتصال قطعی به main ======
             git stash --include-untracked --quiet || true
             git fetch origin main && git checkout -B main origin/main
+            git stash pop --quiet || true
             git add -A results/
             git add logs/backtest-output-${{ matrix.chunk }}.log 2>/dev/null || true
             git commit -m "backtest ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
             RETRY=0; MAX=10000
             while [ $RETRY -lt $MAX ]; do
-              # ذخیره تغییرات ناخواسته قبل از pull
-              git stash push --include-untracked --quiet || true
               if git pull --rebase && git push; then
                 echo "✅ push موفق (تلاش $RETRY)"
-                git stash drop --quiet || true
                 break
               else
-                git stash drop --quiet || true
                 RETRY=$((RETRY+1))
                 sleep $(( (RANDOM % 10) + 1 ))
               fi
@@ -546,7 +540,6 @@ jobs:
               echo "❌ push ناموفق پس از $MAX تلاش"
               exit 1
             fi
-            git stash pop --quiet || true
           else
             echo "ℹ️ پوشه results خالی است یا وجود ندارد. هیچ کاری انجام نمی‌شود."
           fi
@@ -562,19 +555,16 @@ jobs:
           # ====== اصلاح نهایی: اتصال قطعی به main ======
           git stash --include-untracked --quiet || true
           git fetch origin main && git checkout -B main origin/main
+          git stash pop --quiet || true
           git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
           RETRY=0; MAX=10000
           while [ $RETRY -lt $MAX ]; do
             # پاکسازی conflictها قبل از هر تلاش
             git merge --abort 2>/dev/null || true
-            git reset --hard HEAD 2>/dev/null || true
-            git stash push --include-untracked --quiet || true
             if git pull --rebase && git push; then
-              git stash drop --quiet || true
               echo "✅ push progress موفق (تلاش $RETRY)"
               break
             else
-              git stash drop --quiet || true
               RETRY=$((RETRY+1))
               sleep $(( (RANDOM % 10) + 1 ))
             fi
@@ -583,7 +573,6 @@ jobs:
             echo "❌ push progress ناموفق پس از $MAX تلاش"
             exit 1
           fi
-          git stash pop --quiet || true
 
       - name: 8. ذخیره لاگ خطا با اثر انگشت (فقط در صورت شکست)
         if: failure()
