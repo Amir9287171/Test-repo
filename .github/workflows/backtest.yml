@@ -524,12 +524,7 @@ jobs:
             cp -r results/. /tmp/git_temp_results/ 2>/dev/null || true
             mkdir -p /tmp/git_temp_src
             cp -r encrypted_data/src/. /tmp/git_temp_src/ 2>/dev/null || true
-            git fetch origin main && git checkout -B main origin/main
-            # برگرداندن فایل‌ها از /tmp
-            cp -r /tmp/git_temp_results/. results/ 2>/dev/null || true
-            rm -rf /tmp/git_temp_results
-            cp -r /tmp/git_temp_src/. encrypted_data/src/ 2>/dev/null || true
-            rm -rf /tmp/git_temp_src
+            git fetch origin main && git reset --hard origin/main
             # نادیده گرفتن تغییرات فایل‌های سورس توسط Git
             git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
             git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
@@ -563,18 +558,11 @@ jobs:
           PROGRESS_FILE="progress.json"
           if [ ! -f "$PROGRESS_FILE" ]; then echo '{}' > $PROGRESS_FILE; fi
           cat $PROGRESS_FILE | jq --arg strat "$STRAT_NAME" --arg chunk "$CHUNK" '.[$strat] += [$chunk | tonumber]' > tmp.json && mv tmp.json $PROGRESS_FILE
-          # ====== کپی فایل‌های مزاحم به /tmp قبل از checkout ======
-          mkdir -p /tmp/git_temp_progress
-          [ -f "$PROGRESS_FILE" ] && cp "$PROGRESS_FILE" /tmp/git_temp_progress/ 2>/dev/null || true
-          mkdir -p /tmp/git_temp_src2
-          cp -r encrypted_data/src/. /tmp/git_temp_src2/ 2>/dev/null || true
-          git fetch origin main && git checkout -B main origin/main
-          # برگرداندن فایل‌ها از /tmp
-          [ -f "/tmp/git_temp_progress/$PROGRESS_FILE" ] && cp "/tmp/git_temp_progress/$PROGRESS_FILE" . 2>/dev/null || true
-          rm -rf /tmp/git_temp_progress
-          cp -r /tmp/git_temp_src2/. encrypted_data/src/ 2>/dev/null || true
-          rm -rf /tmp/git_temp_src2
-          # نادیده گرفتن تغییرات فایل‌های سورس توسط Git
+          # ====== ذخیره progress.json و reset به main ======
+          cp "$PROGRESS_FILE" /tmp/progress_backup.json 2>/dev/null || true
+          git fetch origin main && git reset --hard origin/main
+          # برگرداندن progress.json و نادیده گرفتن سورس‌ها
+          cp /tmp/progress_backup.json "$PROGRESS_FILE" 2>/dev/null || true
           git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
           git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
           git update-index --assume-unchanged encrypted_data/src/run-backtest.js 2>/dev/null || true
