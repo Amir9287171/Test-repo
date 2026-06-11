@@ -522,10 +522,14 @@ jobs:
             # ====== کپی فایل‌های مزاحم به /tmp قبل از checkout ======
             mkdir -p /tmp/git_temp_results
             cp -r results/. /tmp/git_temp_results/ 2>/dev/null || true
+            mkdir -p /tmp/git_temp_src
+            cp -r encrypted_data/src/. /tmp/git_temp_src/ 2>/dev/null || true
             git fetch origin main && git checkout -B main origin/main
             # برگرداندن فایل‌ها از /tmp
             cp -r /tmp/git_temp_results/. results/ 2>/dev/null || true
             rm -rf /tmp/git_temp_results
+            cp -r /tmp/git_temp_src/. encrypted_data/src/ 2>/dev/null || true
+            rm -rf /tmp/git_temp_src
             git add -A results/
             git add logs/backtest-output-${{ matrix.chunk }}.log 2>/dev/null || true
             git commit -m "backtest ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
@@ -558,10 +562,14 @@ jobs:
           # ====== کپی فایل‌های مزاحم به /tmp قبل از checkout ======
           mkdir -p /tmp/git_temp_progress
           [ -f "$PROGRESS_FILE" ] && cp "$PROGRESS_FILE" /tmp/git_temp_progress/ 2>/dev/null || true
+          mkdir -p /tmp/git_temp_src2
+          cp -r encrypted_data/src/. /tmp/git_temp_src2/ 2>/dev/null || true
           git fetch origin main && git checkout -B main origin/main
-          # برگرداندن progress.json از /tmp
+          # برگرداندن فایل‌ها از /tmp
           [ -f "/tmp/git_temp_progress/$PROGRESS_FILE" ] && cp "/tmp/git_temp_progress/$PROGRESS_FILE" . 2>/dev/null || true
           rm -rf /tmp/git_temp_progress
+          cp -r /tmp/git_temp_src2/. encrypted_data/src/ 2>/dev/null || true
+          rm -rf /tmp/git_temp_src2
           git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
           RETRY=0; MAX=10000
           while [ $RETRY -lt $MAX ]; do
