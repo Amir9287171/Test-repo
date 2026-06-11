@@ -528,6 +528,7 @@ jobs:
             git commit -m "backtest ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
             RETRY=0; MAX=10000
             while [ $RETRY -lt $MAX ]; do
+              git add -A || true
               if git pull --rebase && git push; then
                 echo "✅ push موفق (تلاش $RETRY)"
                 break
@@ -559,8 +560,8 @@ jobs:
           git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
           RETRY=0; MAX=10000
           while [ $RETRY -lt $MAX ]; do
-            # پاکسازی conflictها قبل از هر تلاش
             git merge --abort 2>/dev/null || true
+            git add -A || true
             if git pull --rebase && git push; then
               echo "✅ push progress موفق (تلاش $RETRY)"
               break
