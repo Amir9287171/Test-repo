@@ -569,8 +569,15 @@ jobs:
           git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
           RETRY=0; MAX=10000
           while [ $RETRY -lt $MAX ]; do
+            git rebase --abort 2>/dev/null || true
             git merge --abort 2>/dev/null || true
-            if git pull --rebase && git push; then
+            git fetch origin main && git reset --hard origin/main
+            cp /tmp/progress_backup.json "$PROGRESS_FILE" 2>/dev/null || true
+            git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
+            git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
+            git update-index --assume-unchanged encrypted_data/src/run-backtest.js 2>/dev/null || true
+            git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
+            if git push; then
               echo "✅ push progress موفق (تلاش $RETRY)"
               break
             else
