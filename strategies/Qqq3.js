@@ -16,17 +16,21 @@ const ANALYSIS_CONFIG = {
     }
 };
 
-function customStrategy(data, index, breakPointsParam, ichimokuParam) {
-    // 🔧 رفع خطای sharpTrendsParam
-    var sharpTrendsParam = sharpTrendsParam || [];
-
-    const trendLines = getTrendLines();
+function customStrategy(data, index, breakPointsParam, ichimokuParam, sharpTrendsParam) {
+    // 🔧 رفع خطا: اگر sharpTrendsParam ارسال نشد، از آرایه خالی استفاده کن
+    sharpTrendsParam = sharpTrendsParam || [];
+    
+    // 🔧 رفع خطای window: استفاده از globalThis (کار در Node.js و مرورگر)
+    const globalAny = typeof globalThis !== 'undefined' ? globalThis : 
+                     (typeof window !== 'undefined' ? window : 
+                     (typeof global !== 'undefined' ? global : {}));
+    const divergenceSignals = globalAny.divergenceSignals || [];
+    
+    const trendLines = getTrendLines();  // فرض می‌کنیم getTrendLines در جای دیگر تعریف شده
     const downTrendLines = trendLines.primaryDown || [];
     if (downTrendLines.length === 0) return null;
 
     const hasIchimoku = ichimokuParam && typeof ichimokuParam === 'object';
-    const divergenceSignals = window?.divergenceSignals || [];
-
     const minDistance = 0.09;
     const maxDistance = 0.15;
     let bestSignal = null;
