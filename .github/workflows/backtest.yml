@@ -519,16 +519,18 @@ jobs:
           if [ -n "$(ls -A results 2>/dev/null)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "actions@github.com"
-            # ====== اصلاح نهایی: اتصال قطعی به main ======
-            git stash --include-untracked --quiet || true
+            # ====== کپی فایل‌های مزاحم به /tmp قبل از checkout ======
+            mkdir -p /tmp/git_temp_results
+            cp -r results/. /tmp/git_temp_results/ 2>/dev/null || true
             git fetch origin main && git checkout -B main origin/main
-            git stash pop --quiet || true
+            # برگرداندن فایل‌ها از /tmp
+            cp -r /tmp/git_temp_results/. results/ 2>/dev/null || true
+            rm -rf /tmp/git_temp_results
             git add -A results/
             git add logs/backtest-output-${{ matrix.chunk }}.log 2>/dev/null || true
             git commit -m "backtest ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
             RETRY=0; MAX=10000
             while [ $RETRY -lt $MAX ]; do
-              git add -A || true
               if git pull --rebase && git push; then
                 echo "✅ push موفق (تلاش $RETRY)"
                 break
@@ -553,15 +555,17 @@ jobs:
           PROGRESS_FILE="progress.json"
           if [ ! -f "$PROGRESS_FILE" ]; then echo '{}' > $PROGRESS_FILE; fi
           cat $PROGRESS_FILE | jq --arg strat "$STRAT_NAME" --arg chunk "$CHUNK" '.[$strat] += [$chunk | tonumber]' > tmp.json && mv tmp.json $PROGRESS_FILE
-          # ====== اصلاح نهایی: اتصال قطعی به main ======
-          git stash --include-untracked --quiet || true
+          # ====== کپی فایل‌های مزاحم به /tmp قبل از checkout ======
+          mkdir -p /tmp/git_temp_progress
+          [ -f "$PROGRESS_FILE" ] && cp "$PROGRESS_FILE" /tmp/git_temp_progress/ 2>/dev/null || true
           git fetch origin main && git checkout -B main origin/main
-          git stash pop --quiet || true
+          # برگرداندن progress.json از /tmp
+          [ -f "/tmp/git_temp_progress/$PROGRESS_FILE" ] && cp "/tmp/git_temp_progress/$PROGRESS_FILE" . 2>/dev/null || true
+          rm -rf /tmp/git_temp_progress
           git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
           RETRY=0; MAX=10000
           while [ $RETRY -lt $MAX ]; do
             git merge --abort 2>/dev/null || true
-            git add -A || true
             if git pull --rebase && git push; then
               echo "✅ push progress موفق (تلاش $RETRY)"
               break
