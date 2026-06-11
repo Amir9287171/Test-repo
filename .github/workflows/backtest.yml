@@ -521,7 +521,7 @@ jobs:
           mkdir -p results
           if [ -n "$(ls -A results 2>/dev/null)" ]; then
             git config user.name "github-actions[bot]"
-            git config.user.email "actions@github.com"
+            git config user.email "actions@github.com"
             # ====== اصلاح نهایی: اتصال قطعی به main ======
             git stash --include-untracked --quiet || true
             git fetch origin main && git checkout -B main origin/main
