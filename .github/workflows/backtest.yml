@@ -530,6 +530,10 @@ jobs:
             rm -rf /tmp/git_temp_results
             cp -r /tmp/git_temp_src/. encrypted_data/src/ 2>/dev/null || true
             rm -rf /tmp/git_temp_src
+            # نادیده گرفتن تغییرات فایل‌های سورس توسط Git
+            git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
+            git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
+            git update-index --assume-unchanged encrypted_data/src/run-backtest.js 2>/dev/null || true
             git add -A results/
             git add logs/backtest-output-${{ matrix.chunk }}.log 2>/dev/null || true
             git commit -m "backtest ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
@@ -570,6 +574,10 @@ jobs:
           rm -rf /tmp/git_temp_progress
           cp -r /tmp/git_temp_src2/. encrypted_data/src/ 2>/dev/null || true
           rm -rf /tmp/git_temp_src2
+          # نادیده گرفتن تغییرات فایل‌های سورس توسط Git
+          git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
+          git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
+          git update-index --assume-unchanged encrypted_data/src/run-backtest.js 2>/dev/null || true
           git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
           RETRY=0; MAX=10000
           while [ $RETRY -lt $MAX ]; do
