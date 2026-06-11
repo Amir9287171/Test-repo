@@ -76,8 +76,9 @@ jobs:
             const output = Buffer.concat([iv, encrypted]);
             fs.writeFileSync('src.enc', output);
           "
-          mv src.enc encrypted_data/src.enc
+          # فایل src.enc در پوشه encrypted_data/ قرار گرفته، نیازی به جابجایی نیست
           rm src.tar.gz
+          echo "✅ Re-encrypted src.enc saved in encrypted_data/"
 
       - name: Commit and push changes
         run: |
