@@ -1,0 +1,89 @@
+name: Decrypt First 10 Results and Commit to Repo
+
+on:
+  workflow_dispatch:  # اجرای دستی
+
+permissions:
+  contents: write
+
+jobs:
+  decrypt-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Decrypt and extract first 10 .enc files into repo folder
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD }}  # رمزی که با آن رمزگذاری شده
+        run: |
+          SOURCE_DIR="Test-repo/results/Ttt3"
+          OUTPUT_DIR="decrypted_results/Ttt3"
+          mkdir -p "$OUTPUT_DIR"
+
+          # پیدا کردن فایل‌های results.enc (حداکثر ۱۰ عدد)
+          mapfile -t FILES < <(find "$SOURCE_DIR" -name "results.enc" -type f | head -10)
+
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "❌ هیچ فایل results.enc در $SOURCE_DIR یافت نشد."
+            exit 1
+          fi
+
+          echo "✅ ${#FILES[@]} فایل برای رمزگشایی یافت شد."
+
+          for ENC in "${FILES[@]}"; do
+            echo "🔓 پردازش: $ENC"
+            # مسیر نسبی نسبت به SOURCE_DIR
+            REL_PATH="${ENC#$SOURCE_DIR/}"
+            DIR_NAME="$(dirname "$REL_PATH")"
+            mkdir -p "$OUTPUT_DIR/$DIR_NAME"
+
+            # رمزگشایی و استخراج با Node.js
+            node -e "
+              const crypto = require('crypto');
+              const fs = require('fs');
+              const path = require('path');
+              const { execSync } = require('child_process');
+              const pass = process.env.RESULTS_PASSWORD;
+              if (!pass) { console.error('رمز عبور تنظیم نشده'); process.exit(1); }
+              const encData = fs.readFileSync('$ENC');
+              const key = crypto.scryptSync(pass, 'salt', 32);
+              const iv = encData.subarray(0, 16);
+              const encrypted = encData.subarray(16);
+              const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+              let decrypted;
+              try {
+                decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+              } catch (e) {
+                console.error('خطا در رمزگشایی:', e.message);
+                process.exit(1);
+              }
+              const tarPath = path.join('$OUTPUT_DIR', '$DIR_NAME', 'temp.tar.gz');
+              fs.writeFileSync(tarPath, decrypted);
+              // استخراج در همان مسیر
+              execSync('tar -xzf \"' + tarPath + '\" -C \"$OUTPUT_DIR/$DIR_NAME\"');
+              fs.unlinkSync(tarPath);
+              console.log('✅ استخراج شد: $OUTPUT_DIR/$DIR_NAME');
+            "
+          done
+
+      - name: Commit and push decrypted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add decrypted_results/
+          if git diff --cached --quiet; then
+            echo "ℹ️ هیچ تغییر جدیدی برای commit وجود ندارد."
+          else
+            git commit -m "Add decrypted results (first 10 files from Test-repo/results/Ttt3)"
+            git pull --rebase
+            git push
+            echo "✅ تغییرات به مخزن push شد."
+          fi
