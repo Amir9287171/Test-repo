@@ -1,0 +1,93 @@
+name: Add Wickra global to backtest-core.js
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  add-lines:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Decrypt source files
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const pass = process.env.CODE_PASSWORD;
+            if (!pass) throw new Error('CODE_PASSWORD not set');
+            const encData = fs.readFileSync('encrypted_data/src.enc');
+            const key = crypto.scryptSync(pass, 'salt', 32);
+            const iv = encData.subarray(0, 16);
+            const encrypted = encData.subarray(16);
+            const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+            const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+            fs.writeFileSync('src.tar.gz', decrypted);
+            const { execSync } = require('child_process');
+            execSync('tar -xzf src.tar.gz -C encrypted_data/src');
+            fs.unlinkSync('src.tar.gz');
+          "
+
+      - name: Add two lines to backtest-core.js (if not already present)
+        run: |
+          TARGET="encrypted_data/src/backtest-core.js"
+          if grep -q "const wickra = require('wickra');" "$TARGET" && grep -q "global.__wickra = wickra;" "$TARGET"; then
+            echo "✅ Lines already present. Skipping."
+            exit 0
+          fi
+          # Add lines at the top (preserving any shebang or 'use strict')
+          {
+            echo "const wickra = require('wickra');"
+            echo "global.__wickra = wickra;"
+            echo ""
+            cat "$TARGET"
+          } > "$TARGET.tmp"
+          mv "$TARGET.tmp" "$TARGET"
+          echo "✅ Lines added to $TARGET"
+
+      - name: Re-encrypt source files
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          cd encrypted_data/src
+          tar -czf ../src.tar.gz .
+          cd ..
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const pass = process.env.CODE_PASSWORD;
+            const data = fs.readFileSync('src.tar.gz');
+            const key = crypto.scryptSync(pass, 'salt', 32);
+            const iv = crypto.randomBytes(16);
+            const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+            const encrypted = Buffer.concat([cipher.update(data), cipher.final()]);
+            const output = Buffer.concat([iv, encrypted]);
+            fs.writeFileSync('src.enc', output);
+          "
+          mv src.enc encrypted_data/src.enc
+          rm src.tar.gz
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add encrypted_data/src.enc
+          if git diff --cached --quiet; then
+            echo "ℹ️ No changes to commit."
+          else
+            git commit -m "Add wickra global lines to backtest-core.js"
+            git push
+            echo "✅ Changes pushed."
+          fi
