@@ -8,7 +8,7 @@ on:
         required: false
         default: 'wickra'
       package_version:
-        description: 'نسخه (مثلاً latest یا 0.4.4)'
+        description: 'نسخه (پیش‌فرض: latest)'
         required: false
         default: 'latest'
 
@@ -19,17 +19,15 @@ jobs:
   encrypt:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Download package from npm
+      - name: Download package
         run: |
           PKG="${{ github.event.inputs.package_name }}"
           VER="${{ github.event.inputs.package_version }}"
@@ -40,46 +38,30 @@ jobs:
           fi
           echo "TGZ_FILE=$(ls *.tgz)" >> $GITHUB_ENV
 
-      - name: Encrypt the .tgz file (AES-256-CBC)
+      - name: Encrypt with RESULTS_PASSWORD
         env:
-          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_PASSWORD }}
+          PASS: ${{ secrets.RESULTS_PASSWORD }}
         run: |
-          if [ -z "$ENCRYPTION_KEY" ]; then
-            echo "❌ خطا: secret ENCRYPTION_PASSWORD تنظیم نشده است."
+          if [ -z "$PASS" ]; then
+            echo "❌ RESULTS_PASSWORD تنظیم نشده"
             exit 1
           fi
           mkdir -p vendor
           node -e "
-            const crypto = require('crypto');
-            const fs = require('fs');
-            const pass = process.env.ENCRYPTION_KEY;
-            const tgzFile = process.env.TGZ_FILE;
-            const data = fs.readFileSync(tgzFile);
-            const key = crypto.scryptSync(pass, 'salt', 32);
-            const iv = crypto.randomBytes(16);
-            const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-            const encrypted = Buffer.concat([cipher.update(data), cipher.final()]);
-            const output = Buffer.concat([iv, encrypted]);
-            fs.writeFileSync('vendor/wickra.enc', output);
-            console.log('✅ فایل vendor/wickra.enc ساخته شد.');
+            const c=require('crypto'),f=require('fs'),p=process.env.PASS;
+            const tgz=process.env.TGZ_FILE;
+            const data=f.readFileSync(tgz);
+            const key=c.scryptSync(p,'salt',32);
+            const iv=c.randomBytes(16);
+            const cipher=c.createCipheriv('aes-256-cbc',key,iv);
+            const enc=Buffer.concat([cipher.update(data),cipher.final()]);
+            f.writeFileSync('vendor/wickra.enc',Buffer.concat([iv,enc]));
           "
 
-      - name: Commit and push encrypted file
+      - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
           git add vendor/wickra.enc
-          if git diff --cached --quiet; then
-            echo "ℹ️ فایل vendor/wickra.enc قبلاً وجود داشت و تغییری نکرده است."
-          else
-            git commit -m "Add encrypted wickra package (offline)"
-            git pull --rebase
-            git push
-            echo "✅ فایل رمزنگاری شده به مخزن اضافه شد."
-          fi
-
-      - name: Upload original .tgz as artifact (optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: wickra-original-tgz
-          path: ${{ env.TGZ_FILE }}
+          git commit -m "Add encrypted wickra (using RESULTS_PASSWORD)" || true
+          git push
