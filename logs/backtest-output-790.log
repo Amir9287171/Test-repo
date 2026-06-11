@@ -1,0 +1,3 @@
+✅ نسخه نهایی – بدون مقادیر پیش‌فرض
+[2026-06-11T16:56:22.273Z] [INFO] شروع run-backtest.js با آرگومان‌ها: strategyFile=strategies/Fff3.js, startIndex=790, dataDir=data/All_Coins_Combined
+[2026-06-11T16:56:22.273Z] [ERROR] فایل استراتژی وجود ندارد.
