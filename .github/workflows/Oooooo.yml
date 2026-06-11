@@ -47,7 +47,6 @@ jobs:
             echo "✅ Lines already present. Skipping."
             exit 0
           fi
-          # Add lines at the top (preserving any shebang or 'use strict')
           {
             echo "const wickra = require('wickra');"
             echo "global.__wickra = wickra;"
@@ -76,19 +75,20 @@ jobs:
             const output = Buffer.concat([iv, encrypted]);
             fs.writeFileSync('src.enc', output);
           "
-          # فایل src.enc در پوشه encrypted_data/ قرار گرفته، نیازی به جابجایی نیست
           rm src.tar.gz
           echo "✅ Re-encrypted src.enc saved in encrypted_data/"
 
-      - name: Commit and push changes
+      - name: Commit and push changes (with pull --rebase --autostash)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
           git add encrypted_data/src.enc
           if git diff --cached --quiet; then
             echo "ℹ️ No changes to commit."
-          else
-            git commit -m "Add wickra global lines to backtest-core.js"
-            git push
-            echo "✅ Changes pushed."
+            exit 0
           fi
+          git commit -m "Add wickra global lines to backtest-core.js"
+          # Pull latest changes with automatic stash handling
+          git pull --rebase --autostash origin main
+          git push origin main
+          echo "✅ Changes pushed."
