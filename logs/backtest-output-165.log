@@ -1,9 +1,9 @@
 ✅ نسخه نهایی – بدون مقادیر پیش‌فرض
-[2026-06-11T16:11:42.361Z] [INFO] شروع run-backtest.js با آرگومان‌ها: strategyFile=strategies/Kkkk3.js, startIndex=165, dataDir=data/All_Coins_Combined
-[2026-06-11T16:11:42.361Z] [INFO] استراتژی Kkkk3 با طول 4937 کاراکتر خوانده شد.
+[2026-06-11T16:16:01.051Z] [INFO] شروع run-backtest.js با آرگومان‌ها: strategyFile=strategies/Kkkk3.js, startIndex=165, dataDir=data/All_Coins_Combined
+[2026-06-11T16:16:01.052Z] [INFO] استراتژی Kkkk3 با طول 4937 کاراکتر خوانده شد.
 [DIVERGENCE] 📦 ماژول در module.exports (Node.js) بارگذاری شد. (پشتیبانی از RSI و MACD)
-[2026-06-11T16:11:42.364Z] [INFO] در حال استخراج ANALYSIS_CONFIG از استراتژی...
-[2026-06-11T16:11:42.364Z] [INFO] ✅ ANALYSIS_CONFIG با موفقیت بارگذاری شد:
+[2026-06-11T16:16:01.054Z] [INFO] در حال استخراج ANALYSIS_CONFIG از استراتژی...
+[2026-06-11T16:16:01.055Z] [INFO] ✅ ANALYSIS_CONFIG با موفقیت بارگذاری شد:
 {
   "trendLines": {
     "pivotPeriod": 5,
@@ -21,13 +21,13 @@
     "senkouBPeriod": 57
   }
 }
-[2026-06-11T16:11:42.364Z] [INFO] نیازمندی‌ها: trendLines=true, ichimoku=true
-[2026-06-11T16:11:42.375Z] [INFO] فایل انتخاب‌شده: BTCUSDT-5m-2019-08-21_2019-08-31.csv
-[2026-06-11T16:11:42.398Z] [INFO] فایل BTCUSDT-5m-2019-08-21_2019-08-31.csv با 3168 کندل بارگذاری شد.
-[2026-06-11T16:11:42.398Z] [INFO] شروع فاز تحلیل و بک‌تست...
-[2026-06-11T16:11:42.398Z] [INFO] 🟡 در حال تشخیص خطوط روند...
-[2026-06-11T16:11:44.092Z] [INFO] ✅ 185 خط روند یافت شد.
-[2026-06-11T16:11:44.092Z] [INFO] 🟡 در حال تشخیص واگرایی (RSI و MACD)...
+[2026-06-11T16:16:01.055Z] [INFO] نیازمندی‌ها: trendLines=true, ichimoku=true
+[2026-06-11T16:16:01.066Z] [INFO] فایل انتخاب‌شده: BTCUSDT-5m-2019-08-21_2019-08-31.csv
+[2026-06-11T16:16:01.089Z] [INFO] فایل BTCUSDT-5m-2019-08-21_2019-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-06-11T16:16:01.089Z] [INFO] شروع فاز تحلیل و بک‌تست...
+[2026-06-11T16:16:01.089Z] [INFO] 🟡 در حال تشخیص خطوط روند...
+[2026-06-11T16:16:02.663Z] [INFO] ✅ 185 خط روند یافت شد.
+[2026-06-11T16:16:02.663Z] [INFO] 🟡 در حال تشخیص واگرایی (RSI و MACD)...
 [DIVERGENCE] 📬 درخواست اجرای واگرایی دریافت شد.
 [DIVERGENCE] 📋 پارامترها: { dataLength: 3168, indicator: 'RSI' }
 [DIVERGENCE] 🧮 [RSI] شروع محاسبه برای 3168 کندل با دوره 14
@@ -2485,10 +2485,10 @@
    شیب قیمت: 5.075000 | شیب اندیکاتور: 0.329069
 [DIVERGENCE] 🏁 [MACD] تشخیص واگرایی به پایان رسید. 16 سیگنال یافت شد.
 [DIVERGENCE] ✅ عملیات موفق. ارسال 16 سیگنال و داده‌های اندیکاتور به Main Thread.
-[2026-06-11T16:11:44.153Z] [INFO] ✅ 50 سیگنال واگرایی یافت شد.
-[2026-06-11T16:11:44.157Z] [INFO] 256 روند شارپ تشخیص داده شد.
-[2026-06-11T16:11:44.157Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"useCloudFilter":true,"useTKCross":true,"useChikou":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57}
-[2026-06-11T16:11:44.157Z] [INFO] 🚀 فراخوانی runBacktest...
+[2026-06-11T16:16:02.731Z] [INFO] ✅ 50 سیگنال واگرایی یافت شد.
+[2026-06-11T16:16:02.735Z] [INFO] 256 روند شارپ تشخیص داده شد.
+[2026-06-11T16:16:02.735Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"useCloudFilter":true,"useTKCross":true,"useChikou":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57}
+[2026-06-11T16:16:02.735Z] [INFO] 🚀 فراخوانی runBacktest...
 🚀 ===== شروع بکتست =====
 📊 پارامترها: سرمایه اولیه: 10000, ریسک هر معامله: 2%, کارمزد: 0.05%
 📈 تعداد کندل‌ها: 3168
@@ -30815,3 +30815,252 @@ Error executing strategy at index 3144 : ReferenceError: window is not defined
     at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
 🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3145 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3146 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3147 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3148 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3149 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3150 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3151 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3152 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3153 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3154 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3155 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3156 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3157 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3158 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3159 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3160 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3161 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3162 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3163 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3164 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3165 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3166 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+🔵 [WORKER] نقاط شکست دریافت شد: 0 کندل
+Error executing strategy at index 3167 : ReferenceError: window is not defined
+    at customStrategy (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:233:31)
+    at eval (eval at <anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1486:40), <anonymous>:331:19)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1700:36
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:833:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:296:39
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚡ آمار شکست خطوط روند:
+├─ تعداد کل خطوط: 185
+├─ تعداد شکسته شده: 185
+└─ درصد شکست: 100.00%
+
+🔄 آمار سیستم ادامه‌دهی:
+├─ معاملات ادامه‌یافته: 0
+├─ معاملات اجباری: 0
+├─ معاملات Gap: 0
+└─ صرفه‌جویی در بسته شدن: ❌
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ بیشترین ضرر متوالی: 0 معامله
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-06-11T16:16:16.239Z] [INFO] بک‌تست پایان یافت. تعداد معاملات: 0
+[2026-06-11T16:16:16.239Z] [INFO] سرمایه نهایی: 10000.00
+[2026-06-11T16:16:16.248Z] [INFO] گزارش detailed_results.json ذخیره شد.
+[2026-06-11T16:16:16.248Z] [INFO] گزارش trades_summary.json ذخیره شد.
+[2026-06-11T16:16:16.295Z] [INFO] ✅ results.enc ذخیره شد.
