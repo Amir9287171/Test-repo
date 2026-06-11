@@ -458,6 +458,33 @@ jobs:
           cd encrypted_data/src
           [ ! -d node_modules/papaparse ] && { npm init -y --silent 2>/dev/null || true; npm install papaparse --silent; }
 
+      # ========== اضافه شدن: رمزگشایی و نصب Wickra ==========
+      - name: Decrypt and install Wickra (offline)
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+        run: |
+          # رمزگشایی vendor/wickra.enc
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const pass = process.env.RESULTS_PASSWORD;
+            if (!pass) throw new Error('RESULTS_PASSWORD not set');
+            const encData = fs.readFileSync('vendor/wickra.enc');
+            const key = crypto.scryptSync(pass, 'salt', 32);
+            const iv = encData.subarray(0, 16);
+            const encrypted = encData.subarray(16);
+            const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+            const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+            fs.writeFileSync('wickra.tgz', decrypted);
+            console.log('✅ wickra.tgz created');
+          "
+          # نصب در encrypted_data/src
+          cd encrypted_data/src
+          npm init -y --silent 2>/dev/null || true
+          npm install ../../wickra.tgz --silent
+          echo "✅ Wickra installed"
+      # ========== پایان بخش Wickra ==========
+
       - name: ساختن پوشه‌های results و logs
         run: mkdir -p results logs
 
@@ -496,6 +523,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "actions@github.com"
             # ====== اصلاح نهایی: اتصال قطعی به main ======
+            git stash --include-untracked --quiet || true
             git fetch origin main && git checkout -B main origin/main
             git add -A results/
             git add logs/backtest-output-${{ matrix.chunk }}.log 2>/dev/null || true
@@ -518,6 +546,7 @@ jobs:
               echo "❌ push ناموفق پس از $MAX تلاش"
               exit 1
             fi
+            git stash pop --quiet || true
           else
             echo "ℹ️ پوشه results خالی است یا وجود ندارد. هیچ کاری انجام نمی‌شود."
           fi
@@ -531,6 +560,7 @@ jobs:
           if [ ! -f "$PROGRESS_FILE" ]; then echo '{}' > $PROGRESS_FILE; fi
           cat $PROGRESS_FILE | jq --arg strat "$STRAT_NAME" --arg chunk "$CHUNK" '.[$strat] += [$chunk | tonumber]' > tmp.json && mv tmp.json $PROGRESS_FILE
           # ====== اصلاح نهایی: اتصال قطعی به main ======
+          git stash --include-untracked --quiet || true
           git fetch origin main && git checkout -B main origin/main
           git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
           RETRY=0; MAX=10000
@@ -553,6 +583,7 @@ jobs:
             echo "❌ push progress ناموفق پس از $MAX تلاش"
             exit 1
           fi
+          git stash pop --quiet || true
 
       - name: 8. ذخیره لاگ خطا با اثر انگشت (فقط در صورت شکست)
         if: failure()
