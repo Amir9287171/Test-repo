@@ -1,7 +1,7 @@
 name: Decrypt First 10 Results and Commit to Repo
 
 on:
-  workflow_dispatch:  # اجرای دستی
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -10,42 +10,46 @@ jobs:
   decrypt-and-commit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Decrypt and extract first 10 .enc files into repo folder
+      - name: Decrypt and extract first 10 results.enc
         env:
-          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD }}  # رمزی که با آن رمزگذاری شده
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD }}
         run: |
-          SOURCE_DIR="Test-repo/results/Ttt3"
-          OUTPUT_DIR="decrypted_results/Ttt3"
-          mkdir -p "$OUTPUT_DIR"
+          BASE_DIR="Test-repo/results/Ttt3"
+          OUTPUT_BASE="decrypted_results/Ttt3"
+          mkdir -p "$OUTPUT_BASE"
 
-          # پیدا کردن فایل‌های results.enc (حداکثر ۱۰ عدد)
-          mapfile -t FILES < <(find "$SOURCE_DIR" -name "results.enc" -type f | head -10)
+          # پیدا کردن زیرپوشه‌های داخل BASE_DIR (حداکثر ۱۰ عدد)
+          mapfile -t SUBDIRS < <(find "$BASE_DIR" -mindepth 1 -maxdepth 1 -type d | head -10)
 
-          if [ ${#FILES[@]} -eq 0 ]; then
-            echo "❌ هیچ فایل results.enc در $SOURCE_DIR یافت نشد."
+          if [ ${#SUBDIRS[@]} -eq 0 ]; then
+            echo "❌ هیچ زیرپوشه‌ای در $BASE_DIR یافت نشد."
             exit 1
           fi
 
-          echo "✅ ${#FILES[@]} فایل برای رمزگشایی یافت شد."
+          echo "✅ ${#SUBDIRS[@]} زیرپوشه برای بررسی یافت شد."
 
-          for ENC in "${FILES[@]}"; do
-            echo "🔓 پردازش: $ENC"
-            # مسیر نسبی نسبت به SOURCE_DIR
-            REL_PATH="${ENC#$SOURCE_DIR/}"
-            DIR_NAME="$(dirname "$REL_PATH")"
-            mkdir -p "$OUTPUT_DIR/$DIR_NAME"
+          for SUBDIR in "${SUBDIRS[@]}"; do
+            ENC_FILE="$SUBDIR/results.enc"
+            if [ ! -f "$ENC_FILE" ]; then
+              echo "⚠️ فایل results.enc در $SUBDIR وجود ندارد، رد می‌شود."
+              continue
+            fi
 
-            # رمزگشایی و استخراج با Node.js
+            # نام نسبی زیرپوشه (مثلاً BTCUSDT-5m-2018-02-21_2018-02-28.csv)
+            REL_SUBDIR=$(basename "$SUBDIR")
+            OUTPUT_DIR="$OUTPUT_BASE/$REL_SUBDIR"
+            mkdir -p "$OUTPUT_DIR"
+
+            echo "🔓 رمزگشایی: $ENC_FILE -> $OUTPUT_DIR"
+
             node -e "
               const crypto = require('crypto');
               const fs = require('fs');
@@ -53,7 +57,7 @@ jobs:
               const { execSync } = require('child_process');
               const pass = process.env.RESULTS_PASSWORD;
               if (!pass) { console.error('رمز عبور تنظیم نشده'); process.exit(1); }
-              const encData = fs.readFileSync('$ENC');
+              const encData = fs.readFileSync('$ENC_FILE');
               const key = crypto.scryptSync(pass, 'salt', 32);
               const iv = encData.subarray(0, 16);
               const encrypted = encData.subarray(16);
@@ -65,12 +69,11 @@ jobs:
                 console.error('خطا در رمزگشایی:', e.message);
                 process.exit(1);
               }
-              const tarPath = path.join('$OUTPUT_DIR', '$DIR_NAME', 'temp.tar.gz');
+              const tarPath = path.join('$OUTPUT_DIR', 'temp.tar.gz');
               fs.writeFileSync(tarPath, decrypted);
-              // استخراج در همان مسیر
-              execSync('tar -xzf \"' + tarPath + '\" -C \"$OUTPUT_DIR/$DIR_NAME\"');
+              execSync('tar -xzf \"' + tarPath + '\" -C \"$OUTPUT_DIR\"');
               fs.unlinkSync(tarPath);
-              console.log('✅ استخراج شد: $OUTPUT_DIR/$DIR_NAME');
+              console.log('✅ استخراج شد: $OUTPUT_DIR');
             "
           done
 
@@ -82,8 +85,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "ℹ️ هیچ تغییر جدیدی برای commit وجود ندارد."
           else
-            git commit -m "Add decrypted results (first 10 files from Test-repo/results/Ttt3)"
+            git commit -m "Add decrypted results (first 10 subdirs of Test-repo/results/Ttt3)"
             git pull --rebase
             git push
             echo "✅ تغییرات به مخزن push شد."
-          fi
+          end
