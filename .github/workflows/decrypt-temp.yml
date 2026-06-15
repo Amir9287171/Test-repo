@@ -1,0 +1,87 @@
+name: Decrypt Source Temporarily
+
+on:
+  workflow_dispatch:
+    inputs:
+      user_password:
+        description: 'رمز رمزگشایی (CODE_PASSWORD)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  decrypt-and-show:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. دریافت کد مخزن
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 2. بررسی رمز ورودی (مخفی در لاگ)
+        id: check_pass
+        env:
+          SECRET_PASS: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          USER_PASS="${{ github.event.inputs.user_password }}"
+          # مخفی کردن رمز در لاگ
+          echo "::add-mask::$USER_PASS"
+          if [ "$USER_PASS" != "$SECRET_PASS" ]; then
+            echo "❌ رمز اشتباه است! دسترسی غیرمجاز."
+            exit 1
+          fi
+          echo "✅ رمز تأیید شد."
+
+      - name: 3. رمزگشایی src.enc
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          # رمزگشایی src.enc به src.tar.gz
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const pass = process.env.CODE_PASSWORD;
+            const data = fs.readFileSync('encrypted_data/src.enc');
+            const key = crypto.scryptSync(pass, 'salt', 32);
+            const iv = data.slice(0, 16);
+            const enc = data.slice(16);
+            const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+            const dec = Buffer.concat([decipher.update(enc), decipher.final()]);
+            fs.writeFileSync('src.tar.gz', dec);
+          "
+          # ساخت پوشه موقت
+          mkdir -p decrypted_src
+          tar -xzf src.tar.gz -C decrypted_src
+          rm src.tar.gz
+          echo "✅ فایل‌های سورس در پوشه decrypted_src/ قرار گرفتند."
+
+      - name: 4. نمایش لیست فایل‌های رمزگشایی شده (اختیاری)
+        run: |
+          echo "فایل‌های موجود در decrypted_src/:"
+          ls -la decrypted_src/
+
+      - name: 5. commit و push فایل‌های رمزگشایی شده به مخزن
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add decrypted_src/
+          git commit -m "temporary decrypted source files (will be auto-removed in 5 min)" || echo "هیچ تغییری برای commit وجود ندارد"
+          git pull --rebase
+          git push
+
+      - name: 6. منتظر ۵ دقیقه ماندن
+        run: sleep 300
+
+      - name: 7. حذف پوشه رمزگشایی شده و commit مجدد
+        run: |
+          rm -rf decrypted_src
+          git add decrypted_src/
+          git commit -m "remove temporary decrypted source files (after 5 min)" || echo "چیزی برای حذف نیست"
+          git pull --rebase
+          git push
+
+      - name: 8. اتمام کار
+        run: echo "✅ عملیات کامل شد. فایل‌های سورس برای ۵ دقیقه در دسترس بودند و الان پاک شدند."
