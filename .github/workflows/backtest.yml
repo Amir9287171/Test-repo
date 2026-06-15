@@ -211,7 +211,14 @@ jobs:
           rm -f encrypted_data/src/.unlocked.flag
           git add encrypted_data/src/ encrypted_data/src.enc
           git commit -m "wipe source files and update src.enc" || true
-          git pull --rebase && git push
+          # 🆕 stash کردن تغییرات unstaged قبل از pull --rebase
+          git stash --include-untracked --quiet || true
+          if git pull --rebase && git push; then
+            git stash drop --quiet || true
+          else
+            git stash drop --quiet || true
+            exit 1
+          fi
 
       - name: 13. رمزگشایی src.enc برای بکتست
         env:
