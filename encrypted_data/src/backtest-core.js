@@ -68,10 +68,9 @@ function calculateIchimokuHistorical(data, currentIndex, options = {}) {
         result.senkouA = (result.tenkan + result.kijun) / 2;
     }
 
-    // محاسبه چیکو اسپن (قیمت بسته ۲۶ دوره قبل) - اصلاح شده
-    if (currentIndex >= 26) {
-        result.chikou = data[currentIndex - 26].close;
-    }
+    // محاسبه چیکو اسپن: قیمت بسته فعلی (که روی چارت ۲۶ کندل به عقب shift می‌شود)
+    // تعریف استاندارد: chikou = close فعلی، مقایسه با close ۲۶ کندل قبل
+    result.chikou = data[currentIndex].close;
 
     // محاسبه ابر کومو (بدون شیفت به جلو! - شیفت در حلقه اصلی انجام می‌شود)
     if (result.senkouA && result.senkouB) {
@@ -90,10 +89,10 @@ function calculateIchimokuHistorical(data, currentIndex, options = {}) {
         result.isTenkanAboveKijun = result.tenkan > result.kijun;
     }
 
-    // وضعیت چیکو اسپن - اصلاح شده (مقایسه با قیمت فعلی)
-    if (currentIndex >= 52 && result.chikou) {
-        const currentClose = data[currentIndex].close;
-        result.isChikouBullish = result.chikou < currentClose;
+    // وضعیت چیکو اسپن: چیکو (= close فعلی) باید با close 26 کندل قبل مقایسه شود
+    // اگر close فعلی بالاتر از close 26 کندل قبل باشد → bullish
+    if (currentIndex >= 26) {
+        result.isChikouBullish = result.chikou > data[currentIndex - 26].close;
     }
 
     return result;
@@ -1397,7 +1396,8 @@ async function runBacktest(marketData, options, onProgress) {
                         const conditions = {
                             priceAboveCloud: currentPrice > ichimokuData.kumoTop,
                             tenkanAboveKijun: ichimokuData.tenkan > ichimokuData.kijun,
-                            chikouBullish: ichimokuData.chikou < ichimokuData.currentClose,
+                            // chikou = close فعلی؛ bullish یعنی close فعلی بالاتر از close 26 کندل قبل
+                            chikouBullish: ichimokuData.isChikouBullish,
                             kumoThick: (ichimokuData.kumoTop - ichimokuData.kumoBottom) > 0
                         };
                         const useCloudFilter = ${options.ichimoku?.useCloudFilter || false};
@@ -1412,7 +1412,8 @@ async function runBacktest(marketData, options, onProgress) {
                         const conditions = {
                             priceBelowCloud: currentPrice < ichimokuData.kumoBottom,
                             tenkanBelowKijun: ichimokuData.tenkan < ichimokuData.kijun,
-                            chikouBearish: ichimokuData.chikou > ichimokuData.currentClose
+                            // bearish یعنی close فعلی پایین‌تر از close 26 کندل قبل
+                            chikouBearish: !ichimokuData.isChikouBullish
                         };
                         const useCloudFilter = ${options.ichimoku?.useCloudFilter || false};
                         const useTKCross = ${options.ichimoku?.useTKCross || false};
@@ -1541,8 +1542,9 @@ async function runBacktest(marketData, options, onProgress) {
                             ichimoku.isPriceBelowCloud = false;
                         }
                         ichimoku.isTenkanAboveKijun = raw.tenkan > raw.kijun;
-                        // اصلاح مقایسه چیکو: چیکو با قیمت فعلی مقایسه شود
-                        ichimoku.isChikouBullish = raw.chikou < candle.close;
+                        // اصلاح مقایسه چیکو: chikou = close فعلی، مقایسه با close 26 کندل قبل
+                        // raw.isChikouBullish در calculateIchimokuHistorical درست محاسبه شده
+                        ichimoku.isChikouBullish = raw.isChikouBullish;
                     }
                 }
 
