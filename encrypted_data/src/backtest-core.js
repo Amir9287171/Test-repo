@@ -1338,8 +1338,6 @@ async function runBacktest(marketData, options, onProgress) {
             let positions = [];
             const trades = [];
             const equityData = [];
-            let dailyLoss = 0;
-            let currentDay = null;
             let tradeCounter = 0;
 
             console.log("🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====");
@@ -1495,16 +1493,6 @@ async function runBacktest(marketData, options, onProgress) {
             // ==================== حلقه اصلی بکتست ====================
             for (let i = 20; i < marketData.length; i++) {
                 const candle = marketData[i];
-                const currentDate = getDateString(candle.timestamp, options.timezoneOffset || 0);
-
-                if (currentDay !== currentDate) {
-                    dailyLoss = 0;
-                    currentDay = currentDate;
-                }
-
-                if (dailyLoss <= -(options.maxDailyLoss || 5) / 100 * capital) {
-                    continue;
-                }
 
                 // ==================== محاسبه ایچیموکو با شیفت ابر ====================
                 let ichimoku = null;
@@ -1559,7 +1547,107 @@ async function runBacktest(marketData, options, onProgress) {
                     });
                 }
 
-                // ==================== اجرای استراتژی ====================
+                // ==================== مرحله ۱: مدیریت و بستن پوزیشن‌های باز (بدون هیچ شرطی) ====================
+                for (let j = positions.length - 1; j >= 0; j--) {
+                    const position = positions[j];
+                    let shouldExit = false;
+                    let exitPrice = 0;
+                    let exitReason = '';
+
+                    // 1. Gap Handling
+                    if (settings.handleGaps) {
+                        const gapCheck = handleGapExit(position, candle, 'stopLoss');
+                        if (gapCheck.shouldExit) {
+                            shouldExit = true;
+                            exitPrice = gapCheck.exitPrice;
+                            exitReason = gapCheck.exitReason;
+                        }
+                    }
+
+                    // 2. برخورد درون کندل (با اولویت صحیح)
+                    if (!shouldExit && position.takeProfit) {
+                        const { exitPrice: ep, exitReason: er } = getExitPriceAndReason(candle, position);
+                        if (ep) {
+                            shouldExit = true;
+                            exitPrice = ep;
+                            exitReason = er;
+                        }
+                    }
+
+                    // 3. به‌روزرسانی حد ضرر پلکانی
+                    if (!shouldExit && position.useStagedStopLoss) {
+                        const newStopLoss = stagedStopLoss(
+                            candle.close,
+                            position.entryPrice,
+                            position.initialStopLoss,
+                            position.stopLossStages || stopLossStages,
+                            position.type
+                        );
+                        if ((position.type === 'BUY' && newStopLoss > position.stopLoss) ||
+                            (position.type === 'SELL' && newStopLoss < position.stopLoss)) {
+                            position.stopLoss = newStopLoss;
+                        }
+                    }
+
+                    // 4. بستن پوزیشن
+                    if (shouldExit) {
+                        const { grossProfit, netProfit, entryCommission, exitCommission } =
+                            calculateProfit(position, exitPrice, commission);
+                        capital += netProfit;
+
+                        const grossProfitPercent = position.type === 'BUY'
+                            ? ((exitPrice - position.entryPrice) / position.entryPrice) * 100
+                            : ((position.entryPrice - exitPrice) / position.entryPrice) * 100;
+
+                        const totalCommPercent = ((entryCommission + exitCommission) / (position.entryPrice * position.size)) * 100;
+                        const netProfitPercent = grossProfitPercent - totalCommPercent;
+
+                        const tradeData = {
+                            type: position.type,
+                            entryPrice: position.entryPrice,
+                            exitPrice: exitPrice,
+                            entryTime: position.entryTime,
+                            exitTime: candle.timestamp,
+                            profit: netProfit,
+                            grossProfit: grossProfit,
+                            profitPercent: netProfitPercent,
+                            grossProfitPercent: grossProfitPercent,
+                            commissionPercent: totalCommPercent,
+                            size: position.size,
+                            exitReason: exitReason,
+                            stopLoss: position.stopLoss,
+                            initialStopLoss: position.initialStopLoss,
+                            takeProfit: position.takeProfit,
+                            trailingStop: position.trailingStop,
+                            useFibonacci: position.useFibonacci || false,
+                            highestPivot: position.highestPivot || null,
+                            trendLineAngle: position.trendLineAngle || null,
+                            entryCommission: entryCommission,
+                            exitCommission: exitCommission,
+                            entryIndex: position.entryIndex,
+                            ichimoku: position.ichimoku || null,
+                            riskType: 'Fixed',
+                            riskAmount: position.riskAmount || 0,
+                            riskPercent: position.riskPercent || 0
+                        };
+
+                        trades.push(tradeData);
+                        tradeCounter++;
+                        console.log(`\n📊 معامله ${tradeCounter} (Fixed Risk):`);
+                        console.log(`   نوع: ${position.type}`);
+                        console.log(`   قیمت ورود: ${position.entryPrice.toFixed(4)}`);
+                        console.log(`   قیمت خروج: ${exitPrice.toFixed(4)}`);
+                        console.log(`   سود ناخالص: ${grossProfitPercent.toFixed(2)}%`);
+                        console.log(`   کارمزد کل: ${totalCommPercent.toFixed(2)}%`);
+                        console.log(`   سود خالص: ${netProfitPercent.toFixed(2)}%`);
+                        console.log(`   دلیل خروج: ${exitReason}`);
+
+                        positions.splice(j, 1);
+                    }
+                }
+
+                // ==================== مرحله ۲: باز کردن پوزیشن جدید (فقط در صورت مجاز بودن) ====================
+                let allowNewTrade = true;
                 try {
                     const signal = strategyFn(marketData, i, breakPointsMap, ichimoku);
 
@@ -1573,120 +1661,18 @@ async function runBacktest(marketData, options, onProgress) {
                                         signal.takeProfit !== signal.price;
                         if (!isValid) {
                             console.warn(`⚠️ سیگنال نامعتبر در کندل ${i}`);
-                            continue;
+                            allowNewTrade = false;
                         }
                     }
 
-                    // ==================== مدیریت پوزیشن‌های باز ====================
-                    for (let j = positions.length - 1; j >= 0; j--) {
-                        const position = positions[j];
-                        let shouldExit = false;
-                        let exitPrice = 0;
-                        let exitReason = '';
-
-                        // 1. Gap Handling
-                        if (settings.handleGaps) {
-                            const gapCheck = handleGapExit(position, candle, 'stopLoss');
-                            if (gapCheck.shouldExit) {
-                                shouldExit = true;
-                                exitPrice = gapCheck.exitPrice;
-                                exitReason = gapCheck.exitReason;
-                            }
-                        }
-
-                        // 2. برخورد درون کندل (با اولویت صحیح)
-                        if (!shouldExit && position.takeProfit) {
-                            const { exitPrice: ep, exitReason: er } = getExitPriceAndReason(candle, position);
-                            if (ep) {
-                                shouldExit = true;
-                                exitPrice = ep;
-                                exitReason = er;
-                            }
-                        }
-
-                        // 3. به‌روزرسانی حد ضرر پلکانی
-                        if (!shouldExit && position.useStagedStopLoss) {
-                            const newStopLoss = stagedStopLoss(
-                                candle.close,
-                                position.entryPrice,
-                                position.initialStopLoss,
-                                position.stopLossStages || stopLossStages,
-                                position.type
-                            );
-                            if ((position.type === 'BUY' && newStopLoss > position.stopLoss) ||
-                                (position.type === 'SELL' && newStopLoss < position.stopLoss)) {
-                                position.stopLoss = newStopLoss;
-                            }
-                        }
-
-                        // 4. بستن پوزیشن
-                        if (shouldExit) {
-                            const { grossProfit, netProfit, entryCommission, exitCommission } =
-                                calculateProfit(position, exitPrice, commission);
-                            capital += netProfit;
-
-                            const grossProfitPercent = position.type === 'BUY'
-                                ? ((exitPrice - position.entryPrice) / position.entryPrice) * 100
-                                : ((position.entryPrice - exitPrice) / position.entryPrice) * 100;
-
-                            const totalCommPercent = ((entryCommission + exitCommission) / (position.entryPrice * position.size)) * 100;
-                            const netProfitPercent = grossProfitPercent - totalCommPercent;
-
-                            const tradeData = {
-                                type: position.type,
-                                entryPrice: position.entryPrice,
-                                exitPrice: exitPrice,
-                                entryTime: position.entryTime,
-                                exitTime: candle.timestamp,
-                                profit: netProfit,
-                                grossProfit: grossProfit,
-                                profitPercent: netProfitPercent,
-                                grossProfitPercent: grossProfitPercent,
-                                commissionPercent: totalCommPercent,
-                                size: position.size,
-                                exitReason: exitReason,
-                                stopLoss: position.stopLoss,
-                                initialStopLoss: position.initialStopLoss,
-                                takeProfit: position.takeProfit,
-                                trailingStop: position.trailingStop,
-                                useFibonacci: position.useFibonacci || false,
-                                highestPivot: position.highestPivot || null,
-                                trendLineAngle: position.trendLineAngle || null,
-                                entryCommission: entryCommission,
-                                exitCommission: exitCommission,
-                                entryIndex: position.entryIndex,
-                                ichimoku: position.ichimoku || null,
-                                riskType: 'Fixed',
-                                riskAmount: position.riskAmount || 0,
-                                riskPercent: position.riskPercent || 0
-                            };
-
-                            trades.push(tradeData);
-                            tradeCounter++;
-                            console.log(`\n📊 معامله ${tradeCounter} (Fixed Risk):`);
-                            console.log(`   نوع: ${position.type}`);
-                            console.log(`   قیمت ورود: ${position.entryPrice.toFixed(4)}`);
-                            console.log(`   قیمت خروج: ${exitPrice.toFixed(4)}`);
-                            console.log(`   سود ناخالص: ${grossProfitPercent.toFixed(2)}%`);
-                            console.log(`   کارمزد کل: ${totalCommPercent.toFixed(2)}%`);
-                            console.log(`   سود خالص: ${netProfitPercent.toFixed(2)}%`);
-                            console.log(`   دلیل خروج: ${exitReason}`);
-
-                            if (netProfit < 0) {
-                                dailyLoss += netProfit;
-                            }
-
-                            positions.splice(j, 1);
-                        }
-                    }
-
-                    // ==================== باز کردن پوزیشن جدید (Fixed Risk) ====================
-                    if (signal && signal.signal) {
+                    if (allowNewTrade && signal && signal.signal) {
                         if (!canOpenNewPosition(positions, signal.price)) {
                             console.log(`⚠️ ورود جدید در قیمت ${signal.price.toFixed(4)} ممنوع است (منطقه شلوغ)`);
-                            continue;
+                            allowNewTrade = false;
                         }
+                    }
 
+                    if (allowNewTrade && signal && signal.signal) {
                         const riskAmount = initialCapital * (riskPerTrade / 100);
                         const positionSize = riskAmount / Math.abs(signal.price - signal.stopLoss);
                         const requiredCapital = positionSize * signal.price * (commission / 100);
