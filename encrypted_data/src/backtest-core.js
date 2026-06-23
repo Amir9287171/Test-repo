@@ -1141,7 +1141,7 @@ async function runBacktest(marketData, options, onProgress) {
 
                 if (position.type === 'BUY') {
                     const hitStop = candle.low <= position.stopLoss;
-                    const hitTake = candle.high >= position.takeProfit;
+                    const hitTake = position.takeProfit ? candle.high >= position.takeProfit : false;
 
                     if (hitStop && hitTake) {
                         // هر دو برخورد شده: بر اساس جهت کندل تصمیم بگیریم
@@ -1161,7 +1161,7 @@ async function runBacktest(marketData, options, onProgress) {
                     }
                 } else if (position.type === 'SELL') {
                     const hitStop = candle.high >= position.stopLoss;
-                    const hitTake = candle.low <= position.takeProfit;
+                    const hitTake = position.takeProfit ? candle.low <= position.takeProfit : false;
 
                     if (hitStop && hitTake) {
                         if (candle.close <= candle.open) {
@@ -1537,12 +1537,16 @@ async function runBacktest(marketData, options, onProgress) {
                 }
 
                 // ==================== تشخیص شکست خطوط روند ====================
+                // اصلاح باگ ۳: شکست را روی کندل i ثبت می‌کنیم ولی به breakPointsMap[i+1] اضافه می‌کنیم
+                // تا استراتژی فقط در کندل بعدی (i+1) بتواند از این شکست استفاده کند
+                // این رفتار لایو را شبیه‌سازی می‌کند: شکست را می‌بینی، ورود در کندل بعد
                 if (processedTrendLines.length > 0) {
                     processedTrendLines.forEach(line => {
                         const breakInfo = detectTrendLineFirstBreak(line, i, candle);
                         if (breakInfo) {
-                            if (!breakPointsMap[i]) breakPointsMap[i] = [];
-                            breakPointsMap[i].push(breakInfo);
+                            const signalIndex = i + 1; // ورود از کندل بعدی
+                            if (!breakPointsMap[signalIndex]) breakPointsMap[signalIndex] = [];
+                            breakPointsMap[signalIndex].push(breakInfo);
                         }
                     });
                 }
@@ -1554,18 +1558,30 @@ async function runBacktest(marketData, options, onProgress) {
                     let exitPrice = 0;
                     let exitReason = '';
 
-                    // 1. Gap Handling
+                    // 1. Gap Handling — هم stopLoss و هم takeProfit باید بررسی شوند
                     if (settings.handleGaps) {
-                        const gapCheck = handleGapExit(position, candle, 'stopLoss');
-                        if (gapCheck.shouldExit) {
-                            shouldExit = true;
-                            exitPrice = gapCheck.exitPrice;
-                            exitReason = gapCheck.exitReason;
+                        // ابتدا بررسی takeProfit gap (اگر وجود داشت)
+                        if (!shouldExit && position.takeProfit) {
+                            const tpGap = handleGapExit(position, candle, 'takeProfit');
+                            if (tpGap.shouldExit) {
+                                shouldExit = true;
+                                exitPrice = tpGap.exitPrice;
+                                exitReason = tpGap.exitReason;
+                            }
+                        }
+                        // سپس بررسی stopLoss gap
+                        if (!shouldExit) {
+                            const slGap = handleGapExit(position, candle, 'stopLoss');
+                            if (slGap.shouldExit) {
+                                shouldExit = true;
+                                exitPrice = slGap.exitPrice;
+                                exitReason = slGap.exitReason;
+                            }
                         }
                     }
 
-                    // 2. برخورد درون کندل (با اولویت صحیح)
-                    if (!shouldExit && position.takeProfit) {
+                    // 2. برخورد درون کندل (با اولویت صحیح) — stopLoss حتی بدون takeProfit بررسی شود
+                    if (!shouldExit) {
                         const { exitPrice: ep, exitReason: er } = getExitPriceAndReason(candle, position);
                         if (ep) {
                             shouldExit = true;
@@ -1653,14 +1669,36 @@ async function runBacktest(marketData, options, onProgress) {
 
                     // اعتبارسنجی سیگنال خروجی
                     if (signal && signal.signal) {
-                        const isValid = signal.price > 0 &&
-                                        signal.stopLoss > 0 &&
-                                        signal.takeProfit > 0 &&
-                                        (signal.signal === 'BUY' || signal.signal === 'SELL') &&
-                                        signal.stopLoss !== signal.price &&
-                                        signal.takeProfit !== signal.price;
+                        const isBuy = signal.signal === 'BUY';
+                        const isSell = signal.signal === 'SELL';
+                        // بررسی پایه‌ای
+                        let isValid = signal.price > 0 &&
+                                      signal.stopLoss > 0 &&
+                                      (isBuy || isSell) &&
+                                      signal.stopLoss !== signal.price;
+                        // جهت stopLoss باید با نوع پوزیشن مطابقت داشته باشد
+                        // BUY: stopLoss باید پایین‌تر از price باشد
+                        // SELL: stopLoss باید بالاتر از price باشد
+                        if (isValid && isBuy && signal.stopLoss >= signal.price) {
+                            console.warn(`⚠️ سیگنال BUY نامعتبر: stopLoss (${signal.stopLoss}) >= price (${signal.price}) در کندل ${i}`);
+                            isValid = false;
+                        }
+                        if (isValid && isSell && signal.stopLoss <= signal.price) {
+                            console.warn(`⚠️ سیگنال SELL نامعتبر: stopLoss (${signal.stopLoss}) <= price (${signal.price}) در کندل ${i}`);
+                            isValid = false;
+                        }
+                        // takeProfit اختیاری است — اگر وجود داشت جهتش را بررسی کن
+                        if (isValid && signal.takeProfit) {
+                            if (isBuy && signal.takeProfit <= signal.price) {
+                                console.warn(`⚠️ سیگنال BUY نامعتبر: takeProfit (${signal.takeProfit}) <= price (${signal.price}) در کندل ${i}`);
+                                isValid = false;
+                            }
+                            if (isSell && signal.takeProfit >= signal.price) {
+                                console.warn(`⚠️ سیگنال SELL نامعتبر: takeProfit (${signal.takeProfit}) >= price (${signal.price}) در کندل ${i}`);
+                                isValid = false;
+                            }
+                        }
                         if (!isValid) {
-                            console.warn(`⚠️ سیگنال نامعتبر در کندل ${i}`);
                             allowNewTrade = false;
                         }
                     }
@@ -1842,13 +1880,16 @@ async function runBacktest(marketData, options, onProgress) {
             const profitFactor = totalLoss > 0 ? totalProfit / totalLoss : (totalProfit > 0 ? Infinity : 0);
 
             let maxDrawdown = 0;
-            let currentDrawdown = 0;
+            let peakEquity = initialCapital;
+            let runningEquity = initialCapital;
             closedTrades.forEach(trade => {
-                if (trade.profit < 0) {
-                    currentDrawdown += Math.abs(trade.profitPercent);
-                } else {
-                    if (currentDrawdown > maxDrawdown) maxDrawdown = currentDrawdown;
-                    currentDrawdown = 0;
+                runningEquity += trade.profit;
+                if (runningEquity > peakEquity) {
+                    peakEquity = runningEquity;
+                }
+                const drawdownFromPeak = ((peakEquity - runningEquity) / peakEquity) * 100;
+                if (drawdownFromPeak > maxDrawdown) {
+                    maxDrawdown = drawdownFromPeak;
                 }
             });
 
