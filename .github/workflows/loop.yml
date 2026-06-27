@@ -280,18 +280,29 @@ jobs:
             echo "❌ داده‌ای یافت نشد. چرخه متوقف می‌شود."
             exit 0
           fi
-          CHUNK_SIZE=5
+          CHUNK_SIZE=50
           TOTAL_CHUNKS=$(( (TOTAL_CSV + CHUNK_SIZE - 1) / CHUNK_SIZE ))
 
           SELECTED=""
           for STRAT in $STRATEGIES; do
+            # بررسی ۱: از progress.json
             DONE_COUNT=$(jq -r --arg s "$STRAT" '.[$s] // [] | length' "$PROGRESS_FILE")
-            if [ "$DONE_COUNT" -lt "$TOTAL_CHUNKS" ]; then
-              SELECTED="$STRAT"
-              echo "✅ استراتژی $STRAT: $DONE_COUNT از $TOTAL_CHUNKS چانک انجام شده. انتخاب شد."
-              break
+
+            # بررسی ۲: شمارش results.enc روی دیسک (پوشه _5m به‌عنوان شاخص اصلی)
+            STRAT_BASE="${STRAT%.js}"
+            STRAT_DIR="results/${STRAT_BASE}_5m"
+            ENC_COUNT=0
+            if [ -d "$STRAT_DIR" ]; then
+              ENC_COUNT=$(find "$STRAT_DIR" -name "results.enc" -type f | wc -l)
+            fi
+
+            # استراتژی کامل است اگر: progress.json کامل باشد یا تعداد results.enc روی دیسک کافی باشد
+            if [ "$DONE_COUNT" -ge "$TOTAL_CHUNKS" ] || [ "$ENC_COUNT" -ge "$TOTAL_CSV" ]; then
+              echo "ℹ️ استراتژی $STRAT کامل شده است (progress: $DONE_COUNT/$TOTAL_CHUNKS، دیسک: $ENC_COUNT/$TOTAL_CSV)."
             else
-              echo "ℹ️ استراتژی $STRAT کامل شده است ($DONE_COUNT از $TOTAL_CHUNKS)."
+              SELECTED="$STRAT"
+              echo "✅ استراتژی $STRAT: $DONE_COUNT از $TOTAL_CHUNKS چانک در progress، $ENC_COUNT از $TOTAL_CSV فایل روی دیسک. انتخاب شد."
+              break
             fi
           done
 
