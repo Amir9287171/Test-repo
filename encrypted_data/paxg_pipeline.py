@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 """
-اسکریپت واحد برای تمام مراحل PAXG:
-- historical : دریافت داده‌های ۲۰۱۷ تا ۲۰۲۴
-- recent     : دریافت داده‌های ۲۰۲۵ تا امروز (با پرچم)
-- encrypt    : ساخت data.enc از پوشه داده موجود
-- full       : اجرای هر سه مرحله به ترتیب
+اسکریپت واحد برای تمام مراحل PAXG با قابلیت Fallback در صورت ۴۵۱
 """
 
 import os
 import sys
 import tarfile
 import secrets
-import subprocess
+import time
 from datetime import datetime
 import pandas as pd
 import requests
@@ -28,41 +24,119 @@ PASSWORD_ENV = "DATA_PASSWORD"
 # =========================================================
 
 def fetch_binance_klines(symbol, start_str, end_str):
-    """دریافت داده‌های روزانه از Binance و بازگرداندن DataFrame."""
-    base = "https://api.binance.com/api/v3/klines"
+    """تلاش برای دریافت از بایننس با چندین ساب‌دامین مختلف."""
+    base_urls = [
+        'https://api.binance.com',
+        'https://api1.binance.com',
+        'https://api2.binance.com',
+        'https://api3.binance.com'
+    ]
+    
     start_ts = int(datetime.strptime(start_str, "%Y-%m-%d").timestamp() * 1000)
     end_ts = int(datetime.strptime(end_str, "%Y-%m-%d").timestamp() * 1000)
+    
+    for base in base_urls:
+        try:
+            print(f"🔄 تلاش برای اتصال به {base} ...")
+            all_data = []
+            temp_start = start_ts
+            while temp_start < end_ts:
+                params = {
+                    'symbol': symbol,
+                    'interval': '1d',
+                    'startTime': temp_start,
+                    'limit': 1000
+                }
+                resp = requests.get(f"{base}/api/v3/klines", params=params, timeout=30)
+                
+                # اگر ۴۵۱ بود، این آدرس را رها کن
+                if resp.status_code == 451:
+                    print(f"⚠️ خطای ۴۵۱ از {base}، آدرس بعدی را امتحان می‌کنم...")
+                    break
+                    
+                resp.raise_for_status()
+                data = resp.json()
+                if not data:
+                    break
+                all_data.extend(data)
+                temp_start = data[-1][6] + 1
+            
+            # اگر داده‌ای گرفتیم و حلقه کامل شد، برگردان
+            if all_data:
+                df = pd.DataFrame(all_data, columns=[
+                    'open_time','open','high','low','close','volume',
+                    'close_time','quote_asset_volume','number_of_trades',
+                    'taker_buy_base','taker_buy_quote','ignore'
+                ])
+                df = df[['open_time','open','high','low','close','volume']]
+                df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
+                df.columns = ['date','open','high','low','close','volume']
+                df = df.sort_values('date').reset_index(drop=True)
+                df = df[(df['date'] >= start_str) & (df['date'] <= end_str)]
+                print(f"✅ دریافت موفق از {base}")
+                return df
+                
+        except Exception as e:
+            print(f"❌ خطا از {base}: {str(e)[:100]}")
+            continue
+    
+    # =========================================================
+    # اگر همه آدرس‌های بایننس شکست خوردند => Fallback به CryptoCompare
+    # =========================================================
+    print("🔄 سوئیچ به API جایگزین: CryptoCompare ...")
+    return fetch_cryptocompare(symbol, start_str, end_str)
+
+def fetch_cryptocompare(symbol, start_str, end_str):
+    """دریافت داده از CryptoCompare (بدون محدودیت منطقه‌ای)."""
+    # تبدیل PAXGUSDT به PAXG
+    fsym = symbol.replace('USDT', '')
+    url = "https://min-api.cryptocompare.com/data/v2/histoday"
+    
+    end_ts = int(datetime.strptime(end_str, "%Y-%m-%d").timestamp())
+    start_ts = int(datetime.strptime(start_str, "%Y-%m-%d").timestamp())
+    current_to = end_ts
+    limit = 2000
     all_rows = []
-    while start_ts < end_ts:
+    
+    while current_to > start_ts:
         params = {
-            'symbol': symbol,
-            'interval': '1d',
-            'startTime': start_ts,
-            'limit': 1000
+            'fsym': fsym,
+            'tsym': 'USD',
+            'limit': limit,
+            'toTs': current_to
         }
-        resp = requests.get(base, params=params)
+        resp = requests.get(url, params=params, timeout=30)
         resp.raise_for_status()
         data = resp.json()
-        if not data:
+        
+        if data.get('Response') != 'Success':
+            print(f"⚠️ CryptoCompare خطا: {data.get('Message')}")
             break
-        all_rows.extend(data)
-        start_ts = data[-1][6] + 1
+            
+        rows = data['Data']['Data']
+        if not rows:
+            break
+            
+        all_rows.extend(rows)
+        if len(rows) < limit:
+            break
+        # برو به قدم‌های قبل‌تر
+        current_to = rows[0]['time'] - 1
+        time.sleep(0.2)  # احترام به Rate Limit
+    
     if not all_rows:
         return pd.DataFrame()
-    df = pd.DataFrame(all_rows, columns=[
-        'open_time','open','high','low','close','volume',
-        'close_time','quote_asset_volume','number_of_trades',
-        'taker_buy_base','taker_buy_quote','ignore'
-    ])
-    df = df[['open_time','open','high','low','close','volume']]
-    df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
-    df.columns = ['date','open','high','low','close','volume']
+    
+    df = pd.DataFrame(all_rows)
+    df = df[['time', 'open', 'high', 'low', 'close', 'volumefrom']]
+    df['time'] = pd.to_datetime(df['time'], unit='s')
+    df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
     df = df.sort_values('date').reset_index(drop=True)
     df = df[(df['date'] >= start_str) & (df['date'] <= end_str)]
+    print(f"✅ دریافت موفق از CryptoCompare (تعداد {len(df)} رکورد)")
     return df
 
 def save_csv(df, filename):
-    """ذخیره CSV در DATA_DIR."""
     os.makedirs(DATA_DIR, exist_ok=True)
     path = os.path.join(DATA_DIR, filename)
     df.to_csv(path, index=False)
@@ -70,7 +144,6 @@ def save_csv(df, filename):
     return path
 
 def run_historical():
-    """مرحله ۱: داده‌های تاریخی تا ۲۰۲۴."""
     print("🔄 مرحله ۱: دریافت داده‌های تاریخی (۲۰۱۷–۲۰۲۴)")
     df = fetch_binance_klines(SYMBOL, "2017-01-01", "2024-12-31")
     if df.empty:
@@ -81,19 +154,17 @@ def run_historical():
     return True
 
 def run_recent():
-    """مرحله ۲: داده‌های ۲۰۲۵ تا امروز با بررسی پرچم."""
     force = os.environ.get("FORCE_REBUILD", "no").lower() == "yes"
     if os.path.exists(FLAG_FILE) and not force:
         print("ℹ️ پرچم وجود دارد و force_rebuild=no، از مرحله recent صرف‌نظر می‌شود.")
-        return True  # بدون خطا
+        return True
     print("🔄 مرحله ۲: دریافت داده‌های ۲۰۲۵–تا امروز")
     today = datetime.now().strftime("%Y-%m-%d")
     df = fetch_binance_klines(SYMBOL, "2025-01-01", today)
     if df.empty:
         print("❌ داده‌ای دریافت نشد.")
         return False
-    save_csv(df, f"{SYMBOL}.csv")  # بازنویسی فایل (داده‌ها جمع می‌شوند)
-    # ایجاد پرچم
+    save_csv(df, f"{SYMBOL}.csv")
     os.makedirs(os.path.dirname(FLAG_FILE), exist_ok=True)
     with open(FLAG_FILE, 'w') as f:
         f.write(datetime.now().isoformat())
@@ -101,7 +172,6 @@ def run_recent():
     return True
 
 def run_encrypt():
-    """مرحله ۳: فشرده‌سازی و رمزنگاری پوشه داده به data.enc."""
     password = os.environ.get(PASSWORD_ENV)
     if not password:
         print(f"❌ متغیر محیطی {PASSWORD_ENV} تنظیم نشده است.")
@@ -111,13 +181,11 @@ def run_encrypt():
         print("❌ پوشه داده خالی یا وجود ندارد. ابتدا داده‌ها را دریافت کنید.")
         return False
 
-    # ۱. فشرده‌سازی
     tar_path = "data.tar.gz"
     with tarfile.open(tar_path, "w:gz") as tar:
         tar.add(DATA_DIR, arcname=os.path.basename(DATA_DIR))
     print(f"📦 فشرده‌سازی انجام شد: {tar_path}")
 
-    # ۲. رمزنگاری با AES-256-CBC + scrypt (نمک ثابت 'salt')
     salt = b'salt'
     kdf = Scrypt(salt=salt, length=32, n=2**14, r=8, p=1, backend=default_backend())
     key = kdf.derive(password.encode('utf-8'))
@@ -127,7 +195,6 @@ def run_encrypt():
 
     with open(tar_path, 'rb') as f:
         plaintext = f.read()
-    # Padding PKCS7
     pad_len = 16 - (len(plaintext) % 16)
     plaintext += bytes([pad_len]) * pad_len
     ciphertext = encryptor.update(plaintext) + encryptor.finalize()
@@ -143,7 +210,6 @@ def run_encrypt():
     return True
 
 def run_full():
-    """اجرای هر سه مرحله به ترتیب."""
     success = True
     if not run_historical():
         success = False
