@@ -1,18 +1,8 @@
-name: PAXG Full Pipeline (with Proxy & Alternative APIs)
+name: PAXG Full Pipeline (Download, Split & Encrypt)
 
 on:
   workflow_dispatch:
     inputs:
-      action:
-        description: 'مرحله (historical / recent / encrypt / full)'
-        required: true
-        default: 'full'
-        type: choice
-        options:
-          - historical
-          - recent
-          - encrypt
-          - full
       force_rebuild:
         description: 'بازسازی اجباری (yes/no)'
         required: false
@@ -23,46 +13,51 @@ permissions:
 
 jobs:
   run-pipeline:
-    # روش ۱: استفاده از self-hosted runner در منطقه غیرآمریکایی (اختیاری)
-    # اگر self-hosted runner ندارید، این خط را کامنت کنید تا روی ubuntu-latest اجرا شود.
-    # runs-on: [self-hosted, linux, x64]
-    runs-on: ubuntu-latest  # اگر self-hosted ندارید، همین را نگه دارید
-    
-    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    timeout-minutes: 180   # برای دانلود و پردازش داده‌های زیاد زمان بیشتری لازم است
     steps:
-      - name: Checkout repository
+      - name: 1. دریافت کد مخزن
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Setup Python
+      - name: 2. راه‌اندازی پایتون
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
-        run: pip install pandas requests cryptography
+      - name: 3. نصب کتابخانه‌ها
+        run: |
+          pip install --upgrade pip
+          pip install pandas requests cryptography
 
-      - name: Run PAXG pipeline with proxy & alternative APIs
+      - name: 4. اجرای اسکریپت اصلی
         env:
           DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
-          ACTION: ${{ github.event.inputs.action }}
-          FORCE_REBUILD: ${{ github.event.inputs.force_rebuild }}
-          # روش ۳: پروکسی‌های رایگان
-          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
-          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
         run: |
+          echo "🚀 شروع اجرای paxg_pipeline.py"
           python encrypted_data/paxg_pipeline.py
+          echo "✅ اسکریپت با موفقیت تمام شد"
 
-      - name: Commit and push changes
-        if: always()
+      - name: 5. ذخیره تغییرات در مخزن (commit & push)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
-          git add data/All_Coins_Combined/ encrypted_data/data.enc encrypted_data/data_2025_2026_done.flag 2>/dev/null || true
+          git add data/All_Coins_Combined/ data/PAXGUSDT/ encrypted_data/data.enc zips/ 2>/dev/null || true
           git diff --staged --quiet || {
-            git commit -m "PAXG pipeline: update data and encrypted file"
-            git pull --rebase --autostash
-            git push
+            git commit -m "PAXG pipeline: update data, split and encrypt"
+            git pull --rebase --autostash origin main
+            git push origin main
+            echo "✅ تغییرات با موفقیت ارسال شد."
           }
+
+      - name: 6. گزارش نهایی
+        run: |
+          echo "======================================="
+          echo "✅ کار آماده‌سازی داده‌های PAXG با موفقیت انجام شد"
+          echo "📂 تعداد CSVهای ساخته شده:"
+          ls -la data/All_Coins_Combined/ | wc -l
+          echo "📦 فایل رمزنگاری: encrypted_data/data.enc"
+          ls -lh encrypted_data/data.enc
+          echo "======================================="
