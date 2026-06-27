@@ -326,22 +326,26 @@ jobs:
           done
 
           cnt=${#FILTERED[@]}
-          MAX_JOBS=256
-          STRAT_COUNT=$(echo '${{ steps.list_strategies.outputs.files }}' | jq 'length')
-          STRAT_COUNT=${STRAT_COUNT:-1}
-          MAX_CHUNKS=$(( MAX_JOBS / STRAT_COUNT ))
-          SIZE=$(( (cnt + MAX_CHUNKS - 1) / MAX_CHUNKS ))
-          [ $SIZE -lt 5 ] && SIZE=5
+          SIZE=50
 
           n=$(( (cnt + SIZE - 1) / SIZE ))
           chunks="["
           CHUNKS_ADDED=0
           for ((i=0; i<n; i++)); do
             s=$((i*SIZE))
-            # بررسی اینکه آیا این چانک قبلاً انجام شده است
+            # بررسی ۱: آیا این چانک در progress.json انجام شده؟
             if [ -n "${DONE_CHUNKS[$s]}" ]; then
-              echo "⏩ چانک $s قبلاً انجام شده. نادیده گرفته می‌شود."
+              echo "⏩ چانک $s قبلاً در progress.json ثبت شده. نادیده گرفته می‌شود."
               continue
+            fi
+            # بررسی ۲: آیا تعداد results.enc روی دیسک برابر تعداد کل فایل‌های CSV است؟
+            STRAT_DIR="results/${STRAT_NAME}_5m"
+            if [ -d "$STRAT_DIR" ]; then
+              ENC_COUNT=$(find "$STRAT_DIR" -name "results.enc" -type f | wc -l)
+              if [ "$ENC_COUNT" -ge "$cnt" ]; then
+                echo "⏩ استراتژی $STRAT_NAME کامل است ($ENC_COUNT results.enc روی دیسک). هیچ چانکی اضافه نمی‌شود."
+                break
+              fi
             fi
             [ $CHUNKS_ADDED -gt 0 ] && chunks+=", "
             chunks+="$s"
@@ -506,7 +510,7 @@ jobs:
           node encrypted_data/src/run-backtest.js \
             --strategy-file "strategies/${{ matrix.strategy_file }}" \
             --start-index ${{ matrix.chunk }} \
-            --chunk-size 5 \
+            --chunk-size 50 \
             --data-dir data/All_Coins_Combined \
             2>&1 | tee logs/backtest-output-${{ matrix.chunk }}.log
         env:
