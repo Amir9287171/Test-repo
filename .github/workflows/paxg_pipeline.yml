@@ -1,10 +1,10 @@
-name: PAXG Full Pipeline
+name: PAXG Full Pipeline (with Proxy & Alternative APIs)
 
 on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'انتخاب مرحله (historical / recent / encrypt / full)'
+        description: 'مرحله (historical / recent / encrypt / full)'
         required: true
         default: 'full'
         type: choice
@@ -14,17 +14,20 @@ on:
           - encrypt
           - full
       force_rebuild:
-        description: 'بازسازی اجباری داده‌های ۲۰۲۵-۲۰۲۶ (yes/no)'
+        description: 'بازسازی اجباری (yes/no)'
         required: false
         default: 'no'
-        type: string
 
 permissions:
   contents: write
 
 jobs:
   run-pipeline:
-    runs-on: ubuntu-latest
+    # روش ۱: استفاده از self-hosted runner در منطقه غیرآمریکایی (اختیاری)
+    # اگر self-hosted runner ندارید، این خط را کامنت کنید تا روی ubuntu-latest اجرا شود.
+    # runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest  # اگر self-hosted ندارید، همین را نگه دارید
+    
     timeout-minutes: 120
     steps:
       - name: Checkout repository
@@ -41,23 +44,25 @@ jobs:
       - name: Install dependencies
         run: pip install pandas requests cryptography
 
-      - name: Run PAXG pipeline script
+      - name: Run PAXG pipeline with proxy & alternative APIs
         env:
           DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
           ACTION: ${{ github.event.inputs.action }}
           FORCE_REBUILD: ${{ github.event.inputs.force_rebuild }}
+          # روش ۳: پروکسی‌های رایگان
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
         run: |
           python encrypted_data/paxg_pipeline.py
 
-      - name: Commit and push changes (if any)
+      - name: Commit and push changes
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
           git add data/All_Coins_Combined/ encrypted_data/data.enc encrypted_data/data_2025_2026_done.flag 2>/dev/null || true
           git diff --staged --quiet || {
-            git commit -m "PAXG pipeline: update data and/or encrypted file"
+            git commit -m "PAXG pipeline: update data and encrypted file"
             git pull --rebase --autostash
             git push
           }
-          echo "✅ تغییرات در صورت وجود، به مخزن ارسال شد."
