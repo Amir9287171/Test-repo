@@ -1,220 +1,263 @@
 #!/usr/bin/env python3
-"""
-PAXG Pipeline با هر سه روش:
-- آدرس‌های جایگزین بایننس (data-api.binance.vision)
-- پروکسی (از متغیرهای محیطی HTTP_PROXY/HTTPS_PROXY)
-- پشتیبانی از self-hosted runner
-"""
+# -*- coding: utf-8 -*-
 
 import os
 import sys
+import zipfile
 import tarfile
 import secrets
-import time
 import requests
 import pandas as pd
+import time
 from datetime import datetime
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from cryptography.hazmat.backends import default_backend
 
-SYMBOL = "PAXGUSDT"
-DATA_DIR = "data/All_Coins_Combined"
+# ========================== تنظیمات ==========================
+SYMBOL = "PAXGUSDT"                # فقط همین یک نماد
+INTERVAL = "5m"
+BASE_URL = "https://data.binance.vision/data/spot/monthly/klines"
+ZIPS_DIR = "zips"
+OUTPUT_BASE = "data"
+COMBINED_DIR = os.path.join(OUTPUT_BASE, "All_Coins_Combined")
 ENCRYPTED_DIR = "encrypted_data"
-FLAG_FILE = os.path.join(ENCRYPTED_DIR, "data_2025_2026_done.flag")
-PASSWORD_ENV = "DATA_PASSWORD"
+DATA_PASSWORD_ENV = "DATA_PASSWORD"
+TIMEFRAME = "5m"
+START_YEAR = 2018                    # از کجا شروع کنه
+# ============================================================
 
-# =========================================================
-# روش ۲: آدرس‌های جایگزین بایننس
-# =========================================================
-BINANCE_ENDPOINTS = [
-    "https://api.binance.com",
-    "https://api1.binance.com",
-    "https://api2.binance.com",
-    "https://api3.binance.com",
-    "https://data-api.binance.vision",  # آدرس جایگزین
-    "https://api.binance.us"            # آدرس جایگزین
-]
+def log(msg, level="INFO"):
+    """لاگ‌گیری با زمان"""
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{now}] {level}: {msg}")
+    sys.stdout.flush()
 
-def fetch_binance(symbol, start_str, end_str):
-    """
-    تلاش برای دریافت داده از بایننس با استفاده از:
-    - آدرس‌های جایگزین
-    - پروکسی (اگر تنظیم شده باشد)
-    - هدرهای شبیه‌سازی مرورگر
-    """
-    start_ts = int(datetime.strptime(start_str, "%Y-%m-%d").timestamp() * 1000)
-    end_ts = int(datetime.strptime(end_str, "%Y-%m-%d").timestamp() * 1000)
-    
-    # پروکسی از متغیرهای محیطی (روش ۳)
-    proxies = {}
-    if os.environ.get('HTTP_PROXY'):
-        proxies['http'] = os.environ.get('HTTP_PROXY')
-    if os.environ.get('HTTPS_PROXY'):
-        proxies['https'] = os.environ.get('HTTPS_PROXY')
-    
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Connection': 'keep-alive',
-        'Referer': 'https://www.binance.com/'
-    }
-    
-    for endpoint in BINANCE_ENDPOINTS:
-        try:
-            print(f"🔄 تلاش برای {endpoint} ...")
-            all_data = []
-            temp_start = start_ts
-            
-            while temp_start < end_ts:
-                params = {
-                    'symbol': symbol,
-                    'interval': '1d',
-                    'startTime': temp_start,
-                    'limit': 1000
-                }
-                
-                # استفاده از پروکسی (روش ۳)
-                resp = requests.get(
-                    f"{endpoint}/api/v3/klines",
-                    params=params,
-                    headers=headers,
-                    proxies=proxies if proxies else None,
-                    timeout=30
-                )
-                
-                # اگر endpoint تحریم داشت، برو سراغ بعدی
-                if resp.status_code == 451:
-                    print(f"⚠️ تحریم از {endpoint}")
-                    break
-                
+def days_in_month(year, month):
+    if month == 2:
+        return 29 if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0) else 28
+    return 30 if month in [4, 6, 9, 11] else 31
+
+def ts_to_datetime(ts):
+    """تبدیل تایم‌استمپ به datetime – دقیقاً مثل کد خودت"""
+    try:
+        if pd.isna(ts):
+            return pd.NaT
+        num = int(float(ts))
+        s = str(num)
+        l = len(s)
+        if l >= 19:          # نانوثانیه
+            seconds = num // 1_000_000_000
+        elif l == 16:        # میکروثانیه
+            seconds = num // 1_000_000
+        elif l == 13:        # میلی‌ثانیه
+            seconds = num // 1_000
+        else:                # ثانیه یا کمتر
+            seconds = num
+        return pd.to_datetime(seconds, unit='s', utc=True)
+    except Exception:
+        return pd.NaT
+
+def read_csv_from_zip(zip_path):
+    """خواندن CSV از داخل فایل ZIP – دقیقاً مثل کد خودت"""
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            csv_files = [f for f in zf.namelist() if f.endswith('.csv') and not f.startswith('__')]
+            if not csv_files:
+                log(f"هیچ فایل CSV در {zip_path} یافت نشد", "WARNING")
+                return None
+            with zf.open(csv_files[0]) as f:
+                df = pd.read_csv(f, header=None, usecols=range(6),
+                                 names=['timestamp', 'open', 'high', 'low', 'close', 'volume'],
+                                 on_bad_lines='skip')
+        if df.empty:
+            return None
+        df['timestamp'] = pd.to_numeric(df['timestamp'], errors='coerce')
+        df = df.dropna(subset=['timestamp'])
+        df['_time'] = df['timestamp'].apply(ts_to_datetime)
+        df = df.dropna(subset=['_time'])
+        df = df.sort_values('_time').reset_index(drop=True)
+        for col in ['open', 'high', 'low', 'close', 'volume']:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+        df['volume'] = df['volume'].fillna(0.0)
+        return df[['_time', 'open', 'high', 'low', 'close', 'volume']].rename(columns={'_time': 'timestamp'})
+    except Exception as e:
+        log(f"خطا در خواندن {zip_path}: {e}", "ERROR")
+        return None
+
+def get_filename(coin, year, month, part):
+    """تولید اسم فایل CSV بر اساس سال، ماه و بخش (۱، ۲ یا ۳)"""
+    dim = days_in_month(year, month)
+    if part == 1:
+        s, e = f'{year}-{month:02d}-01', f'{year}-{month:02d}-10'
+    elif part == 2:
+        s, e = f'{year}-{month:02d}-11', f'{year}-{month:02d}-20'
+    else:
+        s, e = f'{year}-{month:02d}-21', f'{year}-{month:02d}-{dim}'
+    return f"{coin}-{TIMEFRAME}-{s}_{e}.csv"
+
+def process_zip(zip_path, coin):
+    """پردازش یک فایل ZIP و تقسیم آن به سه بخش ماهانه"""
+    log(f"شروع پردازش {zip_path}")
+    df = read_csv_from_zip(zip_path)
+    if df is None or df.empty:
+        log(f"ZIP خالی یا بی‌اعتبار: {zip_path}", "WARNING")
+        return 0
+
+    df['year'] = df['timestamp'].dt.year
+    df['month'] = df['timestamp'].dt.month
+    df['day'] = df['timestamp'].dt.day
+
+    # فیلتر سال‌های مورد نظر (همه سال‌ها)
+    # چون در یک اسکریپت همه سال‌ها را می‌گیریم، فیلتر خاصی نمی‌زنیم
+    # ولی اگر بخواهیم فقط ۲۰۲۵ و ۲۰۲۶ را بگیریم، از ورکفلو جداگانه استفاده می‌کردیم.
+    # اینجا همه سال‌ها را می‌گیریم.
+
+    cnt = 0
+    for (y, m), grp in df.groupby(['year', 'month']):
+        part1 = grp[grp['day'] <= 10]
+        part2 = grp[(grp['day'] >= 11) & (grp['day'] <= 20)]
+        part3 = grp[grp['day'] >= 21]
+        for pn, pdf in [(1, part1), (2, part2), (3, part3)]:
+            if pdf.empty:
+                continue
+            fname = get_filename(coin, y, m, pn)
+            # ذخیره در All_Coins_Combined
+            combined_path = os.path.join(COMBINED_DIR, fname)
+            pdf.to_csv(combined_path, index=False)
+            # ذخیره در پوشه مخصوص سکه
+            coin_dir = os.path.join(OUTPUT_BASE, coin)
+            os.makedirs(coin_dir, exist_ok=True)
+            pdf.to_csv(os.path.join(coin_dir, fname), index=False)
+            cnt += 1
+    log(f"پردازش {zip_path} انجام شد: {cnt} فایل CSV جدید")
+    return cnt
+
+def download_zips():
+    """دانلود فایل‌های ZIP از بایننس ویژن برای همه سال‌ها و ماه‌ها"""
+    os.makedirs(ZIPS_DIR, exist_ok=True)
+    total = 0
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+
+    log(f"شروع دانلود برای {SYMBOL} از {START_YEAR} تا {current_year}")
+
+    for year in range(START_YEAR, current_year + 1):
+        for month in range(1, 13):
+            if year == current_year and month > current_month:
+                break
+            filename = f"{SYMBOL}-{INTERVAL}-{year}-{month:02d}.zip"
+            url = f"{BASE_URL}/{SYMBOL}/{INTERVAL}/{filename}"
+            local_path = os.path.join(ZIPS_DIR, filename)
+
+            if os.path.exists(local_path):
+                log(f"از قبل موجود: {filename}", "INFO")
+                total += 1
+                continue
+
+            try:
+                resp = requests.get(url, stream=True, timeout=30)
+                if resp.status_code == 404:
+                    log(f"وجود ندارد (۴۰۴): {filename}", "WARNING")
+                    continue
                 resp.raise_for_status()
-                data = resp.json()
-                if not data:
-                    break
-                all_data.extend(data)
-                temp_start = data[-1][6] + 1
-                time.sleep(0.1)  # احترام به Rate Limit
-            
-            if all_data:
-                print(f"✅ دریافت موفق از {endpoint}")
-                df = pd.DataFrame(all_data, columns=[
-                    'open_time','open','high','low','close','volume',
-                    'close_time','quote_asset_volume','number_of_trades',
-                    'taker_buy_base','taker_buy_quote','ignore'
-                ])
-                df = df[['open_time','open','high','low','close','volume']]
-                df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
-                df.columns = ['date','open','high','low','close','volume']
-                df = df.sort_values('date').reset_index(drop=True)
-                return df
-                
-        except Exception as e:
-            print(f"❌ خطا از {endpoint}: {str(e)[:100]}")
-            continue
-    
-    print("❌ همه آدرس‌ها و پروکسی‌ها ناموفق بودند.")
-    return pd.DataFrame()
+                with open(local_path, 'wb') as f:
+                    for chunk in resp.iter_content(8192):
+                        f.write(chunk)
+                log(f"دانلود شد: {filename}", "INFO")
+                total += 1
+            except Exception as e:
+                log(f"خطا در دانلود {filename}: {e}", "ERROR")
+            time.sleep(0.5)
 
-# =========================================================
-# بقیه توابع (ذخیره‌سازی، رمزنگاری و ...) کاملاً مشابه قبل
-# =========================================================
-def save_csv(df, filename):
-    os.makedirs(DATA_DIR, exist_ok=True)
-    path = os.path.join(DATA_DIR, filename)
-    df.to_csv(path, index=False)
-    print(f"💾 ذخیره شد: {path}")
-    return path
+    log(f"دانلود کامل شد. تعداد کل ZIP: {total}")
+    return total
 
-def run_historical():
-    print("🔄 مرحله ۱: دریافت داده‌های تاریخی (۲۰۱۷–۲۰۲۴)")
-    df = fetch_binance(SYMBOL, "2017-01-01", "2024-12-31")
-    if df.empty:
-        print("❌ داده‌ای دریافت نشد.")
-        return False
-    save_csv(df, f"{SYMBOL}.csv")
-    print(f"✅ داده‌های تاریخی ذخیره شد (تعداد {len(df)} رکورد)")
-    return True
-
-def run_recent():
-    force = os.environ.get("FORCE_REBUILD", "no").lower() == "yes"
-    if os.path.exists(FLAG_FILE) and not force:
-        print("ℹ️ پرچم وجود دارد، مرحله recent رد شد")
-        return True
-    print("🔄 مرحله ۲: دریافت داده‌های ۲۰۲۵–تا امروز")
-    today = datetime.now().strftime("%Y-%m-%d")
-    df = fetch_binance(SYMBOL, "2025-01-01", today)
-    if df.empty:
-        print("❌ داده‌ای دریافت نشد.")
-        return False
-    save_csv(df, f"{SYMBOL}.csv")
-    os.makedirs(os.path.dirname(FLAG_FILE), exist_ok=True)
-    with open(FLAG_FILE, 'w') as f:
-        f.write(datetime.now().isoformat())
-    print(f"✅ داده‌های جدید ذخیره شد (تعداد {len(df)} رکورد)")
-    return True
-
-def run_encrypt():
-    password = os.environ.get(PASSWORD_ENV)
+def encrypt_folder():
+    """فشرده‌سازی پوشه All_Coins_Combined و رمزنگاری آن به data.enc"""
+    password = os.environ.get(DATA_PASSWORD_ENV)
     if not password:
-        print(f"❌ {PASSWORD_ENV} تنظیم نشده")
+        log(f"متغیر محیطی {DATA_PASSWORD_ENV} تنظیم نشده است!", "ERROR")
         return False
-    if not os.path.isdir(DATA_DIR) or not os.listdir(DATA_DIR):
-        print("❌ پوشه داده خالی")
+
+    if not os.path.isdir(COMBINED_DIR) or not os.listdir(COMBINED_DIR):
+        log(f"پوشه {COMBINED_DIR} خالی یا وجود ندارد!", "ERROR")
         return False
-    
+
+    # ۱. فشرده‌سازی
     tar_path = "data.tar.gz"
+    log(f"در حال فشرده‌سازی {COMBINED_DIR} به {tar_path}")
     with tarfile.open(tar_path, "w:gz") as tar:
-        tar.add(DATA_DIR, arcname=os.path.basename(DATA_DIR))
-    
+        tar.add(COMBINED_DIR, arcname=os.path.basename(COMBINED_DIR))
+    log(f"فشرده‌سازی انجام شد: {tar_path}")
+
+    # ۲. رمزنگاری (دقیقاً مثل build-data-enc.yml)
+    log("شروع رمزنگاری با AES-256-CBC و scrypt")
     salt = b'salt'
     kdf = Scrypt(salt=salt, length=32, n=2**14, r=8, p=1, backend=default_backend())
     key = kdf.derive(password.encode('utf-8'))
     iv = secrets.token_bytes(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     encryptor = cipher.encryptor()
-    
+
     with open(tar_path, 'rb') as f:
         plaintext = f.read()
+    # Padding PKCS7
     pad_len = 16 - (len(plaintext) % 16)
     plaintext += bytes([pad_len]) * pad_len
     ciphertext = encryptor.update(plaintext) + encryptor.finalize()
-    
+
     os.makedirs(ENCRYPTED_DIR, exist_ok=True)
     enc_path = os.path.join(ENCRYPTED_DIR, "data.enc")
     with open(enc_path, 'wb') as f:
         f.write(iv + ciphertext)
-    print(f"🔒 رمزنگاری شد: {enc_path}")
+    log(f"رمزنگاری شد: {enc_path}")
+
     os.remove(tar_path)
+    log("فایل موقت data.tar.gz حذف شد")
     return True
 
-def run_full():
-    success = True
-    if not run_historical():
-        success = False
-    if not run_recent():
-        success = False
-    if not run_encrypt():
-        success = False
-    return success
-
 def main():
-    action = os.environ.get("ACTION", "full").lower()
-    print(f"🚀 اجرای action: {action}")
-    if action == "historical":
-        success = run_historical()
-    elif action == "recent":
-        success = run_recent()
-    elif action == "encrypt":
-        success = run_encrypt()
-    elif action == "full":
-        success = run_full()
-    else:
-        print("❌ action نامعتبر")
+    log("================== شروع PAXG Pipeline ==================")
+
+    # ۱. ایجاد پوشه‌های لازم
+    os.makedirs(COMBINED_DIR, exist_ok=True)
+    os.makedirs(ENCRYPTED_DIR, exist_ok=True)
+
+    # ۲. دانلود ZIPها (اگر از قبل نباشند)
+    zip_count = download_zips()
+    if zip_count == 0:
+        log("هیچ فایل ZIP جدیدی دانلود نشد، اما ممکن است قبلاً دانلود شده باشند.", "WARNING")
+
+    # ۳. پردازش همه فایل‌های ZIP
+    all_zips = [f for f in os.listdir(ZIPS_DIR) if f.endswith('.zip')]
+    if not all_zips:
+        log("هیچ فایل ZIP در پوشه zips وجود ندارد!", "ERROR")
         sys.exit(1)
-    sys.exit(0 if success else 1)
+
+    log(f"تعداد کل فایل‌های ZIP موجود: {len(all_zips)}")
+    processed = 0
+    for z in all_zips:
+        coin = z.split('-')[0]
+        if coin != SYMBOL:
+            continue
+        log(f"پردازش {z} ...")
+        added = process_zip(os.path.join(ZIPS_DIR, z), coin)
+        processed += added
+    log(f"کل فایل‌های CSV جدید ایجاد شده: {processed}")
+
+    # ۴. رمزنگاری
+    log("شروع مرحله رمزنگاری ...")
+    if encrypt_folder():
+        log("✅ رمزنگاری با موفقیت انجام شد.")
+    else:
+        log("❌ رمزنگاری ناموفق!", "ERROR")
+        sys.exit(1)
+
+    # ۵. گزارش نهایی
+    csv_count = len([f for f in os.listdir(COMBINED_DIR) if f.endswith('.csv')])
+    log(f"🎯 کل فایل‌های CSV در All_Coins_Combined: {csv_count}")
+    log("================== پایان PAXG Pipeline ==================")
 
 if __name__ == "__main__":
     main()
