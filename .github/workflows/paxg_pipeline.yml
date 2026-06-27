@@ -1,0 +1,63 @@
+name: PAXG Full Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'انتخاب مرحله (historical / recent / encrypt / full)'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - historical
+          - recent
+          - encrypt
+          - full
+      force_rebuild:
+        description: 'بازسازی اجباری داده‌های ۲۰۲۵-۲۰۲۶ (yes/no)'
+        required: false
+        default: 'no'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install pandas requests cryptography
+
+      - name: Run PAXG pipeline script
+        env:
+          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
+          ACTION: ${{ github.event.inputs.action }}
+          FORCE_REBUILD: ${{ github.event.inputs.force_rebuild }}
+        run: |
+          python encrypted_data/paxg_pipeline.py
+
+      - name: Commit and push changes (if any)
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add data/All_Coins_Combined/ encrypted_data/data.enc encrypted_data/data_2025_2026_done.flag 2>/dev/null || true
+          git diff --staged --quiet || {
+            git commit -m "PAXG pipeline: update data and/or encrypted file"
+            git pull --rebase --autostash
+            git push
+          }
+          echo "✅ تغییرات در صورت وجود، به مخزن ارسال شد."
