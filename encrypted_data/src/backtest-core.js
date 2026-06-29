@@ -2121,4 +2121,51 @@ async function runBacktest(marketData, options, onProgress) {
             console.log("\n" + "=".repeat(60));
             console.log(`💰 سرمایه اولیه: ${initialCapital.toFixed(2)}`);
             console.log(`💰 سرمایه نهایی: ${capital.toFixed(2)}`);
-            console.log(`📊 بازدهی کل: ${((capital - initialCapital) / initialCapital * 100).toFix
+            console.log(`📊 بازدهی کل: ${((capital - initialCapital) / initialCapital * 100).toFix100(2)}%`);
+            console.log("=".repeat(60) + "\n");
+
+            resolve(result);
+
+        } catch (error) {
+            console.error('❌ [BACKTEST_ERROR] خطا در اجرای بکتست:', error);
+            reject(error);
+        }
+    });
+}
+
+// ==================== تابع دیباگ ====================
+async function debugTrendLines(marketData, options) {
+    return new Promise((resolve) => {
+        const debugInfo = {
+            marketDataLength: marketData.length,
+            options: options,
+            pivotPoints: [],
+            trendLines: [],
+            ichimoku: null
+        };
+
+        const pivots = findPivotPoints(marketData, options.pivotPeriod, marketData.length - 1);
+        debugInfo.pivotPoints = pivots;
+
+        if (pivots.length >= 2) {
+            const currentCandleIndex = marketData.length - 1;
+            const sampleLine = createTrendLine(pivots[0], pivots[1], marketData, options, currentCandleIndex);
+            if (sampleLine) {
+                debugInfo.trendLines.push(sampleLine);
+            }
+        }
+
+        if (marketData.length > 52) {
+            debugInfo.ichimoku = calculateIchimokuHistorical(marketData, marketData.length - 1, options.ichimoku);
+        }
+
+        resolve(debugInfo);
+    });
+}
+
+// ==================== اکسپورت ماژول‌ها ====================
+module.exports = {
+    runBacktest,
+    detectTrendLinesAdvanced,
+    debugTrendLines
+};                   
