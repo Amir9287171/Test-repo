@@ -10,7 +10,7 @@ const ANALYSIS_CONFIG = {
     pivotPeriod: 5,
     minTouchPoints: 3,
     minCandleDistance: 3,
-    precision: 0.000001
+    precision: 0.001
   },
   ichimoku: {
     enabled: true,
