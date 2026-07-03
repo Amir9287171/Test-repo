@@ -1,0 +1,805 @@
+✅ نسخه نهایی – با پشتیبانی از ادامه‌دهی بین فایل‌ها
+[2026-07-03T18:06:11.143Z] [INFO] شروع run-backtest.js با آرگومان‌ها: strategyFile=strategies/B4Ic14-30-57.js, startIndex=650, chunkSize=50, dataDir=data/All_Coins_Combined, maxContinuation=3
+[2026-07-03T18:06:11.143Z] [INFO] استراتژی B4Ic14-30-57 با طول 4552 کاراکتر خوانده شد.
+[DIVERGENCE] 📦 ماژول در module.exports (Node.js) بارگذاری شد. (پشتیبانی از RSI و MACD)
+[2026-07-03T18:06:11.165Z] [INFO] در حال استخراج ANALYSIS_CONFIG از استراتژی...
+[2026-07-03T18:06:11.165Z] [INFO] ✅ ANALYSIS_CONFIG با موفقیت بارگذاری شد:
+{
+  "trendLines": {
+    "pivotPeriod": 5,
+    "minTouchPoints": 3,
+    "minCandleDistance": 3,
+    "precision": 0.000001
+  },
+  "ichimoku": {
+    "enabled": true,
+    "tenkanPeriod": 14,
+    "kijunPeriod": 30,
+    "senkouBPeriod": 57,
+    "useCloudFilter": true,
+    "useTKCross": true,
+    "useChikou": false
+  }
+}
+[2026-07-03T18:06:11.165Z] [INFO] نیازمندی‌ها: trendLines=true, ichimoku=true, divergence=false
+[2026-07-03T18:06:11.177Z] [INFO] این چانک شامل 50 فایل است: ETHUSDT-5m-2022-09-21_2022-09-30.csv, PAXGUSDT-5m-2022-09-21_2022-09-30.csv, SOLUSDT-5m-2022-09-21_2022-09-30.csv, XRPUSDT-5m-2022-09-21_2022-09-30.csv, BTCUSDT-5m-2022-10-01_2022-10-10.csv, ETHUSDT-5m-2022-10-01_2022-10-10.csv, PAXGUSDT-5m-2022-10-01_2022-10-10.csv, SOLUSDT-5m-2022-10-01_2022-10-10.csv, XRPUSDT-5m-2022-10-01_2022-10-10.csv, BTCUSDT-5m-2022-10-11_2022-10-20.csv, ETHUSDT-5m-2022-10-11_2022-10-20.csv, PAXGUSDT-5m-2022-10-11_2022-10-20.csv, SOLUSDT-5m-2022-10-11_2022-10-20.csv, XRPUSDT-5m-2022-10-11_2022-10-20.csv, BTCUSDT-5m-2022-10-21_2022-10-31.csv, ETHUSDT-5m-2022-10-21_2022-10-31.csv, PAXGUSDT-5m-2022-10-21_2022-10-31.csv, SOLUSDT-5m-2022-10-21_2022-10-31.csv, XRPUSDT-5m-2022-10-21_2022-10-31.csv, BTCUSDT-5m-2022-11-01_2022-11-10.csv, ETHUSDT-5m-2022-11-01_2022-11-10.csv, PAXGUSDT-5m-2022-11-01_2022-11-10.csv, SOLUSDT-5m-2022-11-01_2022-11-10.csv, XRPUSDT-5m-2022-11-01_2022-11-10.csv, BTCUSDT-5m-2022-11-11_2022-11-20.csv, ETHUSDT-5m-2022-11-11_2022-11-20.csv, PAXGUSDT-5m-2022-11-11_2022-11-20.csv, SOLUSDT-5m-2022-11-11_2022-11-20.csv, XRPUSDT-5m-2022-11-11_2022-11-20.csv, BTCUSDT-5m-2022-11-21_2022-11-30.csv, ETHUSDT-5m-2022-11-21_2022-11-30.csv, PAXGUSDT-5m-2022-11-21_2022-11-30.csv, SOLUSDT-5m-2022-11-21_2022-11-30.csv, XRPUSDT-5m-2022-11-21_2022-11-30.csv, BTCUSDT-5m-2022-12-01_2022-12-10.csv, ETHUSDT-5m-2022-12-01_2022-12-10.csv, PAXGUSDT-5m-2022-12-01_2022-12-10.csv, SOLUSDT-5m-2022-12-01_2022-12-10.csv, XRPUSDT-5m-2022-12-01_2022-12-10.csv, BTCUSDT-5m-2022-12-11_2022-12-20.csv, ETHUSDT-5m-2022-12-11_2022-12-20.csv, PAXGUSDT-5m-2022-12-11_2022-12-20.csv, SOLUSDT-5m-2022-12-11_2022-12-20.csv, XRPUSDT-5m-2022-12-11_2022-12-20.csv, BTCUSDT-5m-2022-12-21_2022-12-31.csv, ETHUSDT-5m-2022-12-21_2022-12-31.csv, PAXGUSDT-5m-2022-12-21_2022-12-31.csv, SOLUSDT-5m-2022-12-21_2022-12-31.csv, XRPUSDT-5m-2022-12-21_2022-12-31.csv, BTCUSDT-5m-2023-01-01_2023-01-10.csv
+[2026-07-03T18:06:11.178Z] [INFO] شروع فاز تحلیل و بک‌تست...
+[2026-07-03T18:06:11.178Z] [INFO] شروع پردازش فایل 1 از 50: ETHUSDT-5m-2022-09-21_2022-09-30.csv
+[2026-07-03T18:06:11.198Z] [INFO] فایل ETHUSDT-5m-2022-09-21_2022-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:06:11.199Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2022-09-21_2022-09-30.csv
+[2026-07-03T18:06:11.222Z] [INFO] فایل PAXGUSDT-5m-2022-09-21_2022-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:06:11.222Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2022-09-21_2022-09-30.csv
+[2026-07-03T18:06:11.246Z] [INFO] فایل SOLUSDT-5m-2022-09-21_2022-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:06:11.246Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2022-09-21_2022-09-30.csv
+[2026-07-03T18:06:11.272Z] [INFO] فایل XRPUSDT-5m-2022-09-21_2022-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:06:11.272Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T18:06:11.272Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T18:06:11.272Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T18:06:11.272Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T18:06:11.272Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 72/2880 | زمان: Wed Sep 21 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1336.5 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1336.6600 kijun=1336.6600 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 144/2880 | زمان: Wed Sep 21 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1348.7 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=17 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1348.0400 kijun=1341.0700 kumoTop=1330.4600 kumoBottom=1325.7975 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 216/2880 | زمان: Wed Sep 21 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1328.13 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=27 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1355.9250 kijun=1355.9250 kumoTop=1347.3850 kumoBottom=1345.9050 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 288/2880 | زمان: Thu Sep 22 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1247.62 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 288: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=32 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1246.2600 kijun=1241.5600 kumoTop=1329.4500 kumoBottom=1298.1325 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 360/2880 | زمان: Thu Sep 22 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1260.1 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 360: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=45 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1260.3450 kijun=1262.6850 kumoTop=1260.0975 kumoBottom=1253.1950 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 432/2880 | زمان: Thu Sep 22 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1309.19 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 432: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=54 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1300.9500 kijun=1299.0100 kumoTop=1286.4750 kumoBottom=1276.5850 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 504/2880 | زمان: Thu Sep 22 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1286.16 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 504: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=64 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1284.9050 kijun=1273.9650 kumoTop=1285.1950 kumoBottom=1276.4325 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 576/2880 | زمان: Fri Sep 23 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1327.07 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 576: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=71 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1335.2950 kijun=1328.5750 kumoTop=1321.7275 kumoBottom=1305.7000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 648/2880 | زمان: Fri Sep 23 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1345.67 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 648: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=81 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1349.6450 kijun=1346.5050 kumoTop=1332.2500 kumoBottom=1331.3050 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 720/2880 | زمان: Fri Sep 23 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1291.31 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 720: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=89 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1289.7050 kijun=1299.1050 kumoTop=1335.1600 kumoBottom=1323.9300 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 792/2880 | زمان: Fri Sep 23 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1295.8 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 792: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=97 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1293.0200 kijun=1293.4500 kumoTop=1290.6400 kumoBottom=1289.9775 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 864/2880 | زمان: Sat Sep 24 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1328.09 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 864: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=106 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1331.5200 kijun=1322.3850 kumoTop=1297.8300 kumoBottom=1291.6600 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 936/2880 | زمان: Sat Sep 24 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1334.01 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 936: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=116 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1330.8100 kijun=1326.7750 kumoTop=1325.6450 kumoBottom=1323.1175 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1008/2880 | زمان: Sat Sep 24 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1328.27 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1008: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=128 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1328.2750 kijun=1326.6200 kumoTop=1327.3500 kumoBottom=1324.3000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 1080/2880 | زمان: Sat Sep 24 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1334.16 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1080: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=139 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1338.4450 kijun=1340.2050 kumoTop=1342.1100 kumoBottom=1336.4200 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1152/2880 | زمان: Sun Sep 25 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1320.05 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1152: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=150 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1315.7750 kijun=1318.8550 kumoTop=1334.9600 kumoBottom=1333.6000 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1224/2880 | زمان: Sun Sep 25 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1322.82 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1224: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=159 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1324.5050 kijun=1324.8500 kumoTop=1322.4025 kumoBottom=1317.0900 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1296/2880 | زمان: Sun Sep 25 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1328.53 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1296: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=170 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1328.5000 kijun=1324.3700 kumoTop=1330.6275 kumoBottom=1328.2900 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1368/2880 | زمان: Sun Sep 25 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1296.89 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1368: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=178 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1296.8500 kijun=1301.4700 kumoTop=1315.0750 kumoBottom=1309.8225 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1440/2880 | زمان: Mon Sep 26 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1293.55 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1440: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=188 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1294.2900 kijun=1286.1850 kumoTop=1297.4400 kumoBottom=1293.9700 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1512/2880 | زمان: Mon Sep 26 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1294.85 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1512: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=198 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1291.3250 kijun=1297.3300 kumoTop=1305.0275 kumoBottom=1300.7150 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1584/2880 | زمان: Mon Sep 26 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1296.89 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1584: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=205 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1301.9400 kijun=1303.6600 kumoTop=1309.4450 kumoBottom=1301.4550 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1656/2880 | زمان: Mon Sep 26 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1329.69 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1656: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=212 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1322.9950 kijun=1321.0600 kumoTop=1325.1875 kumoBottom=1313.9150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1728/2880 | زمان: Tue Sep 27 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1333.54 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1728: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=222 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1332.4050 kijun=1326.5100 kumoTop=1327.7800 kumoBottom=1326.3300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1800/2880 | زمان: Tue Sep 27 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1385.59 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1800: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=230 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1381.0250 kijun=1382.1300 kumoTop=1371.4525 kumoBottom=1358.4250 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1872/2880 | زمان: Tue Sep 27 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1386.46 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1872: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=238 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1390.5350 kijun=1390.3800 kumoTop=1384.8000 kumoBottom=1381.6325 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1944/2880 | زمان: Tue Sep 27 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1316.69 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1944: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=246 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1321.9100 kijun=1344.5000 kumoTop=1387.9300 kumoBottom=1385.6150 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2016/2880 | زمان: Wed Sep 28 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1330.44 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2016: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=257 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1330.8600 kijun=1325.9250 kumoTop=1321.7900 kumoBottom=1319.5350 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2088/2880 | زمان: Wed Sep 28 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1291.65 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2088: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=268 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1285.3200 kijun=1285.3200 kumoTop=1303.7850 kumoBottom=1289.9125 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 2160/2880 | زمان: Wed Sep 28 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1298.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2160: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=278 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1296.7150 kijun=1282.4700 kumoTop=1279.9850 kumoBottom=1276.8700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2232/2880 | زمان: Wed Sep 28 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1318.12 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2232: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=288 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1322.9450 kijun=1324.9450 kumoTop=1319.5750 kumoBottom=1310.3650 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2304/2880 | زمان: Thu Sep 29 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1341.35 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2304: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=296 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1339.5550 kijun=1342.5250 kumoTop=1343.4725 kumoBottom=1333.1200 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2376/2880 | زمان: Thu Sep 29 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1329.5 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2376: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=305 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1336.8050 kijun=1337.3350 kumoTop=1339.6950 kumoBottom=1338.7700 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2448/2880 | زمان: Thu Sep 29 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1333.68 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2448: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=315 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1338.8900 kijun=1338.8000 kumoTop=1329.2050 kumoBottom=1325.3375 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 2520/2880 | زمان: Thu Sep 29 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1322.92 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2520: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=325 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1331.7200 kijun=1331.4450 kumoTop=1316.8800 kumoBottom=1311.6500 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 2592/2880 | زمان: Fri Sep 30 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1336.38 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2592: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=335 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1332.0000 kijun=1332.5100 kumoTop=1335.3800 kumoBottom=1333.2950 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 2664/2880 | زمان: Fri Sep 30 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1331.76 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2664: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=344 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1331.7600 kijun=1328.4550 kumoTop=1336.2100 kumoBottom=1327.1600 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2736/2880 | زمان: Fri Sep 30 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1330.1 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2736: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=356 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1332.8200 kijun=1335.3450 kumoTop=1342.5700 kumoBottom=1338.5450 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2808/2880 | زمان: Fri Sep 30 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1344.49 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2808: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=364 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1349.2050 kijun=1351.4650 kumoTop=1349.9450 kumoBottom=1343.2700 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 2860
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 2860 از 2860
+├─ حداکثر تعداد خط روند معتبر همزمان: 0
+├─ کل شکست‌های خط روند شناسایی‌شده: 0 (بالا=0, پایین=0)
+├─ تعداد فراخوانی استراتژی: 2860
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 2860
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 0
+│  ├─ اولین کندل با سیگنال: هیچ‌وقت
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 0 (اولین در کندل هیچ‌وقت)
+
+⚠️⚠️⚠️ [ZERO_TRADES] هیچ معامله‌ای در کل بکتست باز نشد. علت‌های محتمل بر اساس آمار بالا:
+   → در تمام کندل‌ها هیچ خط روند معتبری وجود نداشت (processedTrendLines همیشه خالی بود). یا trendLineSettings/options.trendLines تنظیم نشده، یا شرایط isValidTrendLine خیلی سخت‌گیرانه است.
+   → استراتژی (کد کاربر) در هیچ کندلی سیگنال BUY/SELL برنگرداند، با اینکه بدون خطا اجرا شد. منطق ورود داخل کد استراتژی را بررسی کنید (شاید به breakPoints/trendLines/ichimoku وابسته است که هیچ‌وقت شرطش برقرار نشده).
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-07-03T18:21:56.005Z] [INFO] بک‌تست 5m پایان یافت. تعداد معاملات: 0
+[2026-07-03T18:21:56.005Z] [INFO] سرمایه نهایی: 10000.00
+[2026-07-03T18:21:56.013Z] [INFO] گزارش detailed_results.json برای 5m ذخیره شد.
+[2026-07-03T18:21:56.014Z] [INFO] گزارش trades_summary.json برای 5m ذخیره شد.
+[2026-07-03T18:21:56.065Z] [INFO] ✅ results.enc برای ETHUSDT-5m-2022-09-21_2022-09-30.csv / 5m ذخیره شد.
+[2026-07-03T18:21:56.068Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 15m (960 کندل)...
+[2026-07-03T18:21:56.068Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 15m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 960
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 24/960 | زمان: Wed Sep 21 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1329.85 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 24: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=1 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 48/960 | زمان: Wed Sep 21 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1350.41 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 48: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=4 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 72/960 | زمان: Wed Sep 21 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1319 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1355.9250 kijun=1355.9250 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 96/960 | زمان: Thu Sep 22 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1246.42 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 96: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=10 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1267.8000 kijun=1314.4500 kumoTop=1344.2775 kumoBottom=1338.4400 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 120/960 | زمان: Thu Sep 22 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1266.15 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 120: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=13 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1263.0950 kijun=1252.8650 kumoTop=1314.4500 kumoBottom=1303.7250 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 144/960 | زمان: Thu Sep 22 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1313.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=15 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1299.0850 kijun=1283.8900 kumoTop=1314.4500 kumoBottom=1254.2125 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 168/960 | زمان: Thu Sep 22 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1283.29 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 168: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=17 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1273.9650 kijun=1282.9100 kumoTop=1282.4025 kumoBottom=1269.2650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 192/960 | زمان: Fri Sep 23 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1331.48 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 192: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=19 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1328.5750 kijun=1312.0400 kumoTop=1282.9100 kumoBottom=1280.9400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 216/960 | زمان: Fri Sep 23 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1346.61 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=22 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1341.9150 kijun=1337.2100 kumoTop=1308.4975 kumoBottom=1294.7600 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 240/960 | زمان: Fri Sep 23 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1300.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 240: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=22 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1302.5550 kijun=1321.0700 kumoTop=1330.3175 kumoBottom=1301.1000 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 264/960 | زمان: Fri Sep 23 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1281.29 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 264: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=27 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1293.3300 kijun=1290.6400 kumoTop=1330.8150 kumoBottom=1326.3825 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 288/960 | زمان: Sat Sep 24 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1322.79 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 288: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=29 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1319.4650 kijun=1307.1250 kumoTop=1311.0750 kumoBottom=1291.6000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 312/960 | زمان: Sat Sep 24 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1328.2 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 312: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=33 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1326.7750 kijun=1325.6450 kumoTop=1306.0450 kumoBottom=1299.9600 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 336/960 | زمان: Sat Sep 24 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1327.93 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 336: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=37 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1326.6200 kijun=1327.3500 kumoTop=1320.8200 kumoBottom=1307.1250 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 360/960 | زمان: Sat Sep 24 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1337 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 360: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=40 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1340.2050 kijun=1335.8100 kumoTop=1325.4325 kumoBottom=1319.4650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 384/960 | زمان: Sun Sep 25 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1322.51 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 384: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=43 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1324.7150 kijun=1327.4350 kumoTop=1338.0675 kumoBottom=1332.5400 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 408/960 | زمان: Sun Sep 25 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1323.81 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 408: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=47 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1324.4650 kijun=1318.3200 kumoTop=1330.8450 kumoBottom=1330.3550 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 432/960 | زمان: Sun Sep 25 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1330.4 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 432: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=50 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1324.5000 kijun=1326.8700 kumoTop=1327.4350 kumoBottom=1322.2475 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 456/960 | زمان: Sun Sep 25 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1296.24 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 456: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=53 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1301.4700 kijun=1306.9550 kumoTop=1326.8700 kumoBottom=1324.7150 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 480/960 | زمان: Mon Sep 26 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1308.22 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 480: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=57 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1290.4450 kijun=1292.1850 kumoTop=1317.5750 kumoBottom=1312.7400 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 504/960 | زمان: Mon Sep 26 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1284.64 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 504: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=60 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1298.8650 kijun=1298.8650 kumoTop=1300.7650 kumoBottom=1290.7975 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 528/960 | زمان: Mon Sep 26 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1296.37 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 528: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=62 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1307.1900 kijun=1301.4550 kumoTop=1297.0950 kumoBottom=1295.1500 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 552/960 | زمان: Mon Sep 26 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1329.64 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 552: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=65 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1322.6500 kijun=1313.9150 kumoTop=1303.5700 kumoBottom=1297.1650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 576/960 | زمان: Tue Sep 27 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1344.5 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 576: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=67 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1331.1450 kijun=1331.0700 kumoTop=1318.8350 kumoBottom=1308.1800 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 600/960 | زمان: Tue Sep 27 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1385.5 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 600: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=69 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1376.4050 kijun=1358.4250 kumoTop=1326.8500 kumoBottom=1314.8700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 624/960 | زمان: Tue Sep 27 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1392.48 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 624: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=72 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1387.3300 kijun=1387.0500 kumoTop=1360.6575 kumoBottom=1350.5200 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 648/960 | زمان: Tue Sep 27 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1310.03 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 648: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=74 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1350.0400 kijun=1354.2500 kumoTop=1383.8625 kumoBottom=1354.9250 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 672/960 | زمان: Wed Sep 28 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1335.49 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 672: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=77 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1326.8600 kijun=1320.3900 kumoTop=1363.8250 kumoBottom=1363.6150 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 696/960 | زمان: Wed Sep 28 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1285.56 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 696: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=80 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1281.7250 kijun=1303.7850 kumoTop=1351.8750 kumoBottom=1333.6225 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 720/960 | زمان: Wed Sep 28 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1295.65 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 720: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=86 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1282.4700 kijun=1282.4700 kumoTop=1329.3550 kumoBottom=1302.6750 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 744/960 | زمان: Wed Sep 28 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1320.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 744: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=87 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1324.9450 kijun=1313.5900 kumoTop=1296.8200 kumoBottom=1282.4700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 768/960 | زمان: Thu Sep 29 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1338.01 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 768: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=90 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1344.6100 kijun=1333.1200 kumoTop=1308.7475 kumoBottom=1296.2750 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 792/960 | زمان: Thu Sep 29 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1324.12 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 792: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=93 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1334.2100 kijun=1337.2600 kumoTop=1335.9850 kumoBottom=1304.4500 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 816/960 | زمان: Thu Sep 29 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1329.17 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 816: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=94 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1333.1250 kijun=1329.3950 kumoTop=1341.4025 kumoBottom=1333.1200 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 840/960 | زمان: Thu Sep 29 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1327.04 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 840: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=98 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1328.7250 kijun=1318.3850 kumoTop=1334.6250 kumoBottom=1328.2775 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 864/960 | زمان: Fri Sep 30 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1334.63 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 864: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=103 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1332.5100 kijun=1333.9600 kumoTop=1317.2200 kumoBottom=1316.8550 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 888/960 | زمان: Fri Sep 30 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1331.89 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 888: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=105 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1327.8550 kijun=1336.2100 kumoTop=1332.9875 kumoBottom=1318.3850 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 912/960 | زمان: Fri Sep 30 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1331.91 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 912: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=106 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1337.6850 kijun=1337.6850 kumoTop=1332.6350 kumoBottom=1322.2600 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 936/960 | زمان: Fri Sep 30 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1352.84 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 936: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=110 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1357.2000 kijun=1343.2700 kumoTop=1338.9875 kumoBottom=1336.2100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 940
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 940 از 940
+├─ حداکثر تعداد خط روند معتبر همزمان: 0
+├─ کل شکست‌های خط روند شناسایی‌شده: 0 (بالا=0, پایین=0)
+├─ تعداد فراخوانی استراتژی: 940
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 940
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 0
+│  ├─ اولین کندل با سیگنال: هیچ‌وقت
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 0 (اولین در کندل هیچ‌وقت)
+
+⚠️⚠️⚠️ [ZERO_TRADES] هیچ معامله‌ای در کل بکتست باز نشد. علت‌های محتمل بر اساس آمار بالا:
+   → در تمام کندل‌ها هیچ خط روند معتبری وجود نداشت (processedTrendLines همیشه خالی بود). یا trendLineSettings/options.trendLines تنظیم نشده، یا شرایط isValidTrendLine خیلی سخت‌گیرانه است.
+   → استراتژی (کد کاربر) در هیچ کندلی سیگنال BUY/SELL برنگرداند، با اینکه بدون خطا اجرا شد. منطق ورود داخل کد استراتژی را بررسی کنید (شاید به breakPoints/trendLines/ichimoku وابسته است که هیچ‌وقت شرطش برقرار نشده).
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-07-03T18:22:09.471Z] [INFO] بک‌تست 15m پایان یافت. تعداد معاملات: 0
+[2026-07-03T18:22:09.471Z] [INFO] سرمایه نهایی: 10000.00
+[2026-07-03T18:22:09.471Z] [INFO] گزارش detailed_results.json برای 15m ذخیره شد.
+[2026-07-03T18:22:09.472Z] [INFO] گزارش trades_summary.json برای 15m ذخیره شد.
+[2026-07-03T18:22:09.521Z] [INFO] ✅ results.enc برای ETHUSDT-5m-2022-09-21_2022-09-30.csv / 15m ذخیره شد.
+[2026-07-03T18:22:09.523Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 30m (480 کندل)...
+[2026-07-03T18:22:09.523Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 30m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 480
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 24/480 | زمان: Wed Sep 21 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1351.15 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 24: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=3 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 36/480 | زمان: Wed Sep 21 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1335.77 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 36: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=5 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 48/480 | زمان: Thu Sep 22 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1244.78 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 48: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 60/480 | زمان: Thu Sep 22 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1271.12 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 60: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=9 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1256.0250 kijun=1314.4500 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 72/480 | زمان: Thu Sep 22 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1306.74 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=9 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1284.4100 kijun=1266.8500 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 84/480 | زمان: Thu Sep 22 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1291.36 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 84: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=10 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1282.9100 kijun=1282.9100 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 96/480 | زمان: Fri Sep 23 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1332.28 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 96: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=12 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1315.9550 kijun=1301.1000 kumoTop=1314.4500 kumoBottom=1290.3975 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 108/480 | زمان: Fri Sep 23 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1343.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 108: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=14 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1337.2100 kijun=1306.0600 kumoTop=1314.4500 kumoBottom=1280.7200 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 120/480 | زمان: Fri Sep 23 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1301 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 120: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=15 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1316.1650 kijun=1321.0700 kumoTop=1314.4500 kumoBottom=1294.7600 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 132/480 | زمان: Fri Sep 23 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1293.62 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 132: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=17 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1290.6400 kijun=1311.0750 kumoTop=1314.8375 kumoBottom=1293.7000 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 144/480 | زمان: Sat Sep 24 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1317.82 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=18 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1307.1250 kijun=1301.0400 kumoTop=1331.0050 kumoBottom=1306.0600 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 156/480 | زمان: Sat Sep 24 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1326.78 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 156: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=20 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1324.5800 kijun=1307.1250 kumoTop=1306.0600 kumoBottom=1302.4050 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 168/480 | زمان: Sat Sep 24 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1326.32 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 168: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=22 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1327.3500 kijun=1320.7250 kumoTop=1311.0750 kumoBottom=1297.8375 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 180/480 | زمان: Sat Sep 24 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1336.57 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 180: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=23 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1337.5200 kijun=1332.5400 kumoTop=1311.0750 kumoBottom=1310.2525 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 192/480 | زمان: Sun Sep 25 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1318.37 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 192: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=24 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1327.4350 kijun=1327.9250 kumoTop=1316.9500 kumoBottom=1308.9300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 204/480 | زمان: Sun Sep 25 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1325.32 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 204: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=25 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1321.0900 kijun=1327.4350 kumoTop=1332.4725 kumoBottom=1305.7400 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 216/480 | زمان: Sun Sep 25 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1327.28 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=27 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1326.8700 kijun=1321.7600 kumoTop=1334.0375 kumoBottom=1311.8250 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 228/480 | زمان: Sun Sep 25 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1296.34 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 228: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=29 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1306.9550 kijun=1309.4550 kumoTop=1327.9250 kumoBottom=1326.3200 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 240/480 | زمان: Mon Sep 26 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1304.62 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 240: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=31 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1290.4450 kijun=1300.7350 kumoTop=1327.9250 kumoBottom=1327.6700 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 252/480 | زمان: Mon Sep 26 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1287.59 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 252: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=35 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1298.7800 kijun=1295.1500 kumoTop=1323.7400 kumoBottom=1316.3900 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 264/480 | زمان: Mon Sep 26 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1304.44 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 264: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=37 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1301.4550 kijun=1297.1650 kumoTop=1315.1300 kumoBottom=1305.4625 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 276/480 | زمان: Mon Sep 26 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1324.97 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 276: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=39 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1313.9150 kijun=1308.1800 kumoTop=1303.1350 kumoBottom=1295.2425 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 288/480 | زمان: Tue Sep 27 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1340.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 288: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=41 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1331.2750 kijun=1318.2900 kumoTop=1303.1350 kumoBottom=1299.3100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 300/480 | زمان: Tue Sep 27 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1390.82 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 300: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=43 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1363.2650 kijun=1352.9150 kumoTop=1311.0475 kumoBottom=1303.8900 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 312/480 | زمان: Tue Sep 27 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1389.48 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 312: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=45 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1387.3300 kijun=1357.1750 kumoTop=1317.4900 kumoBottom=1304.8450 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 324/480 | زمان: Tue Sep 27 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1311.89 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 324: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=46 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1351.8750 kijun=1351.8750 kumoTop=1348.3350 kumoBottom=1333.8100 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 336/480 | زمان: Wed Sep 28 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1339.61 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 336: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=47 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1322.0950 kijun=1351.8750 kumoTop=1366.8050 kumoBottom=1336.2050 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 348/480 | زمان: Wed Sep 28 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1285.34 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 348: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=49 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1303.7850 kijun=1324.6850 kumoTop=1378.0575 kumoBottom=1344.6600 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 360/480 | زمان: Wed Sep 28 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1300.69 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 360: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=51 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1282.4700 kijun=1296.8200 kumoTop=1351.8750 kumoBottom=1349.7700 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 372/480 | زمان: Wed Sep 28 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1324.35 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 372: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=52 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1314.0700 kijun=1296.2750 kumoTop=1333.5650 kumoBottom=1318.6750 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 384/480 | زمان: Thu Sep 29 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1340.82 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 384: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=55 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1333.1200 kijun=1304.4500 kumoTop=1333.2600 kumoBottom=1291.7325 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 396/480 | زمان: Thu Sep 29 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1324.73 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 396: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=57 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1337.0800 kijun=1333.1200 kumoTop=1326.6000 kumoBottom=1294.7850 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 408/480 | زمان: Thu Sep 29 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1334.7 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 408: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=58 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1329.3950 kijun=1333.7000 kumoTop=1318.7850 kumoBottom=1304.4500 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 420/480 | زمان: Thu Sep 29 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1331.79 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 420: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=60 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1318.3850 kijun=1318.3850 kumoTop=1334.2350 kumoBottom=1304.4500 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 432/480 | زمان: Fri Sep 30 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1332.61 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 432: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=62 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1330.8100 kijun=1318.3850 kumoTop=1332.1800 kumoBottom=1304.4500 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 444/480 | زمان: Fri Sep 30 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1332.44 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 444: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=65 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1336.2100 kijun=1333.4700 kumoTop=1321.7650 kumoBottom=1318.5750 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 456/480 | زمان: Fri Sep 30 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1340.53 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 456: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=66 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1337.6850 kijun=1336.2100 kumoTop=1322.1100 kumoBottom=1319.3100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 468/480 | زمان: Fri Sep 30 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1350.97 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 468: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=68 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1343.2700 kijun=1343.2700 kumoTop=1328.3100 kumoBottom=1320.4100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 460
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 460 از 460
+├─ حداکثر تعداد خط روند معتبر همزمان: 0
+├─ کل شکست‌های خط روند شناسایی‌شده: 0 (بالا=0, پایین=0)
+├─ تعداد فراخوانی استراتژی: 460
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 460
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 0
+│  ├─ اولین کندل با سیگنال: هیچ‌وقت
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 0 (اولین در کندل هیچ‌وقت)
+
+⚠️⚠️⚠️ [ZERO_TRADES] هیچ معامله‌ای در کل بکتست باز نشد. علت‌های محتمل بر اساس آمار بالا:
+   → در تمام کندل‌ها هیچ خط روند معتبری وجود نداشت (processedTrendLines همیشه خالی بود). یا trendLineSettings/options.trendLines تنظیم نشده، یا شرایط isValidTrendLine خیلی سخت‌گیرانه است.
+   → استراتژی (کد کاربر) در هیچ کندلی سیگنال BUY/SELL برنگرداند، با اینکه بدون خطا اجرا شد. منطق ورود داخل کد استراتژی را بررسی کنید (شاید به breakPoints/trendLines/ichimoku وابسته است که هیچ‌وقت شرطش برقرار نشده).
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-07-03T18:22:10.848Z] [INFO] بک‌تست 30m پایان یافت. تعداد معاملات: 0
+[2026-07-03T18:22:10.848Z] [INFO] سرمایه نهایی: 10000.00
+[2026-07-03T18:22:10.848Z] [INFO] گزارش detailed_results.json برای 30m ذخیره شد.
+[2026-07-03T18:22:10.848Z] [INFO] گزارش trades_summary.json برای 30m ذخیره شد.
+[2026-07-03T18:22:10.896Z] [INFO] ✅ results.enc برای ETHUSDT-5m-2022-09-21_2022-09-30.csv / 30m ذخیره شد.
+[2026-07-03T18:22:10.897Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 1h (240 کندل)...
+[2026-07-03T18:22:10.897Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 1h محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 240
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 24/240 | زمان: Thu Sep 22 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1242.88 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 24: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=2 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 30/240 | زمان: Thu Sep 22 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1266.84 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 30: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=3 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 36/240 | زمان: Thu Sep 22 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1307.11 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 36: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=3 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 42/240 | زمان: Thu Sep 22 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1302.79 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 42: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=4 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 48/240 | زمان: Fri Sep 23 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1321.21 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 48: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=5 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 54/240 | زمان: Fri Sep 23 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1342.29 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 54: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=5 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 60/240 | زمان: Fri Sep 23 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1298.18 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 60: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=6 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1321.0700 kijun=1306.0600 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 66/240 | زمان: Fri Sep 23 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1282.61 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 66: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=6 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1308.9300 kijun=1306.0600 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 72/240 | زمان: Sat Sep 24 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1318.03 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1301.0400 kijun=1311.0750 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 78/240 | زمان: Sat Sep 24 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1324.5 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 78: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=8 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1307.1250 kijun=1311.0750 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 84/240 | زمان: Sat Sep 24 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1331.99 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 84: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=9 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1325.6450 kijun=1302.7700 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 90/240 | زمان: Sat Sep 24 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1343.69 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 90: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=9 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1333.1150 kijun=1305.7400 kumoTop=1314.4500 kumoBottom=1313.5650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 96/240 | زمان: Sun Sep 25 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1321.57 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 96: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=10 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1327.9250 kijun=1311.8250 kumoTop=1314.4500 kumoBottom=1307.4950 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 102/240 | زمان: Sun Sep 25 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1326.31 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 102: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=11 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1327.4350 kijun=1327.9250 kumoTop=1314.4500 kumoBottom=1306.0575 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 108/240 | زمان: Sun Sep 25 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1323.57 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 108: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=12 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1323.7650 kijun=1327.9250 kumoTop=1309.1000 kumoBottom=1290.0000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 114/240 | زمان: Sun Sep 25 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1296.51 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 114: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=12 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1309.4550 kijun=1315.6200 kumoTop=1314.2075 kumoBottom=1306.0600 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 120/240 | زمان: Mon Sep 26 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1293.04 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 120: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=12 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1300.6350 kijun=1308.8100 kumoTop=1319.4275 kumoBottom=1306.0600 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 126/240 | زمان: Mon Sep 26 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1280.23 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 126: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=13 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1291.9100 kijun=1303.1350 kumoTop=1319.8750 kumoBottom=1306.0600 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 132/240 | زمان: Mon Sep 26 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1315.85 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 132: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=14 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1301.4550 kijun=1303.1350 kumoTop=1327.6800 kumoBottom=1311.0750 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 138/240 | زمان: Mon Sep 26 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1330.95 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 138: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=14 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1308.1800 kijun=1303.8900 kumoTop=1325.8450 kumoBottom=1311.0750 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 144/240 | زمان: Tue Sep 27 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1342.83 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=14 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1318.7900 kijun=1308.7650 kumoTop=1312.5375 kumoBottom=1305.7400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 150/240 | زمان: Tue Sep 27 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1384.03 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 150: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=14 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1354.8500 kijun=1336.2050 kumoTop=1309.3000 kumoBottom=1304.7225 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 156/240 | زمان: Tue Sep 27 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1392.06 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 156: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=14 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1363.5400 kijun=1339.6750 kumoTop=1309.3000 kumoBottom=1297.5225 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 162/240 | زمان: Tue Sep 27 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1323.11 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 162: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=15 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1351.8750 kijun=1351.8750 kumoTop=1309.3000 kumoBottom=1302.2950 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 168/240 | زمان: Wed Sep 28 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1333.63 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 168: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=16 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1351.8750 kijun=1351.8750 kumoTop=1309.3000 kumoBottom=1306.0350 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 174/240 | زمان: Wed Sep 28 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1277.47 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 174: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=17 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1303.7850 kijun=1333.5650 kumoTop=1313.7775 kumoBottom=1308.8100 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 180/240 | زمان: Wed Sep 28 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1304.29 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 180: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=17 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1296.8200 kijun=1326.6000 kumoTop=1345.5275 kumoBottom=1331.9150 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 186/240 | زمان: Wed Sep 28 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1333.18 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 186: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=18 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1296.2750 kijun=1326.1800 kumoTop=1351.6075 kumoBottom=1334.6350 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 192/240 | زمان: Thu Sep 29 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1334.21 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 192: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=18 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1321.7650 kijun=1304.4500 kumoTop=1351.8750 kumoBottom=1334.6350 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 198/240 | زمان: Thu Sep 29 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1328.58 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 198: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=19 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1333.1200 kijun=1304.4500 kumoTop=1351.8750 kumoBottom=1334.6350 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 204/240 | زمان: Thu Sep 29 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1319.88 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 204: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=19 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1332.2250 kijun=1304.4500 kumoTop=1333.5650 kumoBottom=1318.6750 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 210/240 | زمان: Thu Sep 29 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1326.86 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 210: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=19 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1318.3850 kijun=1322.1100 kumoTop=1326.6000 kumoBottom=1311.7100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 216/240 | زمان: Fri Sep 30 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1337.51 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=21 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1320.4100 kijun=1322.1100 kumoTop=1326.6000 kumoBottom=1311.2275 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 222/240 | زمان: Fri Sep 30 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1332.98 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 222: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=22 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1335.9850 kijun=1320.4100 kumoTop=1326.6000 kumoBottom=1313.1075 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 228/240 | زمان: Fri Sep 30 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1327.48 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 228: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=23 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1332.8250 kijun=1320.4100 kumoTop=1326.6000 kumoBottom=1318.7850 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 234/240 | زمان: Fri Sep 30 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1347.65 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 234: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=25 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1343.2700 kijun=1330.8550 kumoTop=1326.6000 kumoBottom=1318.3375 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 220
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 220 از 220
+├─ حداکثر تعداد خط روند معتبر همزمان: 0
+├─ کل شکست‌های خط روند شناسایی‌شده: 0 (بالا=0, پایین=0)
+├─ تعداد فراخوانی استراتژی: 220
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 220
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 0
+│  ├─ اولین کندل با سیگنال: هیچ‌وقت
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 0 (اولین در کندل هیچ‌وقت)
+
+⚠️⚠️⚠️ [ZERO_TRADES] هیچ معامله‌ای در کل بکتست باز نشد. علت‌های محتمل بر اساس آمار بالا:
+   → در تمام کندل‌ها هیچ خط روند معتبری وجود نداشت (processedTrendLines همیشه خالی بود). یا trendLineSettings/options.trendLines تنظیم نشده، یا شرایط isValidTrendLine خیلی سخت‌گیرانه است.
+   → استراتژی (کد کاربر) در هیچ کندلی سیگنال BUY/SELL برنگرداند، با اینکه بدون خطا اجرا شد. منطق ورود داخل کد استراتژی را بررسی کنید (شاید به breakPoints/trendLines/ichimoku وابسته است که هیچ‌وقت شرطش برقرار نشده).
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-07-03T18:22:10.942Z] [INFO] بک‌تست 1h پایان یافت. تعداد معاملات: 0
+[2026-07-03T18:22:10.942Z] [INFO] سرمایه نهایی: 10000.00
+[2026-07-03T18:22:10.943Z] [INFO] گزارش detailed_results.json برای 1h ذخیره شد.
+[2026-07-03T18:22:10.943Z] [INFO] گزارش trades_summary.json برای 1h ذخیره شد.
+[2026-07-03T18:22:10.990Z] [INFO] ✅ results.enc برای ETHUSDT-5m-2022-09-21_2022-09-30.csv / 1h ذخیره شد.
+[2026-07-03T18:22:10.990Z] [INFO] شروع پردازش فایل 2 از 50: PAXGUSDT-5m-2022-09-21_2022-09-30.csv
+[2026-07-03T18:22:11.011Z] [INFO] فایل PAXGUSDT-5m-2022-09-21_2022-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:22:11.012Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2022-09-21_2022-09-30.csv
+[2026-07-03T18:22:11.029Z] [INFO] فایل SOLUSDT-5m-2022-09-21_2022-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:22:11.029Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2022-09-21_2022-09-30.csv
+[2026-07-03T18:22:11.050Z] [INFO] فایل XRPUSDT-5m-2022-09-21_2022-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:22:11.050Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2022-10-01_2022-10-10.csv
+[2026-07-03T18:22:11.077Z] [INFO] فایل BTCUSDT-5m-2022-10-01_2022-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:22:11.077Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T18:22:11.077Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T18:22:11.077Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T18:22:11.078Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T18:22:11.078Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 72/2880 | زمان: Wed Sep 21 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1659 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=65 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1657.5000 kijun=1657.5000 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+   💥 [BREAK] کندل 139: خط primaryUp_100_125_0 (primaryUp) شکسته شد | جهت=down | قیمت شکست=1667 | مقدار خط در این کندل=1668.8000 → سیگنال برای کندل 140 ثبت شد
+⏱️ [PROGRESS] کندل 144/2880 | زمان: Wed Sep 21 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1669 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=109 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1668.0000 kijun=1666.5000 kumoTop=1663.2500 kumoBottom=1661.5000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 216/2880 | زمان: Wed Sep 21 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1653 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=148 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1658.5000 kijun=1658.5000 kumoTop=1664.5000 kumoBottom=1663.5000 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 288/2880 | زمان: Thu Sep 22 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1659 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 288: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=162 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1662.0000 kijun=1659.5000 kumoTop=1663.7500 kumoBottom=1663.5000 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 360/2880 | زمان: Thu Sep 22 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1655 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 360: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=190 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1653.5000 kijun=1654.0000 kumoTop=1658.5000 kumoBottom=1655.0000 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 432/2880 | زمان: Thu Sep 22 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1665 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 432: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=211 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1662.0000 kijun=1662.0000 kumoTop=1663.2500 kumoBottom=1660.5000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 504/2880 | زمان: Thu Sep 22 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1665 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 504: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=230 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1666.5000 kijun=1664.5000 kumoTop=1667.5000 kumoBottom=1667.0000 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 576/2880 | زمان: Fri Sep 23 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1666 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 576: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=260 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1665.5000 kijun=1664.0000 kumoTop=1665.0000 kumoBottom=1664.0000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 648/2880 | زمان: Fri Sep 23 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1664 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 648: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=290 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1663.5000 kijun=1664.5000 kumoTop=1665.7500 kumoBottom=1665.5000 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 720/2880 | زمان: Fri Sep 23 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1641 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 720: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=317 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1638.0000 kijun=1644.5000 kumoTop=1660.5000 kumoBottom=1657.2500 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 792/2880 | زمان: Fri Sep 23 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1639 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 792: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=344 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1640.0000 kijun=1639.0000 kumoTop=1642.0000 kumoBottom=1640.7500 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 864/2880 | زمان: Sat Sep 24 2022 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1637 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 864: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=374 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1638.0000 kijun=1638.0000 kumoTop=1638.0000 kumoBottom=1636.7500 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 936/2880 | زمان: Sat Sep 24 2022 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1638 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 936: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=467 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1637.0000 kijun=1636.5000 kumoTop=1638.0000 kumoBottom=1637.5000 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1008/2880 | زمان: Sat Sep 24 2022 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1638 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1008: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=561 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1637.0000 kijun=1637.0000 kumoTop=1637.2500 kumoBottom=1637.0000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 1080/2880 | زمان: Sat Sep 24 2022 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1636 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1080: خطوط معتبر فعلی=1 | پیوت‌های شناسایی‌شده=640 | تفکیک نوع={"primaryUp":1}
+   ☁️ [ICHIMOKU] tenkan=1636.5000 kijun=1637.0000 kumoTop=1637.5000 kumoBottom=1637.2500 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
