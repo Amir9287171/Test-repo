@@ -85,7 +85,7 @@ function customStrategy(data, index, breakPointsParam, ichimokuParam) {
 
   // ─── ۳. پارامترهای شکست ──────────────────────────────────
   const MIN_DIST = 0.09;
-  const MAX_DIST = 1.5;
+  const MAX_DIST = 0.15;
   const TARGET = 0.12;
 
   const prevCandle = data[index - 1];
