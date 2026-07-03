@@ -1,0 +1,855 @@
+✅ نسخه نهایی – با پشتیبانی از ادامه‌دهی بین فایل‌ها
+[2026-07-03T18:06:15.119Z] [INFO] شروع run-backtest.js با آرگومان‌ها: strategyFile=strategies/B4Ic14-30-57.js, startIndex=400, chunkSize=50, dataDir=data/All_Coins_Combined, maxContinuation=3
+[2026-07-03T18:06:15.119Z] [INFO] استراتژی B4Ic14-30-57 با طول 4552 کاراکتر خوانده شد.
+[DIVERGENCE] 📦 ماژول در module.exports (Node.js) بارگذاری شد. (پشتیبانی از RSI و MACD)
+[2026-07-03T18:06:15.140Z] [INFO] در حال استخراج ANALYSIS_CONFIG از استراتژی...
+[2026-07-03T18:06:15.141Z] [INFO] ✅ ANALYSIS_CONFIG با موفقیت بارگذاری شد:
+{
+  "trendLines": {
+    "pivotPeriod": 5,
+    "minTouchPoints": 3,
+    "minCandleDistance": 3,
+    "precision": 0.000001
+  },
+  "ichimoku": {
+    "enabled": true,
+    "tenkanPeriod": 14,
+    "kijunPeriod": 30,
+    "senkouBPeriod": 57,
+    "useCloudFilter": true,
+    "useTKCross": true,
+    "useChikou": false
+  }
+}
+[2026-07-03T18:06:15.141Z] [INFO] نیازمندی‌ها: trendLines=true, ichimoku=true, divergence=false
+[2026-07-03T18:06:15.151Z] [INFO] این چانک شامل 50 فایل است: ETHUSDT-5m-2021-05-01_2021-05-10.csv, PAXGUSDT-5m-2021-05-01_2021-05-10.csv, SOLUSDT-5m-2021-05-01_2021-05-10.csv, XRPUSDT-5m-2021-05-01_2021-05-10.csv, BTCUSDT-5m-2021-05-11_2021-05-20.csv, ETHUSDT-5m-2021-05-11_2021-05-20.csv, PAXGUSDT-5m-2021-05-11_2021-05-20.csv, SOLUSDT-5m-2021-05-11_2021-05-20.csv, XRPUSDT-5m-2021-05-11_2021-05-20.csv, BTCUSDT-5m-2021-05-21_2021-05-31.csv, ETHUSDT-5m-2021-05-21_2021-05-31.csv, PAXGUSDT-5m-2021-05-21_2021-05-31.csv, SOLUSDT-5m-2021-05-21_2021-05-31.csv, XRPUSDT-5m-2021-05-21_2021-05-31.csv, BTCUSDT-5m-2021-06-01_2021-06-10.csv, ETHUSDT-5m-2021-06-01_2021-06-10.csv, PAXGUSDT-5m-2021-06-01_2021-06-10.csv, SOLUSDT-5m-2021-06-01_2021-06-10.csv, XRPUSDT-5m-2021-06-01_2021-06-10.csv, BTCUSDT-5m-2021-06-11_2021-06-20.csv, ETHUSDT-5m-2021-06-11_2021-06-20.csv, PAXGUSDT-5m-2021-06-11_2021-06-20.csv, SOLUSDT-5m-2021-06-11_2021-06-20.csv, XRPUSDT-5m-2021-06-11_2021-06-20.csv, BTCUSDT-5m-2021-06-21_2021-06-30.csv, ETHUSDT-5m-2021-06-21_2021-06-30.csv, PAXGUSDT-5m-2021-06-21_2021-06-30.csv, SOLUSDT-5m-2021-06-21_2021-06-30.csv, XRPUSDT-5m-2021-06-21_2021-06-30.csv, BTCUSDT-5m-2021-07-01_2021-07-10.csv, ETHUSDT-5m-2021-07-01_2021-07-10.csv, PAXGUSDT-5m-2021-07-01_2021-07-10.csv, SOLUSDT-5m-2021-07-01_2021-07-10.csv, XRPUSDT-5m-2021-07-01_2021-07-10.csv, BTCUSDT-5m-2021-07-11_2021-07-20.csv, ETHUSDT-5m-2021-07-11_2021-07-20.csv, PAXGUSDT-5m-2021-07-11_2021-07-20.csv, SOLUSDT-5m-2021-07-11_2021-07-20.csv, XRPUSDT-5m-2021-07-11_2021-07-20.csv, BTCUSDT-5m-2021-07-21_2021-07-31.csv, ETHUSDT-5m-2021-07-21_2021-07-31.csv, PAXGUSDT-5m-2021-07-21_2021-07-31.csv, SOLUSDT-5m-2021-07-21_2021-07-31.csv, XRPUSDT-5m-2021-07-21_2021-07-31.csv, BTCUSDT-5m-2021-08-01_2021-08-10.csv, ETHUSDT-5m-2021-08-01_2021-08-10.csv, PAXGUSDT-5m-2021-08-01_2021-08-10.csv, SOLUSDT-5m-2021-08-01_2021-08-10.csv, XRPUSDT-5m-2021-08-01_2021-08-10.csv, BTCUSDT-5m-2021-08-11_2021-08-20.csv
+[2026-07-03T18:06:15.151Z] [INFO] شروع فاز تحلیل و بک‌تست...
+[2026-07-03T18:06:15.152Z] [INFO] شروع پردازش فایل 1 از 50: ETHUSDT-5m-2021-05-01_2021-05-10.csv
+[2026-07-03T18:06:15.171Z] [INFO] فایل ETHUSDT-5m-2021-05-01_2021-05-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:06:15.172Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2021-05-01_2021-05-10.csv
+[2026-07-03T18:06:15.192Z] [INFO] فایل PAXGUSDT-5m-2021-05-01_2021-05-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:06:15.192Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2021-05-01_2021-05-10.csv
+[2026-07-03T18:06:15.214Z] [INFO] فایل SOLUSDT-5m-2021-05-01_2021-05-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:06:15.214Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2021-05-01_2021-05-10.csv
+[2026-07-03T18:06:15.238Z] [INFO] فایل XRPUSDT-5m-2021-05-01_2021-05-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:06:15.238Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T18:06:15.238Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T18:06:15.238Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T18:06:15.238Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T18:06:15.238Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 72/2880 | زمان: Sat May 01 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 2844.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2853.5300 kijun=2850.8500 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 144/2880 | زمان: Sat May 01 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 2860.44 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=16 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2849.2700 kijun=2842.1600 kumoTop=2837.6200 kumoBottom=2835.0825 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 216/2880 | زمان: Sat May 01 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 2931.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=23 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2917.6200 kijun=2895.1200 kumoTop=2858.6000 kumoBottom=2856.6750 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 288/2880 | زمان: Sun May 02 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 2950 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 288: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=31 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2942.7450 kijun=2930.8400 kumoTop=2931.6425 kumoBottom=2923.1400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 360/2880 | زمان: Sun May 02 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 2921.27 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 360: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=41 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2914.0350 kijun=2901.0700 kumoTop=2939.3025 kumoBottom=2938.3500 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 432/2880 | زمان: Sun May 02 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 2930.7 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 432: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=49 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2922.2300 kijun=2903.7550 kumoTop=2889.6650 kumoBottom=2877.0300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 504/2880 | زمان: Sun May 02 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 2937.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 504: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=62 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2928.6350 kijun=2930.8050 kumoTop=2920.9350 kumoBottom=2916.8900 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 576/2880 | زمان: Mon May 03 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 2955.22 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 576: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=71 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2945.4850 kijun=2956.6700 kumoTop=2966.1450 kumoBottom=2949.5000 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 648/2880 | زمان: Mon May 03 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3095.45 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 648: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=77 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3078.1250 kijun=3073.2000 kumoTop=3028.2825 kumoBottom=2993.7950 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 720/2880 | زمان: Mon May 03 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3157.57 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 720: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=85 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3161.3500 kijun=3153.8050 kumoTop=3157.6750 kumoBottom=3124.4700 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 792/2880 | زمان: Mon May 03 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3290.84 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 792: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=94 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3272.7400 kijun=3223.7450 kumoTop=3151.4225 kumoBottom=3139.6050 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 864/2880 | زمان: Tue May 04 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3420.7 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 864: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=104 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3410.2800 kijun=3364.9950 kumoTop=3291.7400 kumoBottom=3280.5450 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 936/2880 | زمان: Tue May 04 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3396.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 936: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=111 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3367.2300 kijun=3309.5500 kumoTop=3317.3050 kumoBottom=3241.6425 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1008/2880 | زمان: Tue May 04 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3463.11 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1008: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=121 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3434.6450 kijun=3406.9500 kumoTop=3340.3450 kumoBottom=3327.1650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1080/2880 | زمان: Tue May 04 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3344.15 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1080: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=131 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3294.3150 kijun=3253.9000 kumoTop=3370.1750 kumoBottom=3354.6675 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1152/2880 | زمان: Wed May 05 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3266.52 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1152: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=140 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3261.7900 kijun=3276.7150 kumoTop=3382.2550 kumoBottom=3316.0800 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1224/2880 | زمان: Wed May 05 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3273.52 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1224: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=146 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3269.2500 kijun=3282.6300 kumoTop=3324.4825 kumoBottom=3292.6150 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1296/2880 | زمان: Wed May 05 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3368.43 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1296: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=155 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3362.6850 kijun=3373.4700 kumoTop=3333.2775 kumoBottom=3301.2550 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 1368/2880 | زمان: Wed May 05 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3409.26 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1368: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=164 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3425.6800 kijun=3368.4600 kumoTop=3335.1050 kumoBottom=3325.8700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1440/2880 | زمان: Thu May 06 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3529.65 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1440: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=171 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3521.7150 kijun=3484.6800 kumoTop=3446.7575 kumoBottom=3439.9700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1512/2880 | زمان: Thu May 06 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3440.4 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1512: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=182 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3444.5950 kijun=3463.4300 kumoTop=3494.7550 kumoBottom=3475.5700 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1584/2880 | زمان: Thu May 06 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3512.88 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1584: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=190 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3498.0350 kijun=3484.0650 kumoTop=3435.1575 kumoBottom=3420.4000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1656/2880 | زمان: Thu May 06 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3533.83 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1656: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=200 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3562.7200 kijun=3561.6600 kumoTop=3523.1775 kumoBottom=3518.8800 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1728/2880 | زمان: Fri May 07 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3477.12 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1728: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=206 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3501.9550 kijun=3506.6150 kumoTop=3496.7200 kumoBottom=3458.7975 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1800/2880 | زمان: Fri May 07 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3400.24 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1800: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=218 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3411.5450 kijun=3397.4400 kumoTop=3467.2350 kumoBottom=3436.4950 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 1872/2880 | زمان: Fri May 07 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3442.62 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1872: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=226 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3447.0050 kijun=3450.5150 kumoTop=3436.6675 kumoBottom=3430.6950 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1944/2880 | زمان: Fri May 07 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3520.32 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1944: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=233 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3544.2850 kijun=3550.8600 kumoTop=3500.7450 kumoBottom=3475.8400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2016/2880 | زمان: Sat May 08 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3490.54 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2016: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=240 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3462.3300 kijun=3460.0550 kumoTop=3512.8500 kumoBottom=3489.0225 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2088/2880 | زمان: Sat May 08 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3535.76 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2088: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=248 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3545.7850 kijun=3551.5000 kumoTop=3529.8350 kumoBottom=3495.3850 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 2160/2880 | زمان: Sat May 08 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3534.49 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2160: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=256 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3536.5150 kijun=3548.4800 kumoTop=3552.7650 kumoBottom=3545.1100 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2232/2880 | زمان: Sat May 08 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3825.21 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2232: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=265 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3803.7750 kijun=3726.0900 kumoTop=3640.3750 kumoBottom=3601.5150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2304/2880 | زمان: Sun May 09 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3881.98 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2304: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=273 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3876.8150 kijun=3897.8500 kumoTop=3839.3700 kumoBottom=3820.2750 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2376/2880 | زمان: Sun May 09 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3910.7 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2376: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=281 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3907.6900 kijun=3888.9950 kumoTop=3894.9825 kumoBottom=3880.0100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2448/2880 | زمان: Sun May 09 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3836.83 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2448: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=290 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3882.0050 kijun=3882.0050 kumoTop=3937.5550 kumoBottom=3927.9700 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2520/2880 | زمان: Sun May 09 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3908.39 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2520: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=301 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3913.2500 kijun=3899.1400 kumoTop=3827.2450 kumoBottom=3820.5950 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2592/2880 | زمان: Mon May 10 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3910.36 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2592: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=307 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3903.2050 kijun=3900.0550 kumoTop=3899.4425 kumoBottom=3895.3100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2664/2880 | زمان: Mon May 10 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 4117.93 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2664: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=316 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4106.6350 kijun=4085.9250 kumoTop=3987.6050 kumoBottom=3967.3100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2736/2880 | زمان: Mon May 10 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 4071.03 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2736: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=326 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4033.7150 kijun=4055.0950 kumoTop=4121.3925 kumoBottom=4110.9300 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2808/2880 | زمان: Mon May 10 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 4144.87 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2808: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=333 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4156.4950 kijun=4157.2500 kumoTop=4084.1650 kumoBottom=4069.5000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 2860
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 2860 از 2860
+├─ حداکثر تعداد خط روند معتبر همزمان: 0
+├─ کل شکست‌های خط روند شناسایی‌شده: 0 (بالا=0, پایین=0)
+├─ تعداد فراخوانی استراتژی: 2860
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 2860
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 0
+│  ├─ اولین کندل با سیگنال: هیچ‌وقت
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 0 (اولین در کندل هیچ‌وقت)
+
+⚠️⚠️⚠️ [ZERO_TRADES] هیچ معامله‌ای در کل بکتست باز نشد. علت‌های محتمل بر اساس آمار بالا:
+   → در تمام کندل‌ها هیچ خط روند معتبری وجود نداشت (processedTrendLines همیشه خالی بود). یا trendLineSettings/options.trendLines تنظیم نشده، یا شرایط isValidTrendLine خیلی سخت‌گیرانه است.
+   → استراتژی (کد کاربر) در هیچ کندلی سیگنال BUY/SELL برنگرداند، با اینکه بدون خطا اجرا شد. منطق ورود داخل کد استراتژی را بررسی کنید (شاید به breakPoints/trendLines/ichimoku وابسته است که هیچ‌وقت شرطش برقرار نشده).
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-07-03T18:18:01.154Z] [INFO] بک‌تست 5m پایان یافت. تعداد معاملات: 0
+[2026-07-03T18:18:01.154Z] [INFO] سرمایه نهایی: 10000.00
+[2026-07-03T18:18:01.163Z] [INFO] گزارش detailed_results.json برای 5m ذخیره شد.
+[2026-07-03T18:18:01.163Z] [INFO] گزارش trades_summary.json برای 5m ذخیره شد.
+[2026-07-03T18:18:01.220Z] [INFO] ✅ results.enc برای ETHUSDT-5m-2021-05-01_2021-05-10.csv / 5m ذخیره شد.
+[2026-07-03T18:18:01.222Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 15m (960 کندل)...
+[2026-07-03T18:18:01.222Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 15m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 960
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 24/960 | زمان: Sat May 01 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 2853.99 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 24: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=1 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 48/960 | زمان: Sat May 01 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 2871 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 48: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=4 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 72/960 | زمان: Sat May 01 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 2922.33 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2891.0500 kijun=2888.4550 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 96/960 | زمان: Sun May 02 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 2944 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 96: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=11 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2931.3050 kijun=2920.0000 kumoTop=2858.4100 kumoBottom=2847.0600 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 120/960 | زمان: Sun May 02 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 2919.75 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 120: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=15 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2912.7500 kijun=2913.1000 kumoTop=2911.3575 kumoBottom=2879.7600 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 144/960 | زمان: Sun May 02 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 2924.52 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=17 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2901.8850 kijun=2896.1750 kumoTop=2913.1000 kumoBottom=2896.7800 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 168/960 | زمان: Sun May 02 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 2935.42 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 168: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=21 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2926.3800 kijun=2922.2700 kumoTop=2903.4800 kumoBottom=2893.7575 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 192/960 | زمان: Mon May 03 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 2976.38 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 192: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=26 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2956.6700 kijun=2952.5000 kumoTop=2913.6800 kumoBottom=2903.1300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 216/960 | زمان: Mon May 03 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3096.17 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=27 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3065.1650 kijun=3021.7300 kumoTop=2953.1750 kumoBottom=2918.6300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 240/960 | زمان: Mon May 03 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3152.8 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 240: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=30 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3161.2750 kijun=3120.2850 kumoTop=3009.5850 kumoBottom=2985.0000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 264/960 | زمان: Mon May 03 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3306.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 264: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=32 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3234.7850 kijun=3203.5700 kumoTop=3133.8075 kumoBottom=3066.1900 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 288/960 | زمان: Tue May 04 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3351.45 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 288: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=34 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3361.0900 kijun=3347.0750 kumoTop=3167.5300 kumoBottom=3134.2350 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 312/960 | زمان: Tue May 04 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3369.32 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 312: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=37 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3292.3000 kijun=3317.3050 kumoTop=3297.7625 kumoBottom=3242.0300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 336/960 | زمان: Tue May 04 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3446.6 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 336: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=39 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3382.6550 kijun=3381.8500 kumoTop=3293.1650 kumoBottom=3286.2975 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 360/960 | زمان: Tue May 04 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3343.76 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 360: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=41 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3290.6900 kijun=3343.5000 kumoTop=3328.9500 kumoBottom=3317.3050 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 384/960 | زمان: Wed May 05 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3278 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 384: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=42 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3309.9900 kijun=3313.9400 kumoTop=3343.5000 kumoBottom=3343.5000 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 408/960 | زمان: Wed May 05 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3260.41 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 408: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=44 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3286.9150 kijun=3292.6150 kumoTop=3343.5000 kumoBottom=3317.2250 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 432/960 | زمان: Wed May 05 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3372.97 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 432: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=46 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3365.1850 kijun=3315.3150 kumoTop=3311.1325 kumoBottom=3306.9200 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 456/960 | زمان: Wed May 05 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3415.76 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 456: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=51 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3368.4600 kijun=3368.4600 kumoTop=3325.9825 kumoBottom=3309.9900 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 480/960 | زمان: Thu May 06 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3513.61 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 480: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=53 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3484.6700 kijun=3472.2000 kumoTop=3347.9650 kumoBottom=3319.1550 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 504/960 | زمان: Thu May 06 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3433.73 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 504: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=58 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3463.4300 kijun=3487.1000 kumoTop=3433.2175 kumoBottom=3400.3100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 528/960 | زمان: Thu May 06 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3494.43 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 528: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=59 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3473.6050 kijun=3452.2350 kumoTop=3478.8375 kumoBottom=3414.9800 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 552/960 | زمان: Thu May 06 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3543.58 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 552: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=62 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3549.1000 kijun=3532.7000 kumoTop=3462.9050 kumoBottom=3445.2225 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 576/960 | زمان: Fri May 07 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3510.95 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 576: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=64 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3490.5750 kijun=3496.7200 kumoTop=3524.6975 kumoBottom=3490.9350 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 600/960 | زمان: Fri May 07 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3436.54 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 600: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=67 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3400.6300 kijun=3446.3850 kumoTop=3502.8000 kumoBottom=3488.5825 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 624/960 | زمان: Fri May 07 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3434.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 624: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=70 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3448.1600 kijun=3430.6950 kumoTop=3479.3150 kumoBottom=3433.9500 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 648/960 | زمان: Fri May 07 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3522.52 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 648: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=73 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3535.5350 kijun=3505.0000 kumoTop=3447.1900 kumoBottom=3430.3175 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 672/960 | زمان: Sat May 08 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3466.54 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 672: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=75 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3466.8250 kijun=3495.5550 kumoTop=3517.2500 kumoBottom=3470.1150 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 696/960 | زمان: Sat May 08 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3529.37 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 696: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=78 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3544.9300 kijun=3504.5900 kumoTop=3499.4700 kumoBottom=3489.1050 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 720/960 | زمان: Sat May 08 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3538.15 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 720: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=80 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3548.4800 kijun=3545.1100 kumoTop=3521.9375 kumoBottom=3504.0550 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 744/960 | زمان: Sat May 08 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3818.48 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 744: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=82 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3726.0900 kijun=3685.0150 kumoTop=3546.4075 kumoBottom=3502.5550 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 768/960 | زمان: Sun May 09 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3874.52 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 768: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=86 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3890.8500 kijun=3859.4400 kumoTop=3670.7700 kumoBottom=3653.2500 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 792/960 | زمان: Sun May 09 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3919.62 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 792: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=89 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3888.9950 kijun=3886.5100 kumoTop=3824.0700 kumoBottom=3740.6800 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 816/960 | زمان: Sun May 09 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3818.9 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 816: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=91 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3876.0800 kijun=3896.4050 kumoTop=3887.8350 kumoBottom=3781.7550 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 840/960 | زمان: Sun May 09 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3914.01 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 840: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=94 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3891.9100 kijun=3848.0400 kumoTop=3910.5725 kumoBottom=3899.3350 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 864/960 | زمان: Mon May 10 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3903.22 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 864: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=97 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3904.5250 kijun=3895.3100 kumoTop=3857.2075 kumoBottom=3854.8650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 888/960 | زمان: Mon May 10 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 4131.22 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 888: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=99 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4046.4250 kijun=4005.0850 kumoTop=3893.4900 kumoBottom=3848.0400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 912/960 | زمان: Mon May 10 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 4104.26 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 912: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=102 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4073.8550 kijun=4073.8550 kumoTop=3985.6125 kumoBottom=3951.7100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 936/960 | زمان: Mon May 10 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 4149.77 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 936: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=106 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4116.9700 kijun=4093.5000 kumoTop=4096.9450 kumoBottom=4018.0150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 940
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 940 از 940
+├─ حداکثر تعداد خط روند معتبر همزمان: 0
+├─ کل شکست‌های خط روند شناسایی‌شده: 0 (بالا=0, پایین=0)
+├─ تعداد فراخوانی استراتژی: 940
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 940
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 0
+│  ├─ اولین کندل با سیگنال: هیچ‌وقت
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 0 (اولین در کندل هیچ‌وقت)
+
+⚠️⚠️⚠️ [ZERO_TRADES] هیچ معامله‌ای در کل بکتست باز نشد. علت‌های محتمل بر اساس آمار بالا:
+   → در تمام کندل‌ها هیچ خط روند معتبری وجود نداشت (processedTrendLines همیشه خالی بود). یا trendLineSettings/options.trendLines تنظیم نشده، یا شرایط isValidTrendLine خیلی سخت‌گیرانه است.
+   → استراتژی (کد کاربر) در هیچ کندلی سیگنال BUY/SELL برنگرداند، با اینکه بدون خطا اجرا شد. منطق ورود داخل کد استراتژی را بررسی کنید (شاید به breakPoints/trendLines/ichimoku وابسته است که هیچ‌وقت شرطش برقرار نشده).
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-07-03T18:18:11.225Z] [INFO] بک‌تست 15m پایان یافت. تعداد معاملات: 0
+[2026-07-03T18:18:11.225Z] [INFO] سرمایه نهایی: 10000.00
+[2026-07-03T18:18:11.226Z] [INFO] گزارش detailed_results.json برای 15m ذخیره شد.
+[2026-07-03T18:18:11.226Z] [INFO] گزارش trades_summary.json برای 15m ذخیره شد.
+[2026-07-03T18:18:11.274Z] [INFO] ✅ results.enc برای ETHUSDT-5m-2021-05-01_2021-05-10.csv / 15m ذخیره شد.
+[2026-07-03T18:18:11.276Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 30m (480 کندل)...
+[2026-07-03T18:18:11.276Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 30m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 480
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 24/480 | زمان: Sat May 01 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 2876.9 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 24: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=2 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 36/480 | زمان: Sat May 01 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 2926.18 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 36: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=4 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 48/480 | زمان: Sun May 02 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 2933.21 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 48: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=5 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 60/480 | زمان: Sun May 02 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 2913.29 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 60: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2913.1000 kijun=2897.9850 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 72/480 | زمان: Sun May 02 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 2922.96 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=9 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2896.1750 kijun=2903.4800 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 84/480 | زمان: Sun May 02 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 2943.81 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 84: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=11 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2922.8900 kijun=2898.1300 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 96/480 | زمان: Mon May 03 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 2987.86 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 96: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=11 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=2958.6400 kijun=2929.5000 kumoTop=2903.3050 kumoBottom=2879.9700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 108/480 | زمان: Mon May 03 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3086.77 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 108: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=12 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3022.5650 kijun=3014.3600 kumoTop=2899.8275 kumoBottom=2896.7800 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 120/480 | زمان: Mon May 03 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3137 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 120: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=13 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3139.8300 kijun=3066.1900 kumoTop=2929.0000 kumoBottom=2914.5650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 132/480 | زمان: Mon May 03 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3298.33 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 132: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=14 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3203.5700 kijun=3179.3050 kumoTop=2983.4200 kumoBottom=2952.0200 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 144/480 | زمان: Tue May 04 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3376.4 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=16 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3349.7800 kijun=3269.5300 kumoTop=3088.7225 kumoBottom=3028.1500 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 156/480 | زمان: Tue May 04 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3387.48 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 156: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=18 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3317.3050 kijun=3300.7450 kumoTop=3117.6200 kumoBottom=3052.9100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 168/480 | زمان: Tue May 04 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3422.1 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 168: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=20 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3381.8500 kijun=3333.8050 kumoTop=3222.2850 kumoBottom=3129.0000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 180/480 | زمان: Tue May 04 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3330.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 180: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=21 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3343.5000 kijun=3343.5000 kumoTop=3293.4175 kumoBottom=3194.6300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 192/480 | زمان: Wed May 05 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3294.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 192: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=23 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3314.7700 kijun=3343.5000 kumoTop=3304.8025 kumoBottom=3251.6600 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 204/480 | زمان: Wed May 05 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3255.18 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 204: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=25 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3292.6150 kijun=3294.6550 kumoTop=3361.9900 kumoBottom=3306.0300 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 216/480 | زمان: Wed May 05 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3363.75 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=26 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3315.3150 kijun=3303.9300 kumoTop=3343.5000 kumoBottom=3325.2100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 228/480 | زمان: Wed May 05 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3411.19 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 228: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=27 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3368.4600 kijun=3339.6500 kumoTop=3343.5000 kumoBottom=3326.7450 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 240/480 | زمان: Thu May 06 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3471.87 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 240: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=28 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3472.2000 kijun=3414.9800 kumoTop=3343.5000 kumoBottom=3308.0125 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 252/480 | زمان: Thu May 06 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3421.99 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 252: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=30 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3478.3550 kijun=3414.9800 kumoTop=3343.5000 kumoBottom=3329.9725 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 264/480 | زمان: Thu May 06 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3505.75 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 264: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=31 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3452.2350 kijun=3462.9050 kumoTop=3368.3450 kumoBottom=3342.5550 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 276/480 | زمان: Thu May 06 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3518.06 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 276: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=33 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3532.7000 kijun=3490.9350 kumoTop=3449.8250 kumoBottom=3374.7850 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 288/480 | زمان: Fri May 07 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3515.34 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 288: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=35 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3495.0950 kijun=3502.8000 kumoTop=3451.0700 kumoBottom=3386.1700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 300/480 | زمان: Fri May 07 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3438.86 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 300: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=36 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3444.7050 kijun=3479.3150 kumoTop=3479.4200 kumoBottom=3420.8100 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 312/480 | زمان: Fri May 07 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3437.86 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 312: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=38 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3439.0000 kijun=3447.1900 kumoTop=3496.8675 kumoBottom=3490.9350 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 324/480 | زمان: Fri May 07 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3528.47 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 324: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=39 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3505.0000 kijun=3470.1150 kumoTop=3490.9350 kumoBottom=3486.9525 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 336/480 | زمان: Sat May 08 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3506.99 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 336: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=40 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3490.0400 kijun=3504.0550 kumoTop=3479.3150 kumoBottom=3431.9025 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 348/480 | زمان: Sat May 08 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3524.95 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 348: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=42 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3514.6350 kijun=3504.0550 kumoTop=3479.3150 kumoBottom=3455.6325 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 360/480 | زمان: Sat May 08 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3543.35 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 360: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=45 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3545.1100 kijun=3502.5550 kumoTop=3509.4350 kumoBottom=3473.2350 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 372/480 | زمان: Sat May 08 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3811.25 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 372: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=46 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3686.6900 kijun=3676.6100 kumoTop=3496.4975 kumoBottom=3470.1150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 384/480 | زمان: Sun May 09 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3876 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 384: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=46 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3866.3850 kijun=3740.6800 kumoTop=3523.8325 kumoBottom=3492.4800 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 396/480 | زمان: Sun May 09 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3946.93 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 396: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=49 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3886.5100 kijun=3781.7550 kumoTop=3597.1875 kumoBottom=3550.5550 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 408/480 | زمان: Sun May 09 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3787.18 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 408: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=51 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3871.8250 kijun=3871.8250 kumoTop=3717.8500 kumoBottom=3650.5550 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 420/480 | زمان: Sun May 09 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3913.83 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 420: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=52 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3848.0400 kijun=3854.8650 kumoTop=3817.4850 kumoBottom=3698.4600 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 432/480 | زمان: Mon May 10 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3897.6 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 432: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=55 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3891.4600 kijun=3848.0400 kumoTop=3890.4325 kumoBottom=3744.9350 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 444/480 | زمان: Mon May 10 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 4120.78 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 444: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=55 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4014.3800 kijun=3981.9450 kumoTop=3850.5950 kumoBottom=3753.3400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 456/480 | زمان: Mon May 10 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 4099.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 456: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=57 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4073.8550 kijun=4018.0150 kumoTop=3873.3875 kumoBottom=3854.8650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 468/480 | زمان: Mon May 10 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 4135.16 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 468: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=59 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4116.9700 kijun=4093.5000 kumoTop=3914.8500 kumoBottom=3879.5400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 460
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 460 از 460
+├─ حداکثر تعداد خط روند معتبر همزمان: 0
+├─ کل شکست‌های خط روند شناسایی‌شده: 0 (بالا=0, پایین=0)
+├─ تعداد فراخوانی استراتژی: 460
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 460
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 0
+│  ├─ اولین کندل با سیگنال: هیچ‌وقت
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 0 (اولین در کندل هیچ‌وقت)
+
+⚠️⚠️⚠️ [ZERO_TRADES] هیچ معامله‌ای در کل بکتست باز نشد. علت‌های محتمل بر اساس آمار بالا:
+   → در تمام کندل‌ها هیچ خط روند معتبری وجود نداشت (processedTrendLines همیشه خالی بود). یا trendLineSettings/options.trendLines تنظیم نشده، یا شرایط isValidTrendLine خیلی سخت‌گیرانه است.
+   → استراتژی (کد کاربر) در هیچ کندلی سیگنال BUY/SELL برنگرداند، با اینکه بدون خطا اجرا شد. منطق ورود داخل کد استراتژی را بررسی کنید (شاید به breakPoints/trendLines/ichimoku وابسته است که هیچ‌وقت شرطش برقرار نشده).
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-07-03T18:18:12.098Z] [INFO] بک‌تست 30m پایان یافت. تعداد معاملات: 0
+[2026-07-03T18:18:12.098Z] [INFO] سرمایه نهایی: 10000.00
+[2026-07-03T18:18:12.098Z] [INFO] گزارش detailed_results.json برای 30m ذخیره شد.
+[2026-07-03T18:18:12.098Z] [INFO] گزارش trades_summary.json برای 30m ذخیره شد.
+[2026-07-03T18:18:12.147Z] [INFO] ✅ results.enc برای ETHUSDT-5m-2021-05-01_2021-05-10.csv / 30m ذخیره شد.
+[2026-07-03T18:18:12.147Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 1h (240 کندل)...
+[2026-07-03T18:18:12.147Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 1h محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 240
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 24/240 | زمان: Sun May 02 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 2932.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 24: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=2 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 30/240 | زمان: Sun May 02 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 2910.6 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 30: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=3 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 36/240 | زمان: Sun May 02 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 2924.94 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 36: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=4 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 42/240 | زمان: Sun May 02 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 2966.55 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 42: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=5 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 48/240 | زمان: Mon May 03 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 2994.06 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 48: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=5 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 54/240 | زمان: Mon May 03 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3088.7 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 54: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=5 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] null (داده تاریخی کافی نیست یا options.ichimoku.enabled=false)
+⏱️ [PROGRESS] کندل 60/240 | زمان: Mon May 03 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3144.59 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 60: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=5 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3069.6500 kijun=3028.1500 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 66/240 | زمان: Mon May 03 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3331.08 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 66: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3193.6600 kijun=3119.8900 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 72/240 | زمان: Tue May 04 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3260.06 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3269.5300 kijun=3191.1700 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 78/240 | زمان: Tue May 04 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3352.45 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 78: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=8 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3317.3050 kijun=3221.0000 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 84/240 | زمان: Tue May 04 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3484.36 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 84: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=9 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3336.6900 kijun=3287.1350 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 90/240 | زمان: Tue May 04 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3381.45 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 90: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=10 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3343.5000 kijun=3306.0300 kumoTop=3048.9000 kumoBottom=3004.6400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 96/240 | زمان: Wed May 05 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3310.46 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 96: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=11 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3343.5000 kijun=3343.5000 kumoTop=3156.7750 kumoBottom=3080.6900 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 102/240 | زمان: Wed May 05 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3264.4 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 102: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=13 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3314.7700 kijun=3343.5000 kumoTop=3230.3500 kumoBottom=3153.1300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 108/240 | زمان: Wed May 05 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3369.98 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 108: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=14 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3303.9300 kijun=3343.5000 kumoTop=3269.1525 kumoBottom=3153.1300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 114/240 | زمان: Wed May 05 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3416.62 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 114: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=15 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3339.6500 kijun=3343.5000 kumoTop=3311.9125 kumoBottom=3172.5150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 120/240 | زمان: Thu May 06 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3475.65 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 120: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=16 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3414.9800 kijun=3374.7850 kumoTop=3324.7650 kumoBottom=3209.8600 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 126/240 | زمان: Thu May 06 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3392.99 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 126: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=17 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3465.6700 kijun=3386.1700 kumoTop=3343.5000 kumoBottom=3223.5000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 132/240 | زمان: Thu May 06 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3492.12 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 132: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=18 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3462.9050 kijun=3398.3350 kumoTop=3329.1350 kumoBottom=3227.6700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 138/240 | زمان: Thu May 06 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3457.2 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 138: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=18 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3490.9350 kijun=3443.0100 kumoTop=3323.7150 kumoBottom=3281.7650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 144/240 | زمان: Fri May 07 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3493.86 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=20 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3502.8000 kijun=3490.9350 kumoTop=3341.5750 kumoBottom=3306.0300 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 150/240 | زمان: Fri May 07 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3439.72 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 150: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=20 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3473.2350 kijun=3479.3150 kumoTop=3394.8825 kumoBottom=3350.1150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 156/240 | زمان: Fri May 07 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3493.46 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 156: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=21 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3444.7050 kijun=3479.3150 kumoTop=3425.9200 kumoBottom=3354.6700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 162/240 | زمان: Fri May 07 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3526.06 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 162: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=21 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3492.4800 kijun=3479.3150 kumoTop=3430.6200 kumoBottom=3354.6700 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 168/240 | زمان: Sat May 08 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3523.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 168: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=22 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3504.0550 kijun=3470.1150 kumoTop=3466.9725 kumoBottom=3382.7000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 174/240 | زمان: Sat May 08 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3522.14 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 174: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=23 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3500.5550 kijun=3470.1150 kumoTop=3496.8675 kumoBottom=3382.7000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 180/240 | زمان: Sat May 08 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3562.97 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 180: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=24 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3511.2950 kijun=3497.5200 kumoTop=3476.2750 kumoBottom=3402.8150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 186/240 | زمان: Sat May 08 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3815.15 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 186: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=24 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3676.6100 kijun=3634.0550 kumoTop=3462.0100 kumoBottom=3414.2000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 192/240 | زمان: Sun May 09 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3835.21 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 192: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=24 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3740.6800 kijun=3689.7200 kumoTop=3485.8975 kumoBottom=3443.0100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 198/240 | زمان: Sun May 09 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 3961.57 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 198: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=25 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3871.4050 kijun=3744.2400 kumoTop=3487.0850 kumoBottom=3443.0100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 204/240 | زمان: Sun May 09 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 3747.96 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 204: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=26 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3854.8650 kijun=3744.9350 kumoTop=3485.3350 kumoBottom=3479.3150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 210/240 | زمان: Sun May 09 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 3899.32 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 210: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=27 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3854.8650 kijun=3769.4100 kumoTop=3504.4075 kumoBottom=3479.3150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 216/240 | زمان: Mon May 10 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 3909.44 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=28 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3848.0400 kijun=3854.8650 kumoTop=3655.3325 kumoBottom=3600.1150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 222/240 | زمان: Mon May 10 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 4113.02 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 222: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=28 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=3992.0200 kijun=3934.4650 kumoTop=3715.2000 kumoBottom=3655.7800 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 228/240 | زمان: Mon May 10 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 4125.7 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 228: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=28 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4024.8050 kijun=3947.3950 kumoTop=3807.8225 kumoBottom=3667.7450 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 234/240 | زمان: Mon May 10 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 4131.49 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 234: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=30 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=4093.5000 kijun=3976.2150 kumoTop=3799.9000 kumoBottom=3668.4400 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 220
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 220 از 220
+├─ حداکثر تعداد خط روند معتبر همزمان: 0
+├─ کل شکست‌های خط روند شناسایی‌شده: 0 (بالا=0, پایین=0)
+├─ تعداد فراخوانی استراتژی: 220
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 220
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 0
+│  ├─ اولین کندل با سیگنال: هیچ‌وقت
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 0 (اولین در کندل هیچ‌وقت)
+
+⚠️⚠️⚠️ [ZERO_TRADES] هیچ معامله‌ای در کل بکتست باز نشد. علت‌های محتمل بر اساس آمار بالا:
+   → در تمام کندل‌ها هیچ خط روند معتبری وجود نداشت (processedTrendLines همیشه خالی بود). یا trendLineSettings/options.trendLines تنظیم نشده، یا شرایط isValidTrendLine خیلی سخت‌گیرانه است.
+   → استراتژی (کد کاربر) در هیچ کندلی سیگنال BUY/SELL برنگرداند، با اینکه بدون خطا اجرا شد. منطق ورود داخل کد استراتژی را بررسی کنید (شاید به breakPoints/trendLines/ichimoku وابسته است که هیچ‌وقت شرطش برقرار نشده).
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $0.00 (0 معامله)
+└─ میانگین ریسک واقعی: $0.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 0
+├─ سودده: 0 (0.00%)
+├─ ضررده: 0 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 0.00%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 10000.00
+📊 بازدهی کل: 0.00%
+============================================================
+
+[2026-07-03T18:18:12.211Z] [INFO] بک‌تست 1h پایان یافت. تعداد معاملات: 0
+[2026-07-03T18:18:12.211Z] [INFO] سرمایه نهایی: 10000.00
+[2026-07-03T18:18:12.212Z] [INFO] گزارش detailed_results.json برای 1h ذخیره شد.
+[2026-07-03T18:18:12.212Z] [INFO] گزارش trades_summary.json برای 1h ذخیره شد.
+[2026-07-03T18:18:12.261Z] [INFO] ✅ results.enc برای ETHUSDT-5m-2021-05-01_2021-05-10.csv / 1h ذخیره شد.
+[2026-07-03T18:18:12.261Z] [INFO] شروع پردازش فایل 2 از 50: PAXGUSDT-5m-2021-05-01_2021-05-10.csv
+[2026-07-03T18:18:12.280Z] [INFO] فایل PAXGUSDT-5m-2021-05-01_2021-05-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:18:12.281Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2021-05-01_2021-05-10.csv
+[2026-07-03T18:18:12.293Z] [INFO] فایل SOLUSDT-5m-2021-05-01_2021-05-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:18:12.293Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2021-05-01_2021-05-10.csv
+[2026-07-03T18:18:12.303Z] [INFO] فایل XRPUSDT-5m-2021-05-01_2021-05-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:18:12.303Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2021-05-11_2021-05-20.csv
+[2026-07-03T18:18:12.314Z] [INFO] فایل BTCUSDT-5m-2021-05-11_2021-05-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T18:18:12.314Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T18:18:12.314Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T18:18:12.314Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T18:18:12.314Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T18:18:12.314Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.000001} | options.trendLines=ندارد
+⏱️ [PROGRESS] کندل 72/2880 | زمان: Sat May 01 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1789.29 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 72: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=7 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1788.3300 kijun=1788.0500 kumoTop=null kumoBottom=null priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 144/2880 | زمان: Sat May 01 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1790.09 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 144: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=22 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1790.1800 kijun=1789.4500 kumoTop=1786.9050 kumoBottom=1786.4925 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 216/2880 | زمان: Sat May 01 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1790.08 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 216: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=35 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1788.4650 kijun=1788.4300 kumoTop=1792.0000 kumoBottom=1788.6875 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 288/2880 | زمان: Sun May 02 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1790 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 288: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=51 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1788.4700 kijun=1787.9500 kumoTop=1788.6750 kumoBottom=1788.6000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 360/2880 | زمان: Sun May 02 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1789.3 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 360: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=64 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1787.8550 kijun=1786.4600 kumoTop=1788.0975 kumoBottom=1786.6200 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 432/2880 | زمان: Sun May 02 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1787.55 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 432: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=80 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1788.0900 kijun=1785.3000 kumoTop=1785.6700 kumoBottom=1785.1425 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 504/2880 | زمان: Sun May 02 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1786.44 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 504: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=102 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1787.7300 kijun=1787.7150 kumoTop=1787.8800 kumoBottom=1787.7775 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 576/2880 | زمان: Mon May 03 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1783.82 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 576: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=115 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1783.7150 kijun=1785.6050 kumoTop=1786.8075 kumoBottom=1786.4400 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 648/2880 | زمان: Mon May 03 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1782.6 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 648: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=130 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1783.0500 kijun=1784.7500 kumoTop=1787.1150 kumoBottom=1786.3200 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 720/2880 | زمان: Mon May 03 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1789.67 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 720: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=141 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1789.5000 kijun=1788.5000 kumoTop=1790.7850 kumoBottom=1788.8450 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 792/2880 | زمان: Mon May 03 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1803.32 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 792: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=151 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1799.0200 kijun=1800.7250 kumoTop=1802.4975 kumoBottom=1797.0000 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 864/2880 | زمان: Tue May 04 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1801.31 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 864: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=165 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1802.1500 kijun=1802.5400 kumoTop=1800.2950 kumoBottom=1800.2200 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 936/2880 | زمان: Tue May 04 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1798.34 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 936: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=176 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1798.1100 kijun=1797.6050 kumoTop=1799.2150 kumoBottom=1798.5250 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1008/2880 | زمان: Tue May 04 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1793.48 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1008: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=187 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1792.4150 kijun=1794.0700 kumoTop=1795.1850 kumoBottom=1795.0225 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 1080/2880 | زمان: Tue May 04 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1783.45 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1080: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=198 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1792.8900 kijun=1792.3300 kumoTop=1795.1500 kumoBottom=1794.6950 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 1152/2880 | زمان: Wed May 05 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1786.78 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1152: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=212 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1787.2950 kijun=1788.1950 kumoTop=1792.8900 kumoBottom=1787.8600 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1224/2880 | زمان: Wed May 05 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1784.81 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1224: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=226 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1785.5350 kijun=1786.9900 kumoTop=1788.8100 kumoBottom=1788.0050 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1296/2880 | زمان: Wed May 05 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1785.07 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1296: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=244 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1787.7100 kijun=1787.7100 kumoTop=1788.7250 kumoBottom=1787.6400 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1368/2880 | زمان: Wed May 05 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1795.11 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1368: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=253 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1795.6100 kijun=1796.3350 kumoTop=1795.4750 kumoBottom=1792.9950 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1440/2880 | زمان: Thu May 06 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1795.16 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1440: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=261 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1797.5650 kijun=1797.4000 kumoTop=1794.5100 kumoBottom=1794.2950 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 1512/2880 | زمان: Thu May 06 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1798.49 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1512: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=274 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1797.6200 kijun=1799.4300 kumoTop=1799.9800 kumoBottom=1798.8625 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1584/2880 | زمان: Thu May 06 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1808 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1584: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=286 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1804.0150 kijun=1804.8700 kumoTop=1803.2750 kumoBottom=1800.2150 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 1656/2880 | زمان: Thu May 06 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1825.16 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1656: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=296 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1826.5750 kijun=1827.1400 kumoTop=1817.5325 kumoBottom=1813.9650 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 1728/2880 | زمان: Fri May 07 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1839.15 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1728: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=309 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1836.6350 kijun=1833.7200 kumoTop=1830.8725 kumoBottom=1827.3250 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 1800/2880 | زمان: Fri May 07 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1840.33 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1800: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=321 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1841.0350 kijun=1839.8300 kumoTop=1837.7900 kumoBottom=1837.7900 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=false
+⏱️ [PROGRESS] کندل 1872/2880 | زمان: Fri May 07 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1842.96 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1872: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=338 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1841.9150 kijun=1841.9150 kumoTop=1843.3500 kumoBottom=1843.1750 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 1944/2880 | زمان: Fri May 07 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1850.06 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 1944: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=347 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1854.3250 kijun=1856.0700 kumoTop=1856.4800 kumoBottom=1851.7100 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2016/2880 | زمان: Sat May 08 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1860 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2016: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=376 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1857.7050 kijun=1855.7750 kumoTop=1855.8175 kumoBottom=1853.9100 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2088/2880 | زمان: Sat May 08 2021 06:00:00 GMT+0000 (Coordinated Universal Time) | close: 1857.55 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2088: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=394 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1854.0650 kijun=1858.1900 kumoTop=1858.7350 kumoBottom=1858.7350 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=true
+⏱️ [PROGRESS] کندل 2160/2880 | زمان: Sat May 08 2021 12:00:00 GMT+0000 (Coordinated Universal Time) | close: 1846.36 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2160: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=413 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1844.8550 kijun=1846.7300 kumoTop=1854.0000 kumoBottom=1853.9500 priceAboveCloud=false priceBelowCloud=true tenkanAboveKijun=false chikouBullish=false
+⏱️ [PROGRESS] کندل 2232/2880 | زمان: Sat May 08 2021 18:00:00 GMT+0000 (Coordinated Universal Time) | close: 1858.66 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2232: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=422 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1857.8850 kijun=1854.6950 kumoTop=1853.1025 kumoBottom=1849.3250 priceAboveCloud=true priceBelowCloud=false tenkanAboveKijun=true chikouBullish=true
+⏱️ [PROGRESS] کندل 2304/2880 | زمان: Sun May 09 2021 00:00:00 GMT+0000 (Coordinated Universal Time) | close: 1865.77 | پوزیشن‌های باز: 0 | معاملات تاکنون: 0 | سرمایه: 10000.00
+   📏 [TRENDLINES] کندل 2304: خطوط معتبر فعلی=0 | پیوت‌های شناسایی‌شده=432 | تفکیک نوع={}
+   ☁️ [ICHIMOKU] tenkan=1864.2500 kijun=1864.9450 kumoTop=1867.7950 kumoBottom=1863.1150 priceAboveCloud=false priceBelowCloud=false tenkanAboveKijun=false chikouBullish=true
