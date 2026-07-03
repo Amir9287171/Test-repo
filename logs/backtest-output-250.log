@@ -1,0 +1,1523 @@
+✅ نسخه نهایی – با پشتیبانی از ادامه‌دهی بین فایل‌ها
+[2026-07-03T13:56:23.406Z] [INFO] شروع run-backtest.js با آرگومان‌ها: strategyFile=strategies/B4Ic14-30-57Rsi14.js, startIndex=250, chunkSize=50, dataDir=data/All_Coins_Combined, maxContinuation=3
+[2026-07-03T13:56:23.406Z] [INFO] استراتژی B4Ic14-30-57Rsi14 با طول 4353 کاراکتر خوانده شد.
+[DIVERGENCE] 📦 ماژول در module.exports (Node.js) بارگذاری شد. (پشتیبانی از RSI و MACD)
+[2026-07-03T13:56:23.426Z] [INFO] در حال استخراج ANALYSIS_CONFIG از استراتژی...
+[2026-07-03T13:56:23.427Z] [INFO] ✅ ANALYSIS_CONFIG با موفقیت بارگذاری شد:
+{
+  "trendLines": {
+    "pivotPeriod": 5,
+    "minTouchPoints": 3,
+    "minCandleDistance": 3,
+    "precision": 0.000001
+  },
+  "ichimoku": {
+    "enabled": true,
+    "tenkanPeriod": 14,
+    "kijunPeriod": 30,
+    "senkouBPeriod": 57,
+    "useCloudFilter": true,
+    "useTKCross": true,
+    "useChikou": false
+  }
+}
+[2026-07-03T13:56:23.427Z] [INFO] نیازمندی‌ها: trendLines=true, ichimoku=true, divergence=false
+[2026-07-03T13:56:23.437Z] [INFO] این چانک شامل 50 فایل است: ETHUSDT-5m-2020-06-01_2020-06-10.csv, XRPUSDT-5m-2020-06-01_2020-06-10.csv, BTCUSDT-5m-2020-06-11_2020-06-20.csv, ETHUSDT-5m-2020-06-11_2020-06-20.csv, XRPUSDT-5m-2020-06-11_2020-06-20.csv, BTCUSDT-5m-2020-06-21_2020-06-30.csv, ETHUSDT-5m-2020-06-21_2020-06-30.csv, XRPUSDT-5m-2020-06-21_2020-06-30.csv, BTCUSDT-5m-2020-07-01_2020-07-10.csv, ETHUSDT-5m-2020-07-01_2020-07-10.csv, XRPUSDT-5m-2020-07-01_2020-07-10.csv, BTCUSDT-5m-2020-07-11_2020-07-20.csv, ETHUSDT-5m-2020-07-11_2020-07-20.csv, XRPUSDT-5m-2020-07-11_2020-07-20.csv, BTCUSDT-5m-2020-07-21_2020-07-31.csv, ETHUSDT-5m-2020-07-21_2020-07-31.csv, XRPUSDT-5m-2020-07-21_2020-07-31.csv, BTCUSDT-5m-2020-08-01_2020-08-10.csv, ETHUSDT-5m-2020-08-01_2020-08-10.csv, XRPUSDT-5m-2020-08-01_2020-08-10.csv, BTCUSDT-5m-2020-08-11_2020-08-20.csv, ETHUSDT-5m-2020-08-11_2020-08-20.csv, SOLUSDT-5m-2020-08-11_2020-08-20.csv, XRPUSDT-5m-2020-08-11_2020-08-20.csv, BTCUSDT-5m-2020-08-21_2020-08-31.csv, ETHUSDT-5m-2020-08-21_2020-08-31.csv, PAXGUSDT-5m-2020-08-21_2020-08-31.csv, SOLUSDT-5m-2020-08-21_2020-08-31.csv, XRPUSDT-5m-2020-08-21_2020-08-31.csv, BTCUSDT-5m-2020-09-01_2020-09-10.csv, ETHUSDT-5m-2020-09-01_2020-09-10.csv, PAXGUSDT-5m-2020-09-01_2020-09-10.csv, SOLUSDT-5m-2020-09-01_2020-09-10.csv, XRPUSDT-5m-2020-09-01_2020-09-10.csv, BTCUSDT-5m-2020-09-11_2020-09-20.csv, ETHUSDT-5m-2020-09-11_2020-09-20.csv, PAXGUSDT-5m-2020-09-11_2020-09-20.csv, SOLUSDT-5m-2020-09-11_2020-09-20.csv, XRPUSDT-5m-2020-09-11_2020-09-20.csv, BTCUSDT-5m-2020-09-21_2020-09-30.csv, ETHUSDT-5m-2020-09-21_2020-09-30.csv, PAXGUSDT-5m-2020-09-21_2020-09-30.csv, SOLUSDT-5m-2020-09-21_2020-09-30.csv, XRPUSDT-5m-2020-09-21_2020-09-30.csv, BTCUSDT-5m-2020-10-01_2020-10-10.csv, ETHUSDT-5m-2020-10-01_2020-10-10.csv, PAXGUSDT-5m-2020-10-01_2020-10-10.csv, SOLUSDT-5m-2020-10-01_2020-10-10.csv, XRPUSDT-5m-2020-10-01_2020-10-10.csv, BTCUSDT-5m-2020-10-11_2020-10-20.csv
+[2026-07-03T13:56:23.437Z] [INFO] شروع فاز تحلیل و بک‌تست...
+[2026-07-03T13:56:23.438Z] [INFO] شروع پردازش فایل 1 از 50: ETHUSDT-5m-2020-06-01_2020-06-10.csv
+[2026-07-03T13:56:23.457Z] [INFO] فایل ETHUSDT-5m-2020-06-01_2020-06-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.457Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-06-01_2020-06-10.csv
+[2026-07-03T13:56:23.476Z] [INFO] فایل XRPUSDT-5m-2020-06-01_2020-06-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.476Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.499Z] [INFO] فایل BTCUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.499Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.522Z] [INFO] فایل ETHUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.522Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.522Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.522Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.522Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:23.522Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at Object.<anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:961:3)
+    at Module._compile (node:internal/modules/cjs/loader:1364:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Module._load (node:internal/modules/cjs/loader:1019:12)
+[2026-07-03T13:56:23.527Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-06-01_2020-06-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at Object.<anonymous> (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:961:3)
+    at Module._compile (node:internal/modules/cjs/loader:1364:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Module._load (node:internal/modules/cjs/loader:1019:12)
+[2026-07-03T13:56:23.527Z] [INFO] شروع پردازش فایل 2 از 50: XRPUSDT-5m-2020-06-01_2020-06-10.csv
+[2026-07-03T13:56:23.547Z] [INFO] فایل XRPUSDT-5m-2020-06-01_2020-06-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.547Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.560Z] [INFO] فایل BTCUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.560Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.574Z] [INFO] فایل ETHUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.574Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.584Z] [INFO] فایل XRPUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.584Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.584Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.584Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.584Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:23.584Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.585Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-06-01_2020-06-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.585Z] [INFO] شروع پردازش فایل 3 از 50: BTCUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.606Z] [INFO] فایل BTCUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.606Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.624Z] [INFO] فایل ETHUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.624Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.648Z] [INFO] فایل XRPUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.648Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.658Z] [INFO] فایل BTCUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.658Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.658Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.659Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.659Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:23.659Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.660Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-06-11_2020-06-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.660Z] [INFO] شروع پردازش فایل 4 از 50: ETHUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.669Z] [INFO] فایل ETHUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.670Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.679Z] [INFO] فایل XRPUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.679Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.692Z] [INFO] فایل BTCUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.692Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.704Z] [INFO] فایل ETHUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.704Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.704Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.704Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.704Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:23.704Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.705Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-06-11_2020-06-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.705Z] [INFO] شروع پردازش فایل 5 از 50: XRPUSDT-5m-2020-06-11_2020-06-20.csv
+[2026-07-03T13:56:23.717Z] [INFO] فایل XRPUSDT-5m-2020-06-11_2020-06-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.717Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.733Z] [INFO] فایل BTCUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.733Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.743Z] [INFO] فایل ETHUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.744Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.753Z] [INFO] فایل XRPUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.753Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.754Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.754Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.754Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:23.754Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.754Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-06-11_2020-06-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.754Z] [INFO] شروع پردازش فایل 6 از 50: BTCUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.767Z] [INFO] فایل BTCUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.768Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.777Z] [INFO] فایل ETHUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.777Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.786Z] [INFO] فایل XRPUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.786Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.796Z] [INFO] فایل BTCUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.796Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.796Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.796Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.797Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2838 کندل)...
+[2026-07-03T13:56:23.797Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2838
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.797Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-06-21_2020-06-30.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.797Z] [INFO] شروع پردازش فایل 7 از 50: ETHUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.812Z] [INFO] فایل ETHUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.812Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.822Z] [INFO] فایل XRPUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.822Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.832Z] [INFO] فایل BTCUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.832Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.846Z] [INFO] فایل ETHUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.846Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.846Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.846Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.846Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2838 کندل)...
+[2026-07-03T13:56:23.846Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2838
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.847Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-06-21_2020-06-30.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.847Z] [INFO] شروع پردازش فایل 8 از 50: XRPUSDT-5m-2020-06-21_2020-06-30.csv
+[2026-07-03T13:56:23.857Z] [INFO] فایل XRPUSDT-5m-2020-06-21_2020-06-30.csv با 2838 کندل بارگذاری شد.
+[2026-07-03T13:56:23.857Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.866Z] [INFO] فایل BTCUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.867Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.877Z] [INFO] فایل ETHUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.877Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.891Z] [INFO] فایل XRPUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.891Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.891Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.891Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.891Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2838 کندل)...
+[2026-07-03T13:56:23.891Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2838
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.892Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-06-21_2020-06-30.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.892Z] [INFO] شروع پردازش فایل 9 از 50: BTCUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.902Z] [INFO] فایل BTCUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.902Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.911Z] [INFO] فایل ETHUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.911Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.925Z] [INFO] فایل XRPUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.925Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:23.934Z] [INFO] فایل BTCUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.935Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.935Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.935Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.935Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:23.935Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.936Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-07-01_2020-07-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.936Z] [INFO] شروع پردازش فایل 10 از 50: ETHUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.946Z] [INFO] فایل ETHUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.946Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.960Z] [INFO] فایل XRPUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.960Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:23.970Z] [INFO] فایل BTCUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.970Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:23.979Z] [INFO] فایل ETHUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.979Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:23.979Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:23.980Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:23.980Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:23.980Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.980Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-07-01_2020-07-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:23.980Z] [INFO] شروع پردازش فایل 11 از 50: XRPUSDT-5m-2020-07-01_2020-07-10.csv
+[2026-07-03T13:56:23.990Z] [INFO] فایل XRPUSDT-5m-2020-07-01_2020-07-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:23.990Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.004Z] [INFO] فایل BTCUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.004Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.014Z] [INFO] فایل ETHUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.014Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.025Z] [INFO] فایل XRPUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.025Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.025Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.026Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.026Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.026Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.026Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-07-01_2020-07-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.026Z] [INFO] شروع پردازش فایل 12 از 50: BTCUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.048Z] [INFO] فایل BTCUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.048Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.071Z] [INFO] فایل ETHUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.071Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.080Z] [INFO] فایل XRPUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.080Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.091Z] [INFO] فایل BTCUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.091Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.091Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.091Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.091Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.091Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.092Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-07-11_2020-07-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.092Z] [INFO] شروع پردازش فایل 13 از 50: ETHUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.102Z] [INFO] فایل ETHUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.102Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.116Z] [INFO] فایل XRPUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.116Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.126Z] [INFO] فایل BTCUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.126Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.137Z] [INFO] فایل ETHUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.137Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.137Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.137Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.137Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.137Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.138Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-07-11_2020-07-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.138Z] [INFO] شروع پردازش فایل 14 از 50: XRPUSDT-5m-2020-07-11_2020-07-20.csv
+[2026-07-03T13:56:24.152Z] [INFO] فایل XRPUSDT-5m-2020-07-11_2020-07-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.152Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.167Z] [INFO] فایل BTCUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.167Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.178Z] [INFO] فایل ETHUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.178Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.193Z] [INFO] فایل XRPUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.193Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.193Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.193Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.193Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.193Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.194Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-07-11_2020-07-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.194Z] [INFO] شروع پردازش فایل 15 از 50: BTCUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.204Z] [INFO] فایل BTCUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.204Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.218Z] [INFO] فایل ETHUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.218Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.232Z] [INFO] فایل XRPUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.232Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.242Z] [INFO] فایل BTCUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.242Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.242Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.242Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.242Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (3168 کندل)...
+[2026-07-03T13:56:24.242Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 3168
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.243Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-07-21_2020-07-31.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.243Z] [INFO] شروع پردازش فایل 16 از 50: ETHUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.254Z] [INFO] فایل ETHUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.254Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.269Z] [INFO] فایل XRPUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.269Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.279Z] [INFO] فایل BTCUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.279Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.289Z] [INFO] فایل ETHUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.289Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.289Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.289Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.289Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (3168 کندل)...
+[2026-07-03T13:56:24.289Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 3168
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.290Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-07-21_2020-07-31.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.290Z] [INFO] شروع پردازش فایل 17 از 50: XRPUSDT-5m-2020-07-21_2020-07-31.csv
+[2026-07-03T13:56:24.311Z] [INFO] فایل XRPUSDT-5m-2020-07-21_2020-07-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.311Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.324Z] [INFO] فایل BTCUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.324Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.334Z] [INFO] فایل ETHUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.334Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.349Z] [INFO] فایل XRPUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.349Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.349Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.349Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.349Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (3168 کندل)...
+[2026-07-03T13:56:24.349Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 3168
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.350Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-07-21_2020-07-31.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.350Z] [INFO] شروع پردازش فایل 18 از 50: BTCUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.360Z] [INFO] فایل BTCUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.360Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.371Z] [INFO] فایل ETHUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.371Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.380Z] [INFO] فایل XRPUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.380Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.395Z] [INFO] فایل BTCUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.395Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.395Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.395Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.395Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.395Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.396Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-08-01_2020-08-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.396Z] [INFO] شروع پردازش فایل 19 از 50: ETHUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.406Z] [INFO] فایل ETHUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.406Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.416Z] [INFO] فایل XRPUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.416Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.430Z] [INFO] فایل BTCUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.430Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.439Z] [INFO] فایل ETHUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.440Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.440Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.440Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.440Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.440Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.440Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-08-01_2020-08-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.441Z] [INFO] شروع پردازش فایل 20 از 50: XRPUSDT-5m-2020-08-01_2020-08-10.csv
+[2026-07-03T13:56:24.450Z] [INFO] فایل XRPUSDT-5m-2020-08-01_2020-08-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.450Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.461Z] [INFO] فایل BTCUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.461Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.490Z] [INFO] فایل ETHUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.490Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.499Z] [INFO] فایل SOLUSDT-5m-2020-08-11_2020-08-20.csv با 2808 کندل بارگذاری شد.
+[2026-07-03T13:56:24.499Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.499Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.499Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.499Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.499Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.500Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-08-01_2020-08-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.500Z] [INFO] شروع پردازش فایل 21 از 50: BTCUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.511Z] [INFO] فایل BTCUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.511Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.520Z] [INFO] فایل ETHUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.521Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.530Z] [INFO] فایل SOLUSDT-5m-2020-08-11_2020-08-20.csv با 2808 کندل بارگذاری شد.
+[2026-07-03T13:56:24.530Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.542Z] [INFO] فایل XRPUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.542Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.542Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.542Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.542Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.542Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.543Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-08-11_2020-08-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.543Z] [INFO] شروع پردازش فایل 22 از 50: ETHUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.552Z] [INFO] فایل ETHUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.552Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.561Z] [INFO] فایل SOLUSDT-5m-2020-08-11_2020-08-20.csv با 2808 کندل بارگذاری شد.
+[2026-07-03T13:56:24.561Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.574Z] [INFO] فایل XRPUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.574Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.585Z] [INFO] فایل BTCUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.585Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.585Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.585Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.585Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.585Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.586Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-08-11_2020-08-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.586Z] [INFO] شروع پردازش فایل 23 از 50: SOLUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.595Z] [INFO] فایل SOLUSDT-5m-2020-08-11_2020-08-20.csv با 2808 کندل بارگذاری شد.
+[2026-07-03T13:56:24.595Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.607Z] [INFO] فایل XRPUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.607Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.618Z] [INFO] فایل BTCUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.618Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.628Z] [INFO] فایل ETHUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.628Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.629Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.629Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.629Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2808 کندل)...
+[2026-07-03T13:56:24.629Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2808
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.629Z] [ERROR] 💥 خطا در پردازش فایل SOLUSDT-5m-2020-08-11_2020-08-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.629Z] [INFO] شروع پردازش فایل 24 از 50: XRPUSDT-5m-2020-08-11_2020-08-20.csv
+[2026-07-03T13:56:24.642Z] [INFO] فایل XRPUSDT-5m-2020-08-11_2020-08-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.642Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.653Z] [INFO] فایل BTCUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.653Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.663Z] [INFO] فایل ETHUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.663Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.667Z] [INFO] فایل PAXGUSDT-5m-2020-08-21_2020-08-31.csv با 1008 کندل بارگذاری شد.
+[2026-07-03T13:56:24.667Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.667Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.667Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.667Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.667Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.667Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-08-11_2020-08-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.668Z] [INFO] شروع پردازش فایل 25 از 50: BTCUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.682Z] [INFO] فایل BTCUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.682Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.692Z] [INFO] فایل ETHUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.692Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.696Z] [INFO] فایل PAXGUSDT-5m-2020-08-21_2020-08-31.csv با 1008 کندل بارگذاری شد.
+[2026-07-03T13:56:24.696Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.707Z] [INFO] فایل SOLUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.708Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.708Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.708Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.708Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (3168 کندل)...
+[2026-07-03T13:56:24.708Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 3168
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.708Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-08-21_2020-08-31.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.708Z] [INFO] شروع پردازش فایل 26 از 50: ETHUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.724Z] [INFO] فایل ETHUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.725Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.728Z] [INFO] فایل PAXGUSDT-5m-2020-08-21_2020-08-31.csv با 1008 کندل بارگذاری شد.
+[2026-07-03T13:56:24.728Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.739Z] [INFO] فایل SOLUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.739Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.753Z] [INFO] فایل XRPUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.753Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.753Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.754Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.754Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (3168 کندل)...
+[2026-07-03T13:56:24.754Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 3168
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.754Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-08-21_2020-08-31.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.754Z] [INFO] شروع پردازش فایل 27 از 50: PAXGUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.758Z] [INFO] فایل PAXGUSDT-5m-2020-08-21_2020-08-31.csv با 1008 کندل بارگذاری شد.
+[2026-07-03T13:56:24.758Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.769Z] [INFO] فایل SOLUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.769Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.780Z] [INFO] فایل XRPUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.780Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.793Z] [INFO] فایل BTCUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.794Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.794Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.794Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.794Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (1008 کندل)...
+[2026-07-03T13:56:24.794Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 1008
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.794Z] [ERROR] 💥 خطا در پردازش فایل PAXGUSDT-5m-2020-08-21_2020-08-31.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.794Z] [INFO] شروع پردازش فایل 28 از 50: SOLUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.806Z] [INFO] فایل SOLUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.807Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.817Z] [INFO] فایل XRPUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.817Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.831Z] [INFO] فایل BTCUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.831Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.841Z] [INFO] فایل ETHUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.841Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.841Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.841Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.841Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (3168 کندل)...
+[2026-07-03T13:56:24.841Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 3168
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.842Z] [ERROR] 💥 خطا در پردازش فایل SOLUSDT-5m-2020-08-21_2020-08-31.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.842Z] [INFO] شروع پردازش فایل 29 از 50: XRPUSDT-5m-2020-08-21_2020-08-31.csv
+[2026-07-03T13:56:24.852Z] [INFO] فایل XRPUSDT-5m-2020-08-21_2020-08-31.csv با 3168 کندل بارگذاری شد.
+[2026-07-03T13:56:24.852Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.877Z] [INFO] فایل BTCUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.877Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.891Z] [INFO] فایل ETHUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.891Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.905Z] [INFO] فایل PAXGUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.905Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.905Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.905Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.906Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (3168 کندل)...
+[2026-07-03T13:56:24.906Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 3168
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.906Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-08-21_2020-08-31.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.907Z] [INFO] شروع پردازش فایل 30 از 50: BTCUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.918Z] [INFO] فایل BTCUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.918Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.928Z] [INFO] فایل ETHUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.929Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.941Z] [INFO] فایل PAXGUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.941Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.951Z] [INFO] فایل SOLUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.951Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.951Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.951Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.951Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.951Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.952Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-09-01_2020-09-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.952Z] [INFO] شروع پردازش فایل 31 از 50: ETHUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.961Z] [INFO] فایل ETHUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.961Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.974Z] [INFO] فایل PAXGUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.974Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.983Z] [INFO] فایل SOLUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.983Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:24.992Z] [INFO] فایل XRPUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:24.992Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:24.992Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:24.992Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:24.993Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:24.993Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.993Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-09-01_2020-09-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:24.993Z] [INFO] شروع پردازش فایل 32 از 50: PAXGUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:25.003Z] [INFO] فایل PAXGUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.003Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:25.016Z] [INFO] فایل SOLUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.017Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:25.026Z] [INFO] فایل XRPUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.026Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.036Z] [INFO] فایل BTCUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.036Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.036Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.036Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.036Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.036Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.036Z] [ERROR] 💥 خطا در پردازش فایل PAXGUSDT-5m-2020-09-01_2020-09-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.037Z] [INFO] شروع پردازش فایل 33 از 50: SOLUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:25.049Z] [INFO] فایل SOLUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.049Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:25.059Z] [INFO] فایل XRPUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.059Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.069Z] [INFO] فایل BTCUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.070Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.082Z] [INFO] فایل ETHUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.082Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.082Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.082Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.082Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.082Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.083Z] [ERROR] 💥 خطا در پردازش فایل SOLUSDT-5m-2020-09-01_2020-09-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.083Z] [INFO] شروع پردازش فایل 34 از 50: XRPUSDT-5m-2020-09-01_2020-09-10.csv
+[2026-07-03T13:56:25.093Z] [INFO] فایل XRPUSDT-5m-2020-09-01_2020-09-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.093Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.103Z] [INFO] فایل BTCUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.103Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.113Z] [INFO] فایل ETHUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.114Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.126Z] [INFO] فایل PAXGUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.127Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.127Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.127Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.127Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.127Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.127Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-09-01_2020-09-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.127Z] [INFO] شروع پردازش فایل 35 از 50: BTCUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.137Z] [INFO] فایل BTCUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.137Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.147Z] [INFO] فایل ETHUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.147Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.161Z] [INFO] فایل PAXGUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.161Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.170Z] [INFO] فایل SOLUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.170Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.170Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.171Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.171Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.171Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.171Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-09-11_2020-09-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.171Z] [INFO] شروع پردازش فایل 36 از 50: ETHUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.181Z] [INFO] فایل ETHUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.181Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.190Z] [INFO] فایل PAXGUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.191Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.204Z] [INFO] فایل SOLUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.204Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.214Z] [INFO] فایل XRPUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.214Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.214Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.214Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.214Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.214Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.214Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-09-11_2020-09-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.215Z] [INFO] شروع پردازش فایل 37 از 50: PAXGUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.228Z] [INFO] فایل PAXGUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.228Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.242Z] [INFO] فایل SOLUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.242Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.252Z] [INFO] فایل XRPUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.252Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.263Z] [INFO] فایل BTCUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.264Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.264Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.264Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.264Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.264Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.265Z] [ERROR] 💥 خطا در پردازش فایل PAXGUSDT-5m-2020-09-11_2020-09-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.265Z] [INFO] شروع پردازش فایل 38 از 50: SOLUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.279Z] [INFO] فایل SOLUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.279Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.300Z] [INFO] فایل XRPUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.300Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.312Z] [INFO] فایل BTCUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.312Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.321Z] [INFO] فایل ETHUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.321Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.322Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.322Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.322Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.322Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.322Z] [ERROR] 💥 خطا در پردازش فایل SOLUSDT-5m-2020-09-11_2020-09-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.322Z] [INFO] شروع پردازش فایل 39 از 50: XRPUSDT-5m-2020-09-11_2020-09-20.csv
+[2026-07-03T13:56:25.332Z] [INFO] فایل XRPUSDT-5m-2020-09-11_2020-09-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.332Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.344Z] [INFO] فایل BTCUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.344Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.353Z] [INFO] فایل ETHUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.353Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.365Z] [INFO] فایل PAXGUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.365Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.365Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.365Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.365Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.366Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.366Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-09-11_2020-09-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.366Z] [INFO] شروع پردازش فایل 40 از 50: BTCUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.377Z] [INFO] فایل BTCUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.377Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.389Z] [INFO] فایل ETHUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.390Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.399Z] [INFO] فایل PAXGUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.399Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.408Z] [INFO] فایل SOLUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.408Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.408Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.408Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.408Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.409Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.409Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-09-21_2020-09-30.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.409Z] [INFO] شروع پردازش فایل 41 از 50: ETHUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.422Z] [INFO] فایل ETHUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.422Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.431Z] [INFO] فایل PAXGUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.432Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.441Z] [INFO] فایل SOLUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.441Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.450Z] [INFO] فایل XRPUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.450Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.450Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.450Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.450Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.453Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.454Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-09-21_2020-09-30.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.454Z] [INFO] شروع پردازش فایل 42 از 50: PAXGUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.464Z] [INFO] فایل PAXGUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.464Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.477Z] [INFO] فایل SOLUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.477Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.487Z] [INFO] فایل XRPUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.487Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.500Z] [INFO] فایل BTCUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.500Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.500Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.500Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.500Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.500Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.501Z] [ERROR] 💥 خطا در پردازش فایل PAXGUSDT-5m-2020-09-21_2020-09-30.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.501Z] [INFO] شروع پردازش فایل 43 از 50: SOLUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.510Z] [INFO] فایل SOLUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.510Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.519Z] [INFO] فایل XRPUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.519Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.532Z] [INFO] فایل BTCUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.532Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.541Z] [INFO] فایل ETHUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.541Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.542Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.542Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.542Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.542Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.542Z] [ERROR] 💥 خطا در پردازش فایل SOLUSDT-5m-2020-09-21_2020-09-30.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.542Z] [INFO] شروع پردازش فایل 44 از 50: XRPUSDT-5m-2020-09-21_2020-09-30.csv
+[2026-07-03T13:56:25.551Z] [INFO] فایل XRPUSDT-5m-2020-09-21_2020-09-30.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.552Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.561Z] [INFO] فایل BTCUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.561Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.575Z] [INFO] فایل ETHUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.575Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.585Z] [INFO] فایل PAXGUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.585Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.585Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.585Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.585Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.585Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.586Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-09-21_2020-09-30.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.586Z] [INFO] شروع پردازش فایل 45 از 50: BTCUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.597Z] [INFO] فایل BTCUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.597Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: ETHUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.610Z] [INFO] فایل ETHUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.610Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.620Z] [INFO] فایل PAXGUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.620Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.629Z] [INFO] فایل SOLUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.629Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.629Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.629Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.630Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.630Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.630Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-10-01_2020-10-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.630Z] [INFO] شروع پردازش فایل 46 از 50: ETHUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.640Z] [INFO] فایل ETHUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.640Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.669Z] [INFO] فایل PAXGUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.669Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.679Z] [INFO] فایل SOLUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.679Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.688Z] [INFO] فایل XRPUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.688Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.688Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.688Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.688Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.688Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.689Z] [ERROR] 💥 خطا در پردازش فایل ETHUSDT-5m-2020-10-01_2020-10-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.689Z] [INFO] شروع پردازش فایل 47 از 50: PAXGUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.698Z] [INFO] فایل PAXGUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.698Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.708Z] [INFO] فایل SOLUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.708Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.720Z] [INFO] فایل XRPUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.720Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-10-11_2020-10-20.csv
+[2026-07-03T13:56:25.730Z] [INFO] فایل BTCUSDT-5m-2020-10-11_2020-10-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.730Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.730Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.730Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.730Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.730Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.731Z] [ERROR] 💥 خطا در پردازش فایل PAXGUSDT-5m-2020-10-01_2020-10-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.731Z] [INFO] شروع پردازش فایل 48 از 50: SOLUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.744Z] [INFO] فایل SOLUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.744Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.754Z] [INFO] فایل XRPUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.754Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-10-11_2020-10-20.csv
+[2026-07-03T13:56:25.763Z] [INFO] فایل BTCUSDT-5m-2020-10-11_2020-10-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.763Z] [INFO] ✅ 2 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.764Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.764Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.764Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.764Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.764Z] [ERROR] 💥 خطا در پردازش فایل SOLUSDT-5m-2020-10-01_2020-10-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.764Z] [INFO] شروع پردازش فایل 49 از 50: XRPUSDT-5m-2020-10-01_2020-10-10.csv
+[2026-07-03T13:56:25.774Z] [INFO] فایل XRPUSDT-5m-2020-10-01_2020-10-10.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.774Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-5m-2020-10-11_2020-10-20.csv
+[2026-07-03T13:56:25.787Z] [INFO] فایل BTCUSDT-5m-2020-10-11_2020-10-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.787Z] [INFO] ✅ 1 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.787Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.787Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.787Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.787Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.788Z] [ERROR] 💥 خطا در پردازش فایل XRPUSDT-5m-2020-10-01_2020-10-10.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.788Z] [INFO] شروع پردازش فایل 50 از 50: BTCUSDT-5m-2020-10-11_2020-10-20.csv
+[2026-07-03T13:56:25.797Z] [INFO] فایل BTCUSDT-5m-2020-10-11_2020-10-20.csv با 2880 کندل بارگذاری شد.
+[2026-07-03T13:56:25.797Z] [INFO] ✅ 0 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-03T13:56:25.797Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-03T13:56:25.797Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-03T13:56:25.798Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-03T13:56:25.798Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+❌ [BACKTEST_ERROR] خطا در اجرای بکتست: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.798Z] [ERROR] 💥 خطا در پردازش فایل BTCUSDT-5m-2020-10-11_2020-10-20.csv: SyntaxError: Identifier 'stopLossStages' has already been declared
+    at new Function (<anonymous>)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:1505:32
+    at new Promise (<anonymous>)
+    at Object.runBacktest (/home/runner/work/Test-repo/Test-repo/encrypted_data/src/backtest-core.js:842:12)
+    at /home/runner/work/Test-repo/Test-repo/encrypted_data/src/run-backtest.js:643:51
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[2026-07-03T13:56:25.798Z] [INFO] ✅ پردازش تمام فایل‌های این چانک به پایان رسید.
