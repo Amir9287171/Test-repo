@@ -1966,7 +1966,7 @@ async function runBacktest(marketData, options, onProgress) {
             }
 
             // ==================== ساخت تابع استراتژی یک بار خارج از حلقه (بهبود کارایی) ====================
-            const strategyFn = new Function('data', 'index', 'breakPointsParam', 'ichimokuParam', 'trendLinesParam', `
+            const strategyFn = new Function('data', 'index', 'breakPointsParam', 'ichimokuParam', 'trendLinesParam', 'refineEntryPriceParam', `
                 function calculateSMA(data, endIndex, period) {
                     let sum = 0;
                     for (let i = 0; i < period; i++) {
@@ -2098,7 +2098,7 @@ async function runBacktest(marketData, options, onProgress) {
                 }
 
                 ${code}
-                return customStrategy(data, index, breakPointsParam, ichimokuParam);
+                return customStrategy(data, index, breakPointsParam, ichimokuParam, trendLinesParam, refineEntryPriceParam);
             `);
 
             // ==================== ذخیره تاریخچه ایچیموکو برای شیفت ابر ====================
