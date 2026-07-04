@@ -16,23 +16,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
-      - name: 1. دریافت کد مخزن
+      - name: 1. نصب Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install git-lfs
+          git lfs install
+
+      - name: 2. دریافت کد مخزن (با LFS)
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          lfs: true   # <-- فعال‌سازی LFS
 
-      - name: 2. راه‌اندازی پایتون
+      - name: 3. راه‌اندازی پایتون
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: 3. نصب کتابخانه‌ها
+      - name: 4. نصب کتابخانه‌ها
         run: |
           pip install --upgrade pip
           pip install pandas requests cryptography
 
-      - name: 4. اجرای اسکریپت اصلی
+      - name: 5. اجرای اسکریپت اصلی
         env:
           DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
         run: |
@@ -40,10 +47,13 @@ jobs:
           python encrypted_data/All_pipeline.py
           echo "✅ اسکریپت با موفقیت تمام شد"
 
-      - name: 5. ذخیره تغییرات در مخزن (commit & push)
+      - name: 6. ذخیره تغییرات در مخزن (با LFS)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
+          # اطمینان از اینکه فایل‌های LFS به‌درستی track شده‌اند
+          git lfs track "encrypted_data/data.enc"
+          git add .gitattributes
           git add data/All_Coins_Combined/ data/BTCUSDT/ data/ETHUSDT/ data/SOLUSDT/ data/XRPUSDT/ data/PAXGUSDT/ encrypted_data/data.enc zips/ 2>/dev/null || true
           git diff --staged --quiet || {
             git commit -m "All pipeline: update 5 coins (1m timeframe)"
@@ -52,7 +62,7 @@ jobs:
             echo "✅ تغییرات با موفقیت ارسال شد."
           }
 
-      - name: 6. گزارش نهایی
+      - name: 7. گزارش نهایی
         run: |
           echo "======================================="
           echo "✅ دانلود و پردازش ۵ ارز با تایم‌فریم ۱ دقیقه انجام شد"
