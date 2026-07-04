@@ -348,6 +348,32 @@ function loadSingleFile(dataDir, fileName) {
 
     log(`فایل ${fileName} با ${allData.length} کندل بارگذاری شد.`);
 
+    // اعتبارسنجی پیوستگی داده‌ی خام: اندیکاتورهای دوره‌بلند (SMA200، سنکو ۵۲) به تعداد
+    // کندل حساسند نه به بازه‌ی زمانی. اگر داخل داده‌ی ۱ دقیقه‌ای gap بزرگ (مثلاً قطعی
+    // صرافی) وجود داشته باشد، بعد از resample به تایم‌فریم‌های بالاتر این gap به‌صورت یک
+    // کندل غایب دیده می‌شود و باعث محاسبه‌ی اشتباه اندیکاتور روی بازه‌ی زمانی غلط می‌شود.
+    // این فقط هشدار می‌دهد، داده را تغییر نمی‌دهد.
+    if (allData.length >= 3) {
+        const t1 = allData[0].timestamp.getTime();
+        const t2 = allData[1].timestamp.getTime();
+        const expectedIntervalMs = t2 > t1 ? t2 - t1 : 60 * 1000;
+        const gapToleranceMs = expectedIntervalMs * 1.5;
+        let gapCount = 0;
+        const gapSamples = [];
+        for (let i = 1; i < allData.length; i++) {
+            const gap = allData[i].timestamp.getTime() - allData[i - 1].timestamp.getTime();
+            if (gap > gapToleranceMs) {
+                gapCount++;
+                if (gapSamples.length < 5) {
+                    gapSamples.push(`${allData[i - 1].timestamp.toISOString()} → ${allData[i].timestamp.toISOString()} (${Math.round(gap / 60000)} دقیقه)`);
+                }
+            }
+        }
+        if (gapCount > 0) {
+            log(`⚠️ فایل ${fileName}: ${gapCount} gap در داده‌ی خام شناسایی شد (فاصله‌ی موردانتظار ~${Math.round(expectedIntervalMs / 60000)} دقیقه). نمونه: ${gapSamples.join(' | ')}`, 'WARN');
+        }
+    }
+
     return allData;
 
 }
@@ -400,25 +426,45 @@ function encryptResults(outputDir, password) {
 
 // ====================== تابع ریسمپل OHLC ======================
 
-function resampleOHLC(candles, targetMinutes) {
+function resampleOHLC(candles, targetMinutes, boundaryData) {
 
     if (!candles || candles.length === 0) return candles;
 
-    if (targetMinutes === 5) return candles;
+    // اصلاح باگ مهاجرت ۵→۱ دقیقه: قبلاً اینجا فرض می‌شد "targetMinutes===5 یعنی داده‌ی خام،
+    // پس نیازی به ریسمپل نیست". با داده‌ی منبع ۱ دقیقه‌ای این فرض دیگر درست نیست: ورودی الان
+    // همیشه ۱ دقیقه‌ای است و ۵ دقیقه هم باید مثل ۱۵/۳۰/۶۰ واقعاً ریسمپل شود. شورت‌کات حذف شد.
 
 
 
     const bucketMs = targetMinutes * 60 * 1000;
 
+    // اصلاح باگ مرز فایل‌ها: قبلاً هر فایل کاملاً مستقل ریسمپل می‌شد. اگر مرز بین دو فایل
+    // ۱ دقیقه‌ای دقیقاً روی مرز targetMinutes نمی‌افتاد، آخرین باکت این فایل ناقص می‌ماند و
+    // به‌جای یک کندل کامل، دو کندل ناقص ساخته می‌شد. اگر boundaryData (چند کندل خام از
+    // ابتدای فایل بعدی) داده شده باشد، فقط برای تکمیل همین یک باکت مرزی استفاده می‌شود؛
+    // هیچ باکت کامل متعلق به فایل بعدی از boundaryData ساخته نمی‌شود.
+    const lastOwnTs = candles[candles.length - 1].timestamp instanceof Date
+        ? candles[candles.length - 1].timestamp.getTime()
+        : candles[candles.length - 1].timestamp;
+    const lastOwnBucketStart = Math.floor(lastOwnTs / bucketMs) * bucketMs;
+
+    const combined = (boundaryData && boundaryData.length > 0)
+        ? candles.concat(boundaryData)
+        : candles;
+
     const buckets = new Map();
 
 
 
-    for (const c of candles) {
+    for (const c of combined) {
 
         const ts = c.timestamp instanceof Date ? c.timestamp.getTime() : c.timestamp;
 
         const bucketKey = Math.floor(ts / bucketMs) * bucketMs;
+
+        // از باکت مرزی آخر (متعلق به این فایل) که گذشتیم، یعنی boundaryData فقط برای
+        // تکمیل همان باکت لازم بود؛ باکت‌های بعدی کاملاً متعلق به فایل بعدی‌اند.
+        if (bucketKey > lastOwnBucketStart) break;
 
 
 
@@ -434,7 +480,11 @@ function resampleOHLC(candles, targetMinutes) {
 
                 low: c.low,
 
-                close: c.close
+                close: c.close,
+
+                // اصلاح باگ حذف بی‌سروصدای volume: قبلاً این فیلد اصلاً کپی نمی‌شد و
+                // volume تمام تایم‌فریم‌های بالاتر همیشه صفر/undefined بود.
+                volume: c.volume || 0
 
             });
 
@@ -447,6 +497,8 @@ function resampleOHLC(candles, targetMinutes) {
             b.low = Math.min(b.low, c.low);
 
             b.close = c.close;
+
+            b.volume += (c.volume || 0);
 
         }
 
@@ -670,7 +722,17 @@ const safeParse = (v, def=0) => {
 
                 // شده) تا زنجیره‌ی previousTfDataMap برای بافر خودکار فایل بعدی قطع نشود.
 
-                const tfData = tf.minutes === 5 ? marketData : resampleOHLC(marketData, tf.minutes);
+                // اصلاح باگ مهاجرت ۵→۱ دقیقه: قبلاً فقط 15m/30m/1h واقعاً ریسمپل می‌شدند و 5m
+                // همان داده‌ی خام (۵ دقیقه‌ای قدیمی) بود. چون منبع الان ۱ دقیقه‌ای است، 5m هم
+                // باید مثل بقیه واقعاً از resampleOHLC عبور کند، وگرنه «5m» در واقع ۱ دقیقه
+                // خام می‌ماند. boundaryData (چند کندل خام ابتدای فایل بعدی) برای تکمیل درست
+                // آخرین باکت این فایل، در صورت عدم انطباق مرز فایل با مرز تایم‌فریم، پاس داده
+                // می‌شود (نگاه کنید به resampleOHLC).
+                const firstNextFileData = nextFileNames.length > 0 && nextFiles[nextFileNames[0]]
+                    ? nextFiles[nextFileNames[0]].data
+                    : [];
+                const boundaryData = firstNextFileData.slice(0, tf.minutes * 2);
+                const tfData = resampleOHLC(marketData, tf.minutes, boundaryData);
 
                 // تاریخچه‌ی فایل‌های قبلی این تایم‌فریم (جدیدترین اول) — برای بافرهای بیش از
 
@@ -752,7 +814,19 @@ const safeParse = (v, def=0) => {
 
                     divergenceSettings,
 
-                    uploadedFiles: tf.minutes === 5 ? nextFiles : {},
+                    // اصلاح باگ مهاجرت ۵→۱ دقیقه: nextFiles با loadSingleFile خام ۱ دقیقه‌ای
+                    // بارگذاری شده، اما فقط برای تایم‌فریم 5m به‌عنوان uploadedFiles پاس داده
+                    // می‌شود (رفتار enableContinuation بدون تغییر، فقط برای 5m). چون marketData
+                    // برای 5m الان resample‌شده به ۵ دقیقه است، nextFiles هم باید قبل از پاس
+                    // دادن به همان ۵ دقیقه resample شود؛ وگرنه دو گرانولاریتی متفاوت
+                    // (۵ دقیقه‌ی resample‌شده در برابر ۱ دقیقه‌ی خام) در findNextFileByDate،
+                    // buildCombinedData و continueOpenTradesWithNextFile با هم قاطی می‌شوند.
+                    uploadedFiles: tf.minutes === 5
+                        ? Object.fromEntries(Object.entries(nextFiles).map(([n, info]) => [
+                            n,
+                            { fileName: info.fileName, data: resampleOHLC(info.data, 5) }
+                        ]))
+                        : {},
 
                     combinedFiles: {},
 
@@ -768,7 +842,17 @@ const safeParse = (v, def=0) => {
 
                     timezoneOffset: 0,
 
-                    fiveMinData: tf.minutes !== 5 ? marketData : null,
+                    // اصلاح باگ مهاجرت ۵→۱ دقیقه: قبلاً فقط برای تایم‌فریم‌های >۵ دقیقه
+                    // داده‌ی ریزتر پاس داده می‌شد (چون 5m خودش «خام» بود). الان که پایه‌ی
+                    // واقعی ۱ دقیقه است، هر چهار تایم‌فریم (از جمله 5m) باید همان marketData
+                    // خام ۱ دقیقه‌ای را به‌عنوان لایه‌ی دقت ریزتر دریافت کنند. نام گزینه برای
+                    // سازگاری با backtest-core.js فعلاً fiveMinData باقی می‌ماند، اما محتوایش
+                    // همیشه داده‌ی پایه (۱ دقیقه‌ای) است.
+                    fiveMinData: marketData,
+
+                    // سوییچ روشن/خاموش برای دقت درون‌کندلی (TP/SL، گپ). با false می‌توان رفتار
+                    // قدیمی (بدون لایه‌ی ۱ دقیقه‌ای) را برای دیباگ رگرسیون بازتولید کرد.
+                    enableIntrabarPrecision: true,
 
                     enableSmartContinuation: enableSmartContinuation,
 
