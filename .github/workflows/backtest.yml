@@ -64,7 +64,7 @@ jobs:
           python-version: '3.10'
 
       - name: 4. نصب کتابخانه‌های پایتون
-        run: pip install pandas requests
+        run: pip install pandas requests cryptography
 
       - name: 0. ساختن پوشه src
         run: mkdir -p encrypted_data/src
@@ -153,22 +153,43 @@ jobs:
           git commit -m "mark 2025/2026 prepared" || true
           git push
 
-      - name: 7. رمزگشایی data.enc در صورت وجود
-        env:
-          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
-        run: |
-          if [ -f encrypted_data/data.enc ]; then
-            node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.DATA_PASSWORD;const data=fs.readFileSync('encrypted_data/data.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('data.tar.gz',dec);"
-            mkdir -p data && tar -xzf data.tar.gz -C data && rm data.tar.gz
-          fi
+      # ============================================================
+      # ⚠️ بخش تغییر یافته: data.enc دیگر در گیت/LFS نگهداری نمی‌شود.
+      # به‌جای آن با actions/cache ذخیره و بازیابی می‌شود:
+      # - اگر کش موجود باشد → مستقیم decrypt و استفاده می‌شود (سریع، بدون دانلود مجدد از Binance).
+      # - اگر کش موجود نباشد (اولین اجرا یا evict شدن) → All_pipeline.py از نو
+      #   داده را دانلود/بسازد/رمزنگاری می‌کند، سپس در پایان job همین اکشن به‌صورت
+      #   خودکار data.enc تازه را کش می‌کند.
+      # ============================================================
+      - name: 7. کش کردن data.enc
+        id: cache-data-enc
+        uses: actions/cache@v4
+        with:
+          path: encrypted_data/data.enc
+          key: data-enc-v1
 
-      - name: 9. بازسازی data.enc
+      - name: 7.1 ساخت و رمزنگاری داده (فقط در صورت نبود کش)
+        if: steps.cache-data-enc.outputs.cache-hit != 'true'
         env:
           DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
         run: |
-          cd data && tar -czf ../data.tar.gz All_Coins_Combined && cd ..
-          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.DATA_PASSWORD;const key=crypto.scryptSync(pass,'salt',32);const iv=crypto.randomBytes(16);const cipher=crypto.createCipheriv('aes-256-cbc',key,iv);const input=fs.readFileSync('data.tar.gz');const enc=Buffer.concat([cipher.update(input),cipher.final()]);fs.writeFileSync('encrypted_data/data.enc',Buffer.concat([iv,enc]));"
-          rm data.tar.gz
+          echo "⚠️ کش data.enc یافت نشد. در حال ساخت از نو با All_pipeline.py ..."
+          python encrypted_data/All_pipeline.py
+
+      - name: 7.2 رمزگشایی data.enc برای استفاده در بکتست
+        env:
+          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
+        run: |
+          if [ ! -f encrypted_data/data.enc ]; then
+            echo "❌ encrypted_data/data.enc پس از مرحله ساخت هم پیدا نشد!"
+            exit 1
+          fi
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.DATA_PASSWORD;const data=fs.readFileSync('encrypted_data/data.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('data.tar.gz',dec);"
+          mkdir -p data && tar -xzf data.tar.gz -C data && rm data.tar.gz
+          echo "✅ داده استخراج شد."
+      # ============================================================
+      # پایان بخش تغییر یافته
+      # ============================================================
 
       - name: 10. تحلیل فایل‌های سورس
         id: source_analysis
@@ -279,17 +300,13 @@ jobs:
 
           mapfile -t ALL_FILES < <(find "$DATA_DIR" -maxdepth 1 -name "*.csv" -printf '%f\n' | sort)
 
-          # خواندن progress.json اگر وجود داشته باشد
           declare -A DONE_CHUNKS
           if [ -f "$PROGRESS_FILE" ]; then
-            # دریافت نام استراتژی (اولین مورد چون معمولاً یکی است)
             STRAT_NAME="${{ github.event.inputs.strategy_name }}"
             if [ -z "$STRAT_NAME" ]; then
-              # اگر ورودی خالی بود، اولین استراتژی در strategies را بگیر
               STRAT_NAME=$(find strategies -maxdepth 1 -name "*.js" -exec basename {} \; | head -1)
             fi
             if [ -n "$STRAT_NAME" ]; then
-              # استخراج چانک‌های انجام‌شده برای این استراتژی
               DONE_LIST=$(jq -r --arg s "$STRAT_NAME" '.[$s] // [] | join(" ")' "$PROGRESS_FILE" 2>/dev/null)
               for chunk in $DONE_LIST; do
                 DONE_CHUNKS[$chunk]=1
@@ -300,7 +317,6 @@ jobs:
 
           FILTERED=()
           for f in "${ALL_FILES[@]}"; do
-            # فیلتر تاریخ
             if [[ $f =~ ([0-9]{4}-[0-9]{2}-[0-9]{2})_ ]]; then
               FILE_START="${BASH_REMATCH[1]}"
               if [ -n "$START_DATE" ]; then
@@ -310,18 +326,6 @@ jobs:
                 [[ "$FILE_START" > "$END_DATE" ]] && continue
               fi
             fi
-
-            # بررسی اینکه آیا این فایل در چانک‌های انجام‌شده است یا خیر
-            # ایندکس فایل در آرایه ALL_FILES (قبل از فیلتر تاریخ)
-            # ما نیاز داریم ایندکس واقعی فایل را در لیست اصلی بدانیم
-            # چون ALL_FILES قبلاً با فیلتر تاریخ فیلتر شده، ایندکس اصلی عوض شده
-            # پس باید چک کنیم که ایندکس این فایل در لیست ALL_FILES اصلی (قبل از فیلتر) چند بوده
-            # ساده‌ترین راه: چک نکنیم اینجا، چون اندازه چانک پویاست
-            # در عوض می‌توانیم فرض کنیم که اگر فایلی در گذشته پردازش شده،
-            # چانک مربوط به آن در progress.json ثبت شده است.
-            # اما چون ما اینجا فقط فایل‌ها را لیست می‌کنیم و نه چانک‌ها را،
-            # باید بعداً هنگام ساخت چانک‌ها این بررسی را انجام دهیم.
-            # فعلاً فایل را نگه می‌داریم.
             FILTERED+=("$f")
           done
 
@@ -333,12 +337,10 @@ jobs:
           CHUNKS_ADDED=0
           for ((i=0; i<n; i++)); do
             s=$((i*SIZE))
-            # بررسی ۱: آیا این چانک در progress.json انجام شده؟
             if [ -n "${DONE_CHUNKS[$s]}" ]; then
               echo "⏩ چانک $s قبلاً در progress.json ثبت شده. نادیده گرفته می‌شود."
               continue
             fi
-            # بررسی ۲: آیا تعداد results.enc روی دیسک برابر تعداد کل فایل‌های CSV است؟
             STRAT_DIR="results/${STRAT_NAME}_5m"
             if [ -d "$STRAT_DIR" ]; then
               ENC_COUNT=$(find "$STRAT_DIR" -name "results.enc" -type f | wc -l)
@@ -359,7 +361,6 @@ jobs:
         run: |
           echo "===== بررسی فایل‌های موجود در مسیر موقت ====="
           ls -l /tmp/artifact_src/
-          # پاک کردن پوشه results اگر به اشتباه در مسیر موقت وجود داشته باشد
           if [ -d /tmp/artifact_src/results ]; then
             echo "🧹 پوشه results زائد در مسیر موقت حذف می‌شود..."
             rm -rf /tmp/artifact_src/results
@@ -417,7 +418,6 @@ jobs:
         uses: actions/setup-node@v4
         with: { node-version: '18' }
 
-      # ========== جستجوی هوشمند فایل‌های سورس ==========
       - name: بازیابی فایل‌ها از artifact با جستجوی هوشمند
         run: |
           mkdir -p encrypted_data/src
@@ -460,7 +460,6 @@ jobs:
             fi
             echo "✅ $f ($SIZE بایت) آماده است."
           done
-      # ========== پایان جستجوی هوشمند ==========
 
       - name: رمزگشایی و نصب Wickra (آفلاین)
         env:
@@ -530,13 +529,11 @@ jobs:
           if [ -n "$(ls -A results 2>/dev/null)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "actions@github.com"
-            # ====== کپی فایل‌های مزاحم به /tmp قبل از checkout ======
             mkdir -p /tmp/git_temp_results
             cp -r results/. /tmp/git_temp_results/ 2>/dev/null || true
             mkdir -p /tmp/git_temp_src
             cp -r encrypted_data/src/. /tmp/git_temp_src/ 2>/dev/null || true
             git fetch origin main && git reset --hard origin/main
-            # نادیده گرفتن تغییرات فایل‌های سورس توسط Git
             git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
             git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
             git update-index --assume-unchanged encrypted_data/src/run-backtest.js 2>/dev/null || true
@@ -569,10 +566,8 @@ jobs:
           PROGRESS_FILE="progress.json"
           if [ ! -f "$PROGRESS_FILE" ]; then echo '{}' > $PROGRESS_FILE; fi
           cat $PROGRESS_FILE | jq --arg strat "$STRAT_NAME" --arg chunk "$CHUNK" '.[$strat] += [$chunk | tonumber]' > tmp.json && mv tmp.json $PROGRESS_FILE
-          # ====== ذخیره progress.json و reset به main ======
           cp "$PROGRESS_FILE" /tmp/progress_backup.json 2>/dev/null || true
           git fetch origin main && git reset --hard origin/main
-          # برگرداندن progress.json و نادیده گرفتن سورس‌ها
           cp /tmp/progress_backup.json "$PROGRESS_FILE" 2>/dev/null || true
           git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
           git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
@@ -620,7 +615,6 @@ jobs:
               fs.writeFileSync('$ERROR_FILE', Buffer.concat([iv,enc]));
             "
             mkdir -p errors && cp $ERROR_FILE errors/
-            # ====== اصلاح نهایی: اتصال قطعی به main ======
             git fetch origin main && git checkout -B main origin/main
             git add errors/ && git commit -m "error log for ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
             RETRY=0; MAX=10000
