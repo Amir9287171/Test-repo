@@ -955,8 +955,28 @@ async function runBacktest(marketData, options, onProgress) {
                 combinedFiles: options.combinedFiles || {},
                 fileName: options.fileName || 'unknown',
                 timezoneOffset: options.timezoneOffset || 0, // به دقیقه
-                symbolType: options.symbolType || 'crypto' // 'crypto' یا 'forex' (برای طلا/XAUUSD)
+                symbolType: options.symbolType || 'crypto', // 'crypto' یا 'forex' (برای طلا/XAUUSD)
+                // بافر خودکار ادامه‌دهی: اگر true باشد، هنگام ادامه‌دهی معاملات باز به فایل بعدی،
+                // ۲۵٪ انتهای داده‌ی فایل جاری به‌صورت خودکار به ابتدای فایل بعدی الحاق می‌شود
+                // (بدون نیاز به تعریف پارامتر جدیدی مثل bufferSize در استراتژی).
+                enableSmartContinuation: options.enableSmartContinuation === true
             };
+
+            // ==================== بافر خودکار ابتدای فایل (بدون پارامتر جدید در استراتژی) ====================
+            // اگر enableSmartContinuation فعال باشد و داده‌ی کامل فایل قبلی (options.previousFullData)
+            // در دسترس باشد، ۲۵٪ انتهای آن به‌صورت خودکار به ابتدای marketData الحاق می‌شود تا
+            // اندیکاتورهای دوره‌بلند (SMA200، ایچیموکو و غیره) در ابتدای فایل جدید ناقص محاسبه نشوند.
+            // بافر فقط از داده‌های گذشته ساخته می‌شود (بدون آینده‌نگری). معامله‌ی جدید فقط از
+            // entryStartIndex به بعد مجاز است؛ کندل‌های بافر صرفاً برای آپدیت اندیکاتورها استفاده می‌شوند.
+            let entryStartIndex = 0;
+            if (settings.enableSmartContinuation && options.previousFullData && options.previousFullData.length > 0) {
+                const combined = buildCombinedData(options.previousFullData, marketData);
+                marketData = combined.combinedData;
+                entryStartIndex = combined.startIndex;
+                if (entryStartIndex > 0) {
+                    console.log(`🧩 بافر خودکار ابتدای فایل: ${entryStartIndex} کندل (۲۵٪ از فایل قبلی) الحاق شد؛ معاملات جدید فقط از کندل ${entryStartIndex} به بعد مجازند`);
+                }
+            }
 
             // ==================== مراحل حد ضرر پلکانی (اصلاح شده برای SELL) ====================
             const stopLossStages = [
@@ -1146,11 +1166,54 @@ async function runBacktest(marketData, options, onProgress) {
                     }
                 });
 
-                return nextFile;
+                if (!nextFile) {
+                    return null;
+                }
+
+                // اندازه‌ی بافر خودکار (۲۵٪ از فایل جاری/مرجع) — فقط جهت اطلاع؛ محاسبه‌ی
+                // نهایی و استخراج واقعی بافر در buildCombinedData انجام می‌شود.
+                const calculatedBufferSize = Math.floor(dataToCheck.length * 0.25);
+
+                return {
+                    ...nextFile,
+                    data: nextFile.data,
+                    bufferSize: calculatedBufferSize
+                };
+            }
+
+            // ==================== تابع ساخت داده‌ی ترکیبی (بافر ۲۵٪ + فایل بعدی) ====================
+            // بدون نیاز به هیچ پارامتر جدیدی در استراتژی: ۲۵٪ انتهای prevData (فایل جاری/مرجع)
+            // به‌عنوان بافر تاریخی به ابتدای nextData الحاق می‌شود تا اندیکاتورها (میانگین‌های
+            // متحرک بلندمدت، ایچیموکو و غیره) در ابتدای فایل جدید دچار نقص نشوند.
+            // بافر فقط از داده‌های گذشته ساخته می‌شود، پس هیچ آینده‌نگری‌ای رخ نمی‌دهد.
+            function buildCombinedData(prevData, nextData) {
+                if (!nextData || nextData.length === 0) {
+                    return { combinedData: nextData || [], startIndex: 0, bufferSize: 0 };
+                }
+                if (!prevData || prevData.length === 0) {
+                    return { combinedData: nextData, startIndex: 0, bufferSize: 0 };
+                }
+
+                const bufferSize = Math.floor(prevData.length * 0.25);
+                const bufferData = bufferSize > 0 ? prevData.slice(prevData.length - bufferSize) : [];
+
+                return {
+                    combinedData: [...bufferData, ...nextData],
+                    // نقطه‌ی شروع معاملات جدید: کندل‌های قبل از این ایندکس فقط بافرند و
+                    // نباید در آن‌ها معامله‌ی جدیدی باز شود.
+                    startIndex: bufferData.length,
+                    bufferSize: bufferData.length
+                };
             }
 
             // ==================== تابع ادامه معاملات باز (با پشتیبانی از SELL) ====================
-            function continueOpenTradesWithNextFile(openPositions, nextFileData, commission) {
+            // nextFileData ممکن است داده‌ی خام فایل بعدی باشد یا (وقتی enableSmartContinuation فعال
+            // است) داده‌ی ترکیبی [بافر ۲۵٪ + فایل بعدی]. startIndex نقطه‌ای است که کندل‌های واقعیِ
+            // فایل بعدی از آنجا شروع می‌شوند؛ کندل‌های قبل از آن فقط بافر تاریخی‌اند. از آنجا که این
+            // تابع صرفاً معاملاتِ از قبل باز را می‌بندد (و معامله‌ی جدیدی باز نمی‌کند)، بازبینی کندل‌های
+            // بافر بی‌خطر است: آن کندل‌ها همان انتهای فایل قبلی هستند که قبلاً در حلقه‌ی اصلی همان فایل
+            // بررسی شده‌اند و چون پوزیشن هنوز باز مانده، در آن‌ها خروجی رخ نداده است.
+            function continueOpenTradesWithNextFile(openPositions, nextFileData, commission, startIndex = 0) {
                 if (!openPositions || openPositions.length === 0) {
                     return { trades: [], remainingPositions: [] };
                 }
@@ -1162,7 +1225,7 @@ async function runBacktest(marketData, options, onProgress) {
                 const closedTrades = [];
                 const remainingPositions = [...openPositions];
 
-                // پردازش هر کندل از فایل جدید
+                // پردازش هر کندل از داده (خام یا ترکیبی)
                 for (let i = 0; i < nextFileData.length; i++) {
                     const candle = nextFileData[i];
 
@@ -1257,7 +1320,8 @@ async function runBacktest(marketData, options, onProgress) {
                                 source: 'continued',
                                 originalFile: settings.fileName,
                                 continuedFile: 'next_file',
-                                candleIndex: i,
+                                candleIndex: i - startIndex,
+                                bufferCandle: i < startIndex,
                                 riskType: 'Fixed',
                                 riskAmount: position.riskAmount || 0,
                                 riskPercent: position.riskPercent || 0,
@@ -1663,6 +1727,14 @@ async function runBacktest(marketData, options, onProgress) {
                 maxTrendLinesSeen: 0,
                 candlesWithZeroTrendLines: 0
             };
+
+            // ==================== آمار بافر خودکار ادامه‌دهی (enableSmartContinuation) ====================
+            const smartContinuationStats = {
+                usedCount: 0,          // چند بار بافر واقعاً ساخته و استفاده شد
+                lastBufferSize: 0,     // اندازه‌ی آخرین بافر ساخته‌شده (تعداد کندل)
+                totalBufferCandles: 0  // مجموع کندل‌های بافر در طول کل پردازش این فایل
+            };
+
             console.log("🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====");
             console.log(`📊 سرمایه اولیه: ${initialCapital}, ریسک: ${riskPerTrade}%, کارمزد: ${commission}%`);
             console.log(`📈 تعداد کندل‌ها: ${marketData.length}`);
@@ -2094,7 +2166,9 @@ async function runBacktest(marketData, options, onProgress) {
                 }
 
                 // ==================== مرحله ۲: باز کردن پوزیشن جدید (فقط در صورت مجاز بودن) ====================
-                let allowNewTrade = true;
+                // کندل‌های بافر خودکار (i < entryStartIndex) فقط برای آپدیت اندیکاتورها/خطوط روند
+                // استفاده می‌شوند؛ استراتژی همچنان صدا زده می‌شود اما سیگنالش نادیده گرفته می‌شود.
+                let allowNewTrade = i >= entryStartIndex;
                 try {
                     debugStats.strategyCalls++;
                     const signal = strategyFn(marketData, i, breakPointsMap, ichimoku, processedTrendLines);
@@ -2251,10 +2325,30 @@ async function runBacktest(marketData, options, onProgress) {
                     console.log(`📂 ادامه با فایل: ${nextFile.fileName} (${nextFile.data.length} کندل)`);
                     usedFileNames.add(nextFile.fileName || `file_${continuationCount}`);
 
+                    // اگر enableSmartContinuation فعال باشد، به‌جای ارسال مستقیم داده‌ی خام فایل
+                    // بعدی، ۲۵٪ انتهای currentData (فایل جاری) را به‌صورت خودکار به ابتدای آن
+                    // الحاق می‌کنیم تا اندیکاتورها در ابتدای فایل بعدی دچار نقص نشوند.
+                    let dataForContinuation = nextFile.data;
+                    let startIndexForContinuation = 0;
+
+                    if (settings.enableSmartContinuation) {
+                        const combined = buildCombinedData(currentData, nextFile.data);
+                        dataForContinuation = combined.combinedData;
+                        startIndexForContinuation = combined.startIndex;
+
+                        if (combined.bufferSize > 0) {
+                            smartContinuationStats.usedCount++;
+                            smartContinuationStats.lastBufferSize = combined.bufferSize;
+                            smartContinuationStats.totalBufferCandles += combined.bufferSize;
+                            console.log(`🧩 بافر خودکار ادامه‌دهی: ${combined.bufferSize} کندل (۲۵٪ از فایل قبلی) به ابتدای فایل بعدی الحاق شد`);
+                        }
+                    }
+
                     const continuationResult = continueOpenTradesWithNextFile(
                         remainingPositions,
-                        nextFile.data,
-                        commission
+                        dataForContinuation,
+                        commission,
+                        startIndexForContinuation
                     );
 
                     // اضافه کردن معاملات بسته شده
@@ -2269,6 +2363,9 @@ async function runBacktest(marketData, options, onProgress) {
                     remainingPositions = continuationResult.remainingPositions;
 
                     // به‌روزرسانی data برای پیدا کردن فایل بعدی (الان واقعاً استفاده می‌شود)
+                    // توجه: عمداً داده‌ی خام nextFile.data (بدون بافر) نگه داشته می‌شود، چون این
+                    // مقدار در دور بعدی حلقه هم برای findNextFileByDate (پیدا کردن فایل پس از آن)
+                    // و هم به‌عنوان prevData برای بافر ۲۵٪ دور بعد استفاده خواهد شد.
                     currentData = nextFile.data;
 
                     continuationCount++;
@@ -2414,7 +2511,8 @@ async function runBacktest(marketData, options, onProgress) {
                     forcedCloses: trades.filter(t => t.isForced).length,
                     gapTrades: trades.filter(t => t.exitReason && t.exitReason.includes('Gap')).length
                 },
-                debugStats: debugStats
+                debugStats: debugStats,
+                smartContinuationStats: smartContinuationStats
             };
 
             // ==================== گزارش دیباگ (علت‌یابی صفر بودن معاملات) ====================
@@ -2490,6 +2588,10 @@ async function runBacktest(marketData, options, onProgress) {
             console.log(`\n⚠️ آنالیز ریسک:`);
             console.log(`├─ حداکثر افت سرمایه: ${maxDrawdown.toFixed(2)}%`);
             console.log(`├─ Profit Factor: ${profitFactor === Infinity ? '∞' : profitFactor.toFixed(2)}`);
+            if (settings.enableSmartContinuation && smartContinuationStats.usedCount > 0) {
+                console.log(`├─ اندازه‌ی بافر خودکار: ${smartContinuationStats.lastBufferSize} کندل (۲۵٪ از فایل قبلی)`);
+                console.log(`└─ بافر خودکار ${smartContinuationStats.usedCount} بار در طول ادامه‌دهی استفاده شد (مجموع ${smartContinuationStats.totalBufferCandles} کندل)`);
+            }
             console.log("\n" + "=".repeat(60));
             console.log(`💰 سرمایه اولیه: ${initialCapital.toFixed(2)}`);
             console.log(`💰 سرمایه نهایی: ${capital.toFixed(2)}`);
