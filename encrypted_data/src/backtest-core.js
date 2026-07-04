@@ -1101,7 +1101,40 @@ async function runBacktest(marketData, options, onProgress) {
             }
 
             // ==================== تابع Gap Handling ====================
+            // تصمیم مستندشده (بخش ۶ پرامپت مهاجرت): گپ واقعی (خصوصاً گپ آخر هفته در
+            // فارکس/طلا) ممکن است در وسط بازه‌ی یک کندل بزرگ رخ داده باشد، نه دقیقاً در
+            // ابتدای آن. با داده‌ی پایه (۱ دقیقه‌ای) می‌توان اولین کندل ریزِ داخل همین کندل
+            // بزرگ را پیدا کرد که واقعاً از سطح SL/TP گپ زده، و open همان کندل ریز را
+            // به‌عنوان قیمت گپ واقعی‌تر استفاده کرد — این دقیقاً هم‌خانواده‌ی همان کاری‌ست که
+            // detectFirstHitFrom5m برای برخورد TP/SL انجام می‌دهد. این منطق فقط وقتی
+            // enableIntrabarPrecision فعال باشد و داده‌ی پایه برای همین کندل موجود باشد اجرا
+            // می‌شود؛ در غیر این صورت به رفتار قبلی (سطح open کندل بزرگ) برمی‌گردد، پس این
+            // تغییر کاملاً عقب‌سازگار (backward compatible) است.
             function handleGapExit(position, candle, exitType) {
+                if (enableIntrabarPrecision && baseMinuteData) {
+                    const baseCandles = getBaseMinuteCandlesForCandle(candle);
+                    if (baseCandles.length > 0) {
+                        const firstBase = baseCandles[0];
+                        if (position.type === 'BUY') {
+                            if (exitType === 'stopLoss' && firstBase.open <= position.stopLoss) {
+                                return { shouldExit: true, exitPrice: firstBase.open, exitReason: 'Stop Loss (Gap)' };
+                            }
+                            if (exitType === 'takeProfit' && firstBase.open >= position.takeProfit) {
+                                return { shouldExit: true, exitPrice: firstBase.open, exitReason: 'Take Profit (Gap)' };
+                            }
+                        } else if (position.type === 'SELL') {
+                            if (exitType === 'stopLoss' && firstBase.open >= position.stopLoss) {
+                                return { shouldExit: true, exitPrice: firstBase.open, exitReason: 'Stop Loss (Gap)' };
+                            }
+                            if (exitType === 'takeProfit' && firstBase.open <= position.takeProfit) {
+                                return { shouldExit: true, exitPrice: firstBase.open, exitReason: 'Take Profit (Gap)' };
+                            }
+                        }
+                    }
+                }
+
+                // fallback: رفتار قبلی — دقت در سطح open کندل بزرگ (وقتی داده‌ی پایه یا
+                // enableIntrabarPrecision موجود نیست)
                 let shouldExit = false;
                 let exitPrice = 0;
                 let exitReason = '';
@@ -1216,7 +1249,11 @@ async function runBacktest(marketData, options, onProgress) {
                         // برای کریپتو: فایل بعدی باید دقیقاً بلافاصله بعد از آخرین کندل شروع شود
                         // (ادامه مستقیم کندل‌ها بدون شکاف)
                         // تایم‌فریم کندل را از دو کندل اول تخمین می‌زنیم
-                        let candleIntervalMs = 5 * 60 * 1000; // پیش‌فرض: ۵ دقیقه
+                        // توجه: این fallback فقط وقتی dataToCheck کمتر از ۲ کندل دارد استفاده
+                        // می‌شود (عملاً تقریباً هیچ‌وقت). با مهاجرت منبع به ۱ دقیقه، برای وضوح
+                        // پیش‌فرض هم به ۱ دقیقه تغییر کرد؛ در عمل چون این مسیر تقریباً هیچ‌وقت
+                        // اجرا نمی‌شود، رفتار قابل مشاهده‌ای تغییر نمی‌کند.
+                        let candleIntervalMs = 1 * 60 * 1000; // پیش‌فرض: ۱ دقیقه
                         if (dataToCheck.length >= 2) {
                             const t1 = new Date(dataToCheck[dataToCheck.length - 2].timestamp).getTime();
                             const t2 = new Date(dataToCheck[dataToCheck.length - 1].timestamp).getTime();
@@ -1435,36 +1472,54 @@ async function runBacktest(marketData, options, onProgress) {
             }
 
             // ==================== تابع تشخیص اولین برخورد حد سود/ضرر در یک کندل (اصلاح اولویت) ====================
-            // برای تایم‌فریم‌های بالاتر از ۵ دقیقه، از کندل‌های ۵ دقیقه‌ای درون آن کندل استفاده می‌شود
-            // تا ترتیب دقیق برخورد به TP یا SL مشخص شود.
-            // fiveMinData باید از options.fiveMinData پاس داده شود (آرایه کندل‌های ۵ دقیقه‌ای با همان نماد)
-            const fiveMinData = options.fiveMinData || null;
+            // برای تایم‌فریم‌های بالاتر از تایم‌فریم پایه، از کندل‌های ریزتر (پایه) درون آن
+            // کندل استفاده می‌شود تا ترتیب دقیق برخورد به TP یا SL مشخص شود.
+            // baseMinuteData باید از options.fiveMinData پاس داده شود (نام گزینه به دلایل
+            // سازگاری تغییر نکرده، اما محتوایش دیگر لزوماً ۵ دقیقه‌ای نیست — قبلاً همیشه
+            // ۵ دقیقه‌ای بود، الان با مهاجرت منبع داده معمولاً ۱ دقیقه‌ای است).
+            const baseMinuteData = options.fiveMinData || null;
 
-            // محاسبه تایم‌فریم کندل‌های اصلی (به میلی‌ثانیه)
-            function detectCandleIntervalMs(data) {
-                if (!data || data.length < 2) return 5 * 60 * 1000;
+            // سوییچ روشن/خاموش دقت درون‌کندلی. با false، رفتار قدیمی (بدون لایه‌ی داده‌ی
+            // پایه) بازتولید می‌شود — برای دیباگ رگرسیون و مقایسه‌ی قبل/بعد از مهاجرت.
+            const enableIntrabarPrecision = options.enableIntrabarPrecision !== false;
+
+            // محاسبه تایم‌فریم کندل‌ها (به میلی‌ثانیه)
+            function detectCandleIntervalMs(data, fallbackMs) {
+                const fb = fallbackMs || 5 * 60 * 1000;
+                if (!data || data.length < 2) return fb;
                 const t1 = new Date(data[0].timestamp).getTime();
                 const t2 = new Date(data[1].timestamp).getTime();
-                return t2 > t1 ? t2 - t1 : 5 * 60 * 1000;
+                return t2 > t1 ? t2 - t1 : fb;
             }
             const mainCandleIntervalMs = detectCandleIntervalMs(marketData);
-            const fiveMinIntervalMs = 5 * 60 * 1000;
-            const isHigherTF = mainCandleIntervalMs > fiveMinIntervalMs;
+            // دوره‌ی گذار: به‌جای هاردکد کردن ۱ دقیقه به‌عنوان تایم‌فریم پایه، آن را از خودِ
+            // baseMinuteData تشخیص می‌دهیم. اگر بخشی از آرشیو هنوز ۵ دقیقه‌ای باشد (فایل
+            // قدیمی)، این منطق به‌جای فرض غلط «پایه = ۱ دقیقه»، همان ۵ دقیقه را به‌عنوان
+            // مرجع دقت در نظر می‌گیرد.
+            const baseIntervalMs = (baseMinuteData && baseMinuteData.length >= 2)
+                ? detectCandleIntervalMs(baseMinuteData)
+                : 5 * 60 * 1000;
+            // اصلاح باگ مهاجرت ۵→۱ دقیقه: قبلاً این آستانه هاردکد روی ۵ دقیقه بود، پس این
+            // لایه‌ی دقت فقط برای تایم‌فریم‌های >۵ دقیقه (یعنی 15m/30m/1h) فعال می‌شد و 5m
+            // هیچ‌وقت از آن بهره نمی‌برد (چون قبلاً برای 5m چیز ریزتری برای مقایسه نبود).
+            // الان که baseIntervalMs معمولاً ۱ دقیقه است، همین شرط به‌طور خودکار برای 5m هم
+            // برقرار می‌شود (۵ دقیقه > ۱ دقیقه)، بدون نیاز به کد جداگانه.
+            const isHigherTF = enableIntrabarPrecision && mainCandleIntervalMs > baseIntervalMs;
 
-            // پیدا کردن کندل‌های ۵ دقیقه‌ای که درون یک کندل اصلی قرار دارند
-            function getFiveMinCandlesForCandle(candle) {
-                if (!fiveMinData || fiveMinData.length === 0) return [];
+            // پیدا کردن کندل‌های پایه‌ای (baseMinuteData) که درون یک کندل اصلی قرار دارند
+            function getBaseMinuteCandlesForCandle(candle) {
+                if (!baseMinuteData || baseMinuteData.length === 0) return [];
                 const candleStart = new Date(candle.timestamp).getTime();
                 const candleEnd = candleStart + mainCandleIntervalMs;
-                return fiveMinData.filter(c => {
+                return baseMinuteData.filter(c => {
                     const t = new Date(c.timestamp).getTime();
                     return t >= candleStart && t < candleEnd;
                 });
             }
 
-            // تشخیص اولین برخورد TP/SL از روی کندل‌های ۵ دقیقه‌ای
-            function detectFirstHitFrom5m(fiveMinCandles, position) {
-                for (const c of fiveMinCandles) {
+            // تشخیص اولین برخورد TP/SL از روی کندل‌های پایه‌ای
+            function detectFirstHitFrom5m(baseCandles, position) {
+                for (const c of baseCandles) {
                     if (position.type === 'BUY') {
                         const hitStop = c.low <= position.stopLoss;
                         const hitTake = position.takeProfit ? c.high >= position.takeProfit : false;
@@ -1503,19 +1558,20 @@ async function runBacktest(marketData, options, onProgress) {
                 let exitPrice = 0;
                 let exitReason = '';
 
-                // اگر تایم‌فریم بالاتر از ۵ دقیقه است و داده‌های ۵ دقیقه‌ای موجود است،
-                // از آن‌ها برای تشخیص دقیق ترتیب برخورد استفاده کن
-                if (isHigherTF && fiveMinData) {
-                    const fiveMinCandles = getFiveMinCandlesForCandle(candle);
-                    if (fiveMinCandles.length > 0) {
-                        const hit = detectFirstHitFrom5m(fiveMinCandles, position);
+                // اگر تایم‌فریم اصلی بالاتر از تایم‌فریم پایه است و داده‌ی پایه موجود است،
+                // از آن برای تشخیص دقیق ترتیب برخورد استفاده کن (الان شامل 5m هم می‌شود،
+                // چون baseIntervalMs معمولاً ۱ دقیقه است، نه ۵).
+                if (isHigherTF && baseMinuteData) {
+                    const baseCandles = getBaseMinuteCandlesForCandle(candle);
+                    if (baseCandles.length > 0) {
+                        const hit = detectFirstHitFrom5m(baseCandles, position);
                         if (hit) {
                             return { exitPrice: hit.exitPrice, exitReason: hit.exitReason };
                         }
                     }
                 }
 
-                // fallback: رفتار اصلی برای ۵ دقیقه یا زمانی که داده‌های ۵ دقیقه‌ای نداریم
+                // fallback: رفتار اصلی برای تایم‌فریم پایه خودش یا زمانی که داده‌ی پایه نداریم
                 if (position.type === 'BUY') {
                     const hitStop = candle.low <= position.stopLoss;
                     const hitTake = position.takeProfit ? candle.high >= position.takeProfit : false;
@@ -1659,6 +1715,48 @@ async function runBacktest(marketData, options, onProgress) {
                 }
 
                 return null;
+            }
+
+            // ==================== دقیق‌سازی نقطه‌ی ورود با داده‌ی پایه (بخش ۵ پرامپت مهاجرت) ====================
+            // مشکل: در حالت openBreak، قیمت ورود معمولاً = open همان کندل بزرگ فرض می‌شود
+            // (نگاه کنید به breakPrice در detectOpenBreak). اگر خط روند/سطح breakTolerance
+            // *وسط* کندل بزرگ شکسته شده باشد، این فرض می‌تواند از واقعیت دور باشد.
+            //
+            // راه‌حل: با داده‌ی پایه (baseMinuteData)، اولین کندل ریز داخل همین کندل بزرگ که
+            // واقعاً شرط breakTolerance را با open خودش برآورده می‌کند را پیدا کن و open همان
+            // کندل ریز را به‌عنوان قیمت ورود دقیق‌تر برگردان. این دقیقاً هم‌خانواده‌ی همان
+            // کاری‌ست که detectFirstHitFrom5m برای خروج انجام می‌دهد، این‌بار برای ورود.
+            //
+            // ⚠️ بدون آینده‌نگری: getBaseMinuteCandlesForCandle بازه را به دقیقاً همان کندل
+            // بزرگ (candle) محدود می‌کند — [start, start+mainCandleIntervalMs) — پس هیچ کندل
+            // پایه‌ای از کندل‌های بزرگ بعدی دیده نمی‌شود.
+            //
+            // ⚠️ محدودیت شناخته‌شده: این تابع فقط برای entryType==='openBreak' معنا دارد،
+            // چون در openBreak سیگنال و ورود روی *همان* کندل i اتفاق می‌افتد. در nextCandle،
+            // شکست با High/Low کندل i تشخیص داده می‌شود ولی ورود روی کندل i+1 است، پس کندل
+            // «سیگنال‌دهنده» و کندل «ورود» یکی نیستند و این تابع اینجا کاربرد ندارد.
+            //
+            // نکته‌ی مهم برای استفاده: این تابع به strategyFn به‌عنوان آرگومان ششم پاس داده
+            // می‌شود (refineEntryPrice). چون backtest-core.js نمی‌داند کدام خط/breakInfo باعث
+            // صدور سیگنال شده (این تصمیم داخل کد استراتژی گرفته می‌شود)، خودِ استراتژی باید
+            // این تابع را با direction و lineValue مربوط به همان breakInfو که استفاده کرده صدا
+            // بزند تا signal.price را دقیق‌تر کند. اگر کد استراتژی این تابع را صدا نزند، رفتار
+            // قبلی (signal.price = open کندل بزرگ) بدون تغییر باقی می‌ماند.
+            function refineEntryPriceFromBaseMinute(candle, direction, lineValue, fallbackPrice) {
+                if (!enableIntrabarPrecision || !baseMinuteData || !openBreakEntry) return fallbackPrice;
+                const baseCandles = getBaseMinuteCandlesForCandle(candle);
+                if (baseCandles.length === 0) return fallbackPrice;
+
+                for (const bc of baseCandles) {
+                    if (direction === 'down' && bc.open < lineValue * (1 - breakTolerance)) {
+                        return bc.open;
+                    }
+                    if (direction === 'up' && bc.open > lineValue * (1 + breakTolerance)) {
+                        return bc.open;
+                    }
+                }
+                // هیچ کندل پایه‌ای شرط را با open خودش برآورده نکرد؛ به قیمت پیش‌فرض برگرد
+                return fallbackPrice;
             }
 
             // تابع تشخیص شکست بر اساس Open کندل جاری (حالت openBreak — بدون آینده‌نگری)
@@ -2247,7 +2345,10 @@ async function runBacktest(marketData, options, onProgress) {
                 let allowNewTrade = i >= entryStartIndex;
                 try {
                     debugStats.strategyCalls++;
-                    const signal = strategyFn(marketData, i, breakPointsMap, ichimoku, processedTrendLines);
+                    // آرگومان ششم (refineEntryPriceFromBaseMinute) اختیاری است: استراتژی
+                    // می‌تواند برای حالت openBreak، به‌جای open کندل بزرگ، قیمت ورود دقیق‌تری
+                    // از داده‌ی پایه (۱ دقیقه‌ای) بگیرد. نگاه کنید به توضیحات بالای تعریف تابع.
+                    const signal = strategyFn(marketData, i, breakPointsMap, ichimoku, processedTrendLines, refineEntryPriceFromBaseMinute);
 
                     if (!signal || !signal.signal) {
                         debugStats.nullOrNoSignalCount++;
