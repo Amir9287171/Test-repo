@@ -250,6 +250,20 @@ log(`✅ حالت ورود: entryType=${entryType}, breakTolerance=${breakTolera
 
 
 
+// ====================== بافر خودکار ادامه‌دهی بین فایل‌ها ======================
+
+// اگر true باشد، بین پردازش فایل‌های متوالی (برای هر تایم‌فریم)، ۲۵٪ انتهای فایل قبلی
+
+// به‌صورت خودکار (بدون نیاز به پارامتر جدید در استراتژی) به ابتدای فایل بعدی الحاق
+
+// می‌شود تا اندیکاتورهای دوره‌بلند در ابتدای فایل جدید دچار نقص نشوند.
+
+const enableSmartContinuation = analysisConfig.enableSmartContinuation === true;
+
+log(`✅ بافر خودکار ادامه‌دهی (enableSmartContinuation): ${enableSmartContinuation}`);
+
+
+
 // ====================== انتخاب فایل‌ها بر اساس رنج ======================
 
 function getFileNamesByRange(dataDir, startIndex, count) {
@@ -488,6 +502,14 @@ const safeParse = (v, def=0) => {
 
 
 
+    // نگهداری آخرین tfData پردازش‌شده به ازای هر تایم‌فریم، برای ساخت بافر خودکار ۲۵٪
+
+    // در ابتدای فایل بعدی (وقتی enableSmartContinuation فعال است).
+
+    const previousTfDataMap = {};
+
+
+
     for (let fileIdx = 0; fileIdx < fileNames.length; fileIdx++) {
 
         const fileName = fileNames[fileIdx];
@@ -638,9 +660,21 @@ const safeParse = (v, def=0) => {
 
 
 
+                // تفکیک از خط قبل: tfData باید همیشه محاسبه شود (حتی اگر این فایل قبلاً پردازش
+
+                // شده) تا زنجیره‌ی previousTfDataMap برای بافر خودکار فایل بعدی قطع نشود.
+
+                const tfData = tf.minutes === 5 ? marketData : resampleOHLC(marketData, tf.minutes);
+
+                const previousTfDataForBuffer = previousTfDataMap[tfLabel] || null;
+
+
+
                 if (fs.existsSync(path.join(outputDir, 'results.enc'))) {
 
                     log(`⏩ فایل ${fileName} برای تایم‌فریم ${tfLabel} قبلاً انجام شده است.`);
+
+                    previousTfDataMap[tfLabel] = tfData;
 
                     continue;
 
@@ -648,9 +682,13 @@ const safeParse = (v, def=0) => {
 
 
 
-                const tfData = tf.minutes === 5 ? marketData : resampleOHLC(marketData, tf.minutes);
-
                 log(`🚀 فراخوانی runBacktest برای تایم‌فریم ${tfLabel} (${tfData.length} کندل)...`);
+
+                if (enableSmartContinuation && previousTfDataForBuffer) {
+
+                    log(`🧩 بافر خودکار ۲۵٪ از فایل قبلی (${previousTfDataForBuffer.length} کندل) به ابتدای این فایل الحاق خواهد شد.`);
+
+                }
 
 
 
@@ -718,9 +756,17 @@ const safeParse = (v, def=0) => {
 
                     timezoneOffset: 0,
 
-                    fiveMinData: tf.minutes !== 5 ? marketData : null
+                    fiveMinData: tf.minutes !== 5 ? marketData : null,
+
+                    enableSmartContinuation: enableSmartContinuation,
+
+                    previousFullData: previousTfDataForBuffer
 
                 });
+
+
+
+                previousTfDataMap[tfLabel] = tfData;
 
 
 
