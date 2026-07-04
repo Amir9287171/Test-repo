@@ -1,0 +1,63 @@
+name: All‑Coin Pipeline (1m)
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'بازسازی اجباری (yes/no)'
+        required: false
+        default: 'no'
+
+permissions:
+  contents: write
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: 1. دریافت کد مخزن
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 2. راه‌اندازی پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 3. نصب کتابخانه‌ها
+        run: |
+          pip install --upgrade pip
+          pip install pandas requests cryptography
+
+      - name: 4. اجرای اسکریپت اصلی
+        env:
+          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
+        run: |
+          echo "🚀 شروع اجرای All_pipeline.py برای ۵ ارز (۱ دقیقه)"
+          python encrypted_data/All_pipeline.py
+          echo "✅ اسکریپت با موفقیت تمام شد"
+
+      - name: 5. ذخیره تغییرات در مخزن (commit & push)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add data/All_Coins_Combined/ data/BTCUSDT/ data/ETHUSDT/ data/SOLUSDT/ data/XRPUSDT/ data/PAXGUSDT/ encrypted_data/data.enc zips/ 2>/dev/null || true
+          git diff --staged --quiet || {
+            git commit -m "All pipeline: update 5 coins (1m timeframe)"
+            git pull --rebase --autostash origin main
+            git push origin main
+            echo "✅ تغییرات با موفقیت ارسال شد."
+          }
+
+      - name: 6. گزارش نهایی
+        run: |
+          echo "======================================="
+          echo "✅ دانلود و پردازش ۵ ارز با تایم‌فریم ۱ دقیقه انجام شد"
+          echo "📂 تعداد CSVهای ساخته شده در All_Coins_Combined:"
+          ls -la data/All_Coins_Combined/ | wc -l
+          echo "📦 فایل رمزنگاری: encrypted_data/data.enc"
+          ls -lh encrypted_data/data.enc
+          echo "======================================="
