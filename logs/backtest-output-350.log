@@ -1,0 +1,49 @@
+✅ نسخه نهایی – با پشتیبانی از ادامه‌دهی بین فایل‌ها
+[2026-07-04T19:38:44.935Z] [INFO] شروع run-backtest.js با آرگومان‌ها: strategyFile=strategies/B4Ic14-30-57.js, startIndex=350, chunkSize=50, dataDir=data/All_Coins_Combined, maxContinuation=3
+[2026-07-04T19:38:44.935Z] [INFO] استراتژی B4Ic14-30-57 با طول 5235 کاراکتر خوانده شد.
+[DIVERGENCE] 📦 ماژول در module.exports (Node.js) بارگذاری شد. (پشتیبانی از RSI و MACD)
+[2026-07-04T19:38:44.955Z] [INFO] در حال استخراج ANALYSIS_CONFIG از استراتژی...
+[2026-07-04T19:38:44.955Z] [INFO] ✅ ANALYSIS_CONFIG با موفقیت بارگذاری شد:
+{
+  "entryType": "nextCandle",
+  "breakTolerance": 0.001,
+  "trendLines": {
+    "pivotPeriod": 5,
+    "minTouchPoints": 3,
+    "minCandleDistance": 3,
+    "precision": 0.001
+  },
+  "ichimoku": {
+    "enabled": true,
+    "tenkanPeriod": 14,
+    "kijunPeriod": 30,
+    "senkouBPeriod": 57,
+    "useCloudFilter": true,
+    "useTKCross": true,
+    "useChikou": false
+  },
+  "enableSmartContinuation": false
+}
+[2026-07-04T19:38:44.956Z] [INFO] نیازمندی‌ها: trendLines=true, ichimoku=true, divergence=false
+[2026-07-04T19:38:44.956Z] [INFO] ✅ حالت ورود: entryType=nextCandle, breakTolerance=0.001
+[2026-07-04T19:38:44.956Z] [INFO] ✅ بافر خودکار ادامه‌دهی (enableSmartContinuation): false
+[2026-07-04T19:38:44.972Z] [INFO] این چانک شامل 50 فایل است: ETHUSDT-1m-2021-01-21_2021-01-31.csv, PAXGUSDT-1m-2021-01-21_2021-01-31.csv, SOLUSDT-1m-2021-01-21_2021-01-31.csv, XRPUSDT-1m-2021-01-21_2021-01-31.csv, BTCUSDT-1m-2021-02-01_2021-02-10.csv, ETHUSDT-1m-2021-02-01_2021-02-10.csv, PAXGUSDT-1m-2021-02-01_2021-02-10.csv, SOLUSDT-1m-2021-02-01_2021-02-10.csv, XRPUSDT-1m-2021-02-01_2021-02-10.csv, BTCUSDT-1m-2021-02-11_2021-02-20.csv, ETHUSDT-1m-2021-02-11_2021-02-20.csv, PAXGUSDT-1m-2021-02-11_2021-02-20.csv, SOLUSDT-1m-2021-02-11_2021-02-20.csv, XRPUSDT-1m-2021-02-11_2021-02-20.csv, BTCUSDT-1m-2021-02-21_2021-02-28.csv, ETHUSDT-1m-2021-02-21_2021-02-28.csv, PAXGUSDT-1m-2021-02-21_2021-02-28.csv, SOLUSDT-1m-2021-02-21_2021-02-28.csv, XRPUSDT-1m-2021-02-21_2021-02-28.csv, BTCUSDT-1m-2021-03-01_2021-03-10.csv, ETHUSDT-1m-2021-03-01_2021-03-10.csv, PAXGUSDT-1m-2021-03-01_2021-03-10.csv, SOLUSDT-1m-2021-03-01_2021-03-10.csv, XRPUSDT-1m-2021-03-01_2021-03-10.csv, BTCUSDT-1m-2021-03-11_2021-03-20.csv, ETHUSDT-1m-2021-03-11_2021-03-20.csv, PAXGUSDT-1m-2021-03-11_2021-03-20.csv, SOLUSDT-1m-2021-03-11_2021-03-20.csv, XRPUSDT-1m-2021-03-11_2021-03-20.csv, BTCUSDT-1m-2021-03-21_2021-03-31.csv, ETHUSDT-1m-2021-03-21_2021-03-31.csv, PAXGUSDT-1m-2021-03-21_2021-03-31.csv, SOLUSDT-1m-2021-03-21_2021-03-31.csv, XRPUSDT-1m-2021-03-21_2021-03-31.csv, BTCUSDT-1m-2021-04-01_2021-04-10.csv, ETHUSDT-1m-2021-04-01_2021-04-10.csv, PAXGUSDT-1m-2021-04-01_2021-04-10.csv, SOLUSDT-1m-2021-04-01_2021-04-10.csv, XRPUSDT-1m-2021-04-01_2021-04-10.csv, BTCUSDT-1m-2021-04-11_2021-04-20.csv, ETHUSDT-1m-2021-04-11_2021-04-20.csv, PAXGUSDT-1m-2021-04-11_2021-04-20.csv, SOLUSDT-1m-2021-04-11_2021-04-20.csv, XRPUSDT-1m-2021-04-11_2021-04-20.csv, BTCUSDT-1m-2021-04-21_2021-04-30.csv, ETHUSDT-1m-2021-04-21_2021-04-30.csv, PAXGUSDT-1m-2021-04-21_2021-04-30.csv, SOLUSDT-1m-2021-04-21_2021-04-30.csv, XRPUSDT-1m-2021-04-21_2021-04-30.csv, BTCUSDT-1m-2021-05-01_2021-05-10.csv
+[2026-07-04T19:38:44.972Z] [INFO] شروع فاز تحلیل و بک‌تست...
+[2026-07-04T19:38:44.974Z] [INFO] شروع پردازش فایل 1 از 50: ETHUSDT-1m-2021-01-21_2021-01-31.csv
+[2026-07-04T19:38:45.066Z] [INFO] فایل ETHUSDT-1m-2021-01-21_2021-01-31.csv با 15840 کندل بارگذاری شد.
+[2026-07-04T19:38:45.068Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-1m-2021-01-21_2021-01-31.csv
+[2026-07-04T19:38:45.188Z] [INFO] فایل PAXGUSDT-1m-2021-01-21_2021-01-31.csv با 15840 کندل بارگذاری شد.
+[2026-07-04T19:38:45.190Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-1m-2021-01-21_2021-01-31.csv
+[2026-07-04T19:38:45.270Z] [INFO] فایل SOLUSDT-1m-2021-01-21_2021-01-31.csv با 15840 کندل بارگذاری شد.
+[2026-07-04T19:38:45.271Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-1m-2021-01-21_2021-01-31.csv
+[2026-07-04T19:38:45.348Z] [INFO] فایل XRPUSDT-1m-2021-01-21_2021-01-31.csv با 15840 کندل بارگذاری شد.
+[2026-07-04T19:38:45.349Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-04T19:38:45.349Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-04T19:38:45.349Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-04T19:38:45.366Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (3168 کندل)...
+[2026-07-04T19:38:45.366Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 3168
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.001} | options.trendLines=ندارد
