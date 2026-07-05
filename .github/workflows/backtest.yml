@@ -330,7 +330,7 @@ jobs:
           done
 
           cnt=${#FILTERED[@]}
-          SIZE=50
+          SIZE=10
 
           n=$(( (cnt + SIZE - 1) / SIZE ))
           chunks="["
@@ -396,7 +396,7 @@ jobs:
     needs: [check-completion, prepare]
     if: needs.prepare.outputs.strategies != '[]'
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 3300
     strategy:
       fail-fast: false
       max-parallel: 20
