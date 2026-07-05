@@ -1,0 +1,297 @@
+✅ نسخه نهایی – با پشتیبانی از ادامه‌دهی بین فایل‌ها
+[2026-07-05T14:11:40.138Z] [INFO] شروع run-backtest.js با آرگومان‌ها: strategyFile=strategies/B4Ic14-30-57.js, startIndex=650, chunkSize=50, dataDir=data/All_Coins_Combined, maxContinuation=3
+[2026-07-05T14:11:40.139Z] [INFO] استراتژی B4Ic14-30-57 با طول 3242 کاراکتر خوانده شد.
+[DIVERGENCE] 📦 ماژول در module.exports (Node.js) بارگذاری شد. (پشتیبانی از RSI و MACD)
+[2026-07-05T14:11:40.158Z] [INFO] در حال استخراج ANALYSIS_CONFIG از استراتژی...
+[2026-07-05T14:11:40.158Z] [INFO] ✅ ANALYSIS_CONFIG با موفقیت بارگذاری شد:
+{
+  "entryType": "nextCandle",
+  "breakTolerance": 0.01,
+  "trendLines": {
+    "pivotPeriod": 5,
+    "minTouchPoints": 3,
+    "minCandleDistance": 3,
+    "precision": 0.02
+  },
+  "ichimoku": {
+    "enabled": true,
+    "tenkanPeriod": 14,
+    "kijunPeriod": 30,
+    "senkouBPeriod": 57,
+    "useCloudFilter": true,
+    "useTKCross": true,
+    "useChikou": false
+  },
+  "enableSmartContinuation": false
+}
+[2026-07-05T14:11:40.159Z] [INFO] نیازمندی‌ها: trendLines=true, ichimoku=true, divergence=false
+[2026-07-05T14:11:40.159Z] [INFO] ✅ حالت ورود: entryType=nextCandle, breakTolerance=0.01
+[2026-07-05T14:11:40.159Z] [INFO] ✅ بافر خودکار ادامه‌دهی (enableSmartContinuation): false
+[2026-07-05T14:11:40.168Z] [INFO] این چانک شامل 50 فایل است: ETHUSDT-1m-2022-09-21_2022-09-30.csv, PAXGUSDT-1m-2022-09-21_2022-09-30.csv, SOLUSDT-1m-2022-09-21_2022-09-30.csv, XRPUSDT-1m-2022-09-21_2022-09-30.csv, BTCUSDT-1m-2022-10-01_2022-10-10.csv, ETHUSDT-1m-2022-10-01_2022-10-10.csv, PAXGUSDT-1m-2022-10-01_2022-10-10.csv, SOLUSDT-1m-2022-10-01_2022-10-10.csv, XRPUSDT-1m-2022-10-01_2022-10-10.csv, BTCUSDT-1m-2022-10-11_2022-10-20.csv, ETHUSDT-1m-2022-10-11_2022-10-20.csv, PAXGUSDT-1m-2022-10-11_2022-10-20.csv, SOLUSDT-1m-2022-10-11_2022-10-20.csv, XRPUSDT-1m-2022-10-11_2022-10-20.csv, BTCUSDT-1m-2022-10-21_2022-10-31.csv, ETHUSDT-1m-2022-10-21_2022-10-31.csv, PAXGUSDT-1m-2022-10-21_2022-10-31.csv, SOLUSDT-1m-2022-10-21_2022-10-31.csv, XRPUSDT-1m-2022-10-21_2022-10-31.csv, BTCUSDT-1m-2022-11-01_2022-11-10.csv, ETHUSDT-1m-2022-11-01_2022-11-10.csv, PAXGUSDT-1m-2022-11-01_2022-11-10.csv, SOLUSDT-1m-2022-11-01_2022-11-10.csv, XRPUSDT-1m-2022-11-01_2022-11-10.csv, BTCUSDT-1m-2022-11-11_2022-11-20.csv, ETHUSDT-1m-2022-11-11_2022-11-20.csv, PAXGUSDT-1m-2022-11-11_2022-11-20.csv, SOLUSDT-1m-2022-11-11_2022-11-20.csv, XRPUSDT-1m-2022-11-11_2022-11-20.csv, BTCUSDT-1m-2022-11-21_2022-11-30.csv, ETHUSDT-1m-2022-11-21_2022-11-30.csv, PAXGUSDT-1m-2022-11-21_2022-11-30.csv, SOLUSDT-1m-2022-11-21_2022-11-30.csv, XRPUSDT-1m-2022-11-21_2022-11-30.csv, BTCUSDT-1m-2022-12-01_2022-12-10.csv, ETHUSDT-1m-2022-12-01_2022-12-10.csv, PAXGUSDT-1m-2022-12-01_2022-12-10.csv, SOLUSDT-1m-2022-12-01_2022-12-10.csv, XRPUSDT-1m-2022-12-01_2022-12-10.csv, BTCUSDT-1m-2022-12-11_2022-12-20.csv, ETHUSDT-1m-2022-12-11_2022-12-20.csv, PAXGUSDT-1m-2022-12-11_2022-12-20.csv, SOLUSDT-1m-2022-12-11_2022-12-20.csv, XRPUSDT-1m-2022-12-11_2022-12-20.csv, BTCUSDT-1m-2022-12-21_2022-12-31.csv, ETHUSDT-1m-2022-12-21_2022-12-31.csv, PAXGUSDT-1m-2022-12-21_2022-12-31.csv, SOLUSDT-1m-2022-12-21_2022-12-31.csv, XRPUSDT-1m-2022-12-21_2022-12-31.csv, BTCUSDT-1m-2023-01-01_2023-01-10.csv
+[2026-07-05T14:11:40.168Z] [INFO] شروع فاز تحلیل و بک‌تست...
+[2026-07-05T14:11:40.169Z] [INFO] شروع پردازش فایل 1 از 50: ETHUSDT-1m-2022-09-21_2022-09-30.csv
+[2026-07-05T14:11:40.239Z] [INFO] فایل ETHUSDT-1m-2022-09-21_2022-09-30.csv با 14400 کندل بارگذاری شد.
+[2026-07-05T14:11:40.240Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: PAXGUSDT-1m-2022-09-21_2022-09-30.csv
+[2026-07-05T14:11:40.307Z] [INFO] فایل PAXGUSDT-1m-2022-09-21_2022-09-30.csv با 14400 کندل بارگذاری شد.
+[2026-07-05T14:11:40.309Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-1m-2022-09-21_2022-09-30.csv
+[2026-07-05T14:11:40.388Z] [INFO] فایل SOLUSDT-1m-2022-09-21_2022-09-30.csv با 14400 کندل بارگذاری شد.
+[2026-07-05T14:11:40.389Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-1m-2022-09-21_2022-09-30.csv
+[2026-07-05T14:11:40.451Z] [INFO] فایل XRPUSDT-1m-2022-09-21_2022-09-30.csv با 14400 کندل بارگذاری شد.
+[2026-07-05T14:11:40.452Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-05T14:11:40.452Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-05T14:11:40.452Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-05T14:11:40.463Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-05T14:11:40.463Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.02} | options.trendLines=ندارد
+🔔 [FIRST_SIGNAL] اولین سیگنال استراتژی در کندل 131 (زمان Wed Sep 21 2022 10:55:00 GMT+0000 (Coordinated Universal Time)): {"signal":"BUY","price":1346.07,"stopLoss":1339.33965,"takeProfit":1372.9913999999999,"trailingStop":true,"useStagedStopLoss":true,"stopLossStages":[{"movePercent":0.4,"stopLossPercent":0.4},{"movePercent":0.8,"stopLossPercent":0.7},{"movePercent":1.1,"stopLossPercent":0.9},{"movePercent":1.3,"stopLossPercent":1.1},{"movePercent":1.5,"stopLossPercent":1.3},{"movePercent":1.7,"stopLossPercent":1.5},{"movePercent":2,"stopLossPercent":1.7},{"movePercent":2.3,"stopLossPercent":2},{"movePercent":2.5,"stopLossPercent":2.3},{"movePercent":3,"stopLossPercent":2.8},{"movePercent":4,"stopLossPercent":3.5},{"movePercent":5,"stopLossPercent":4.5},{"movePercent":6,"stopLossPercent":5.5},{"movePercent":7,"stopLossPercent":6.5},{"movePercent":8,"stopLossPercent":7.5}]}
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 2860
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 39 از 2860
+├─ حداکثر تعداد خط روند معتبر همزمان: 462
+├─ کل شکست‌های خط روند شناسایی‌شده: 455 (بالا=189, پایین=266)
+├─ تعداد فراخوانی استراتژی: 2860
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 2794
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 66
+│  ├─ اولین کندل با سیگنال: 131
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 12
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 54 (اولین در کندل 131)
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $10800.00 (54 معامله)
+└─ میانگین ریسک واقعی: $200.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 54
+├─ سودده: 24 (44.44%)
+├─ ضررده: 30 (55.56%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 27.15%
+├─ Profit Factor: 0.81
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 7485.98
+📊 بازدهی کل: -25.14%
+============================================================
+
+[2026-07-05T14:25:08.505Z] [INFO] بک‌تست 5m پایان یافت. تعداد معاملات: 54
+[2026-07-05T14:25:08.505Z] [INFO] سرمایه نهایی: 7485.98
+[2026-07-05T14:25:08.514Z] [INFO] گزارش detailed_results.json برای 5m ذخیره شد.
+[2026-07-05T14:25:08.514Z] [INFO] گزارش trades_summary.json برای 5m ذخیره شد.
+[2026-07-05T14:25:08.560Z] [INFO] ✅ results.enc برای ETHUSDT-1m-2022-09-21_2022-09-30.csv / 5m ذخیره شد.
+[2026-07-05T14:25:08.566Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 15m (960 کندل)...
+[2026-07-05T14:25:08.566Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 15m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 960
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.02} | options.trendLines=ندارد
+🔔 [FIRST_SIGNAL] اولین سیگنال استراتژی در کندل 187 (زمان Thu Sep 22 2022 22:45:00 GMT+0000 (Coordinated Universal Time)): {"signal":"BUY","price":1323.35,"stopLoss":1316.73325,"takeProfit":1349.817,"trailingStop":true,"useStagedStopLoss":true,"stopLossStages":[{"movePercent":0.4,"stopLossPercent":0.4},{"movePercent":0.8,"stopLossPercent":0.7},{"movePercent":1.1,"stopLossPercent":0.9},{"movePercent":1.3,"stopLossPercent":1.1},{"movePercent":1.5,"stopLossPercent":1.3},{"movePercent":1.7,"stopLossPercent":1.5},{"movePercent":2,"stopLossPercent":1.7},{"movePercent":2.3,"stopLossPercent":2},{"movePercent":2.5,"stopLossPercent":2.3},{"movePercent":3,"stopLossPercent":2.8},{"movePercent":4,"stopLossPercent":3.5},{"movePercent":5,"stopLossPercent":4.5},{"movePercent":6,"stopLossPercent":5.5},{"movePercent":7,"stopLossPercent":6.5},{"movePercent":8,"stopLossPercent":7.5}]}
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 940
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 94 از 940
+├─ حداکثر تعداد خط روند معتبر همزمان: 124
+├─ کل شکست‌های خط روند شناسایی‌شده: 116 (بالا=49, پایین=67)
+├─ تعداد فراخوانی استراتژی: 940
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 923
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 17
+│  ├─ اولین کندل با سیگنال: 187
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 1
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 16 (اولین در کندل 187)
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $3200.00 (16 معامله)
+└─ میانگین ریسک واقعی: $200.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 16
+├─ سودده: 6 (37.50%)
+├─ ضررده: 10 (62.50%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 14.39%
+├─ Profit Factor: 0.76
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 9091.45
+📊 بازدهی کل: -9.09%
+============================================================
+
+[2026-07-05T14:25:20.606Z] [INFO] بک‌تست 15m پایان یافت. تعداد معاملات: 16
+[2026-07-05T14:25:20.606Z] [INFO] سرمایه نهایی: 9091.45
+[2026-07-05T14:25:20.607Z] [INFO] گزارش detailed_results.json برای 15m ذخیره شد.
+[2026-07-05T14:25:20.607Z] [INFO] گزارش trades_summary.json برای 15m ذخیره شد.
+[2026-07-05T14:25:20.650Z] [INFO] ✅ results.enc برای ETHUSDT-1m-2022-09-21_2022-09-30.csv / 15m ذخیره شد.
+[2026-07-05T14:25:20.656Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 30m (480 کندل)...
+[2026-07-05T14:25:20.657Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 30m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 480
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.02} | options.trendLines=ندارد
+🔔 [FIRST_SIGNAL] اولین سیگنال استراتژی در کندل 103 (زمان Fri Sep 23 2022 03:30:00 GMT+0000 (Coordinated Universal Time)): {"signal":"BUY","price":1342.22,"stopLoss":1335.5089,"takeProfit":1369.0644,"trailingStop":true,"useStagedStopLoss":true,"stopLossStages":[{"movePercent":0.4,"stopLossPercent":0.4},{"movePercent":0.8,"stopLossPercent":0.7},{"movePercent":1.1,"stopLossPercent":0.9},{"movePercent":1.3,"stopLossPercent":1.1},{"movePercent":1.5,"stopLossPercent":1.3},{"movePercent":1.7,"stopLossPercent":1.5},{"movePercent":2,"stopLossPercent":1.7},{"movePercent":2.3,"stopLossPercent":2},{"movePercent":2.5,"stopLossPercent":2.3},{"movePercent":3,"stopLossPercent":2.8},{"movePercent":4,"stopLossPercent":3.5},{"movePercent":5,"stopLossPercent":4.5},{"movePercent":6,"stopLossPercent":5.5},{"movePercent":7,"stopLossPercent":6.5},{"movePercent":8,"stopLossPercent":7.5}]}
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 460
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 57 از 460
+├─ حداکثر تعداد خط روند معتبر همزمان: 70
+├─ کل شکست‌های خط روند شناسایی‌شده: 66 (بالا=32, پایین=34)
+├─ تعداد فراخوانی استراتژی: 460
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 445
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 15
+│  ├─ اولین کندل با سیگنال: 103
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 15 (اولین در کندل 103)
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $3000.00 (15 معامله)
+└─ میانگین ریسک واقعی: $200.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 15
+├─ سودده: 4 (26.67%)
+├─ ضررده: 11 (73.33%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 17.19%
+├─ Profit Factor: 0.59
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 8580.26
+📊 بازدهی کل: -14.20%
+============================================================
+
+[2026-07-05T14:25:21.923Z] [INFO] بک‌تست 30m پایان یافت. تعداد معاملات: 15
+[2026-07-05T14:25:21.923Z] [INFO] سرمایه نهایی: 8580.26
+[2026-07-05T14:25:21.924Z] [INFO] گزارش detailed_results.json برای 30m ذخیره شد.
+[2026-07-05T14:25:21.924Z] [INFO] گزارش trades_summary.json برای 30m ذخیره شد.
+[2026-07-05T14:25:21.967Z] [INFO] ✅ results.enc برای ETHUSDT-1m-2022-09-21_2022-09-30.csv / 30m ذخیره شد.
+[2026-07-05T14:25:21.968Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 1h (240 کندل)...
+[2026-07-05T14:25:21.968Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 1h محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 240
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.02} | options.trendLines=ندارد
+🔔 [FIRST_SIGNAL] اولین سیگنال استراتژی در کندل 92 (زمان Sat Sep 24 2022 20:00:00 GMT+0000 (Coordinated Universal Time)): {"signal":"BUY","price":1342.3,"stopLoss":1335.5884999999998,"takeProfit":1369.146,"trailingStop":true,"useStagedStopLoss":true,"stopLossStages":[{"movePercent":0.4,"stopLossPercent":0.4},{"movePercent":0.8,"stopLossPercent":0.7},{"movePercent":1.1,"stopLossPercent":0.9},{"movePercent":1.3,"stopLossPercent":1.1},{"movePercent":1.5,"stopLossPercent":1.3},{"movePercent":1.7,"stopLossPercent":1.5},{"movePercent":2,"stopLossPercent":1.7},{"movePercent":2.3,"stopLossPercent":2},{"movePercent":2.5,"stopLossPercent":2.3},{"movePercent":3,"stopLossPercent":2.8},{"movePercent":4,"stopLossPercent":3.5},{"movePercent":5,"stopLossPercent":4.5},{"movePercent":6,"stopLossPercent":5.5},{"movePercent":7,"stopLossPercent":6.5},{"movePercent":8,"stopLossPercent":7.5}]}
+
+============================================================
+🔍 گزارش دیباگ اجرای بکتست
+============================================================
+├─ کل کندل‌های پردازش‌شده: 220
+├─ کندل‌هایی که ichimoku=null بود: 36
+├─ کندل‌هایی با ۰ خط روند معتبر: 37 از 220
+├─ حداکثر تعداد خط روند معتبر همزمان: 20
+├─ کل شکست‌های خط روند شناسایی‌شده: 16 (بالا=9, پایین=7)
+├─ تعداد فراخوانی استراتژی: 220
+├─ خطاهای استراتژی (throw شده): 0
+├─ کندل‌هایی که استراتژی هیچ سیگنالی نداد: 217
+├─ کل سیگنال‌های تولیدشده (BUY/SELL): 3
+│  ├─ اولین کندل با سیگنال: 92
+│  ├─ سیگنال‌های نامعتبر (رد شده به دلیل قیمت/stopLoss/takeProfit): 0
+│  ├─ رد شده به دلیل منطقه شلوغ (canOpenNewPosition): 0
+│  └─ رد شده به دلیل کمبود سرمایه: 0
+└─ پوزیشن‌های واقعاً بازشده: 3 (اولین در کندل 92)
+============================================================
+
+
+============================================================
+📊 گزارش جامع بکتست - Fixed Risk (نسخه کامل با اصلاح آینده‌نگری)
+============================================================
+
+🎯 سیستم Fixed Risk:
+├─ ریسک هر معامله: 2% سرمایه اولیه
+├─ مقدار ریسک ثابت: $200.00
+├─ مجموع ریسک: $600.00 (3 معامله)
+└─ میانگین ریسک واقعی: $200.00
+
+📈 آمار معاملات:
+├─ تعداد کل: 3
+├─ سودده: 0 (0.00%)
+├─ ضررده: 3 (100.00%)
+
+⚠️ آنالیز ریسک:
+├─ حداکثر افت سرمایه: 7.85%
+├─ Profit Factor: 0.00
+
+============================================================
+💰 سرمایه اولیه: 10000.00
+💰 سرمایه نهایی: 9155.35
+📊 بازدهی کل: -8.45%
+============================================================
+
+[2026-07-05T14:25:22.027Z] [INFO] بک‌تست 1h پایان یافت. تعداد معاملات: 3
+[2026-07-05T14:25:22.027Z] [INFO] سرمایه نهایی: 9155.35
+[2026-07-05T14:25:22.027Z] [INFO] گزارش detailed_results.json برای 1h ذخیره شد.
+[2026-07-05T14:25:22.028Z] [INFO] گزارش trades_summary.json برای 1h ذخیره شد.
+[2026-07-05T14:25:22.071Z] [INFO] ✅ results.enc برای ETHUSDT-1m-2022-09-21_2022-09-30.csv / 1h ذخیره شد.
+[2026-07-05T14:25:22.071Z] [INFO] شروع پردازش فایل 2 از 50: PAXGUSDT-1m-2022-09-21_2022-09-30.csv
+[2026-07-05T14:25:22.131Z] [INFO] فایل PAXGUSDT-1m-2022-09-21_2022-09-30.csv با 14400 کندل بارگذاری شد.
+[2026-07-05T14:25:22.133Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: SOLUSDT-1m-2022-09-21_2022-09-30.csv
+[2026-07-05T14:25:22.193Z] [INFO] فایل SOLUSDT-1m-2022-09-21_2022-09-30.csv با 14400 کندل بارگذاری شد.
+[2026-07-05T14:25:22.194Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: XRPUSDT-1m-2022-09-21_2022-09-30.csv
+[2026-07-05T14:25:22.246Z] [INFO] فایل XRPUSDT-1m-2022-09-21_2022-09-30.csv با 14400 کندل بارگذاری شد.
+[2026-07-05T14:25:22.246Z] [INFO] 📂 بارگذاری فایل بعدی برای ادامه: BTCUSDT-1m-2022-10-01_2022-10-10.csv
+[2026-07-05T14:25:22.297Z] [INFO] فایل BTCUSDT-1m-2022-10-01_2022-10-10.csv با 14400 کندل بارگذاری شد.
+[2026-07-05T14:25:22.297Z] [INFO] ✅ 3 فایل بعدی برای ادامه‌دهی آماده شد.
+[2026-07-05T14:25:22.298Z] [INFO] واگرایی مورد نیاز نیست (getDivergenceSignals در کد استراتژی صدا زده نشده).
+[2026-07-05T14:25:22.298Z] [INFO] تنظیمات ایچیموکو: {"enabled":true,"tenkanPeriod":14,"kijunPeriod":30,"senkouBPeriod":57,"useCloudFilter":true,"useTKCross":true,"useChikou":false}
+[2026-07-05T14:25:22.300Z] [INFO] 🚀 فراخوانی runBacktest برای تایم‌فریم 5m (2880 کندل)...
+[2026-07-05T14:25:22.300Z] [INFO] 🟡 خطوط روند به‌صورت افزایشی (بدون آینده‌نگری) برای تایم‌فریم 5m محاسبه خواهند شد.
+🚀 ===== شروع بکتست (نسخه کامل با اصلاح آینده‌نگری) =====
+📊 سرمایه اولیه: 10000, ریسک: 2%, کارمزد: 0.05%
+📈 تعداد کندل‌ها: 2880
+🔧 ichimoku.enabled=true
+🔧 trendLineSettings={"pivotPeriod":5,"minTouchPoints":3,"minCandleDistance":3,"precision":0.02} | options.trendLines=ندارد
+🔔 [FIRST_SIGNAL] اولین سیگنال استراتژی در کندل 846 (زمان Fri Sep 23 2022 22:30:00 GMT+0000 (Coordinated Universal Time)): {"signal":"BUY","price":1639,"stopLoss":1630.805,"takeProfit":1671.78,"trailingStop":true,"useStagedStopLoss":true,"stopLossStages":[{"movePercent":0.4,"stopLossPercent":0.4},{"movePercent":0.8,"stopLossPercent":0.7},{"movePercent":1.1,"stopLossPercent":0.9},{"movePercent":1.3,"stopLossPercent":1.1},{"movePercent":1.5,"stopLossPercent":1.3},{"movePercent":1.7,"stopLossPercent":1.5},{"movePercent":2,"stopLossPercent":1.7},{"movePercent":2.3,"stopLossPercent":2},{"movePercent":2.5,"stopLossPercent":2.3},{"movePercent":3,"stopLossPercent":2.8},{"movePercent":4,"stopLossPercent":3.5},{"movePercent":5,"stopLossPercent":4.5},{"movePercent":6,"stopLossPercent":5.5},{"movePercent":7,"stopLossPercent":6.5},{"movePercent":8,"stopLossPercent":7.5}]}
