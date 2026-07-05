@@ -9,13 +9,13 @@ const stopLossInitial = 0.5;
 // ─── پیکربندی تحلیل ──────────────────────────────────────────
 const ANALYSIS_CONFIG = {
   entryType: "nextCandle",        // اجازه استفاده از High/Low کندل جاری
-  breakTolerance: 0.1,          // اجباری
+  breakTolerance: 0.001,          // اجباری
 
   trendLines: {
     pivotPeriod: 5,
     minTouchPoints: 3,
     minCandleDistance: 3,
-    precision: 0.2
+    precision: 0.002
   },
 
   ichimoku: {
