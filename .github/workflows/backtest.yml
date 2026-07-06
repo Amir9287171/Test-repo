@@ -396,7 +396,6 @@ jobs:
     needs: [check-completion, prepare]
     if: needs.prepare.outputs.strategies != '[]'
     runs-on: ubuntu-latest
-    timeout-minutes: 3300
     strategy:
       fail-fast: false
       max-parallel: 20
@@ -509,7 +508,7 @@ jobs:
           node encrypted_data/src/run-backtest.js \
             --strategy-file "strategies/${{ matrix.strategy_file }}" \
             --start-index ${{ matrix.chunk }} \
-            --chunk-size 50 \
+            --chunk-size 10 \
             --data-dir data/All_Coins_Combined \
             2>&1 | tee logs/backtest-output-${{ matrix.chunk }}.log
         env:
