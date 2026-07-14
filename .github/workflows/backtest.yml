@@ -330,7 +330,7 @@ jobs:
           done
 
           cnt=${#FILTERED[@]}
-          SIZE=10
+          SIZE=100
 
           n=$(( (cnt + SIZE - 1) / SIZE ))
           chunks="["
@@ -508,7 +508,7 @@ jobs:
           node encrypted_data/src/run-backtest.js \
             --strategy-file "strategies/${{ matrix.strategy_file }}" \
             --start-index ${{ matrix.chunk }} \
-            --chunk-size 10 \
+            --chunk-size 100 \
             --data-dir data/All_Coins_Combined \
             2>&1 | tee logs/backtest-output-${{ matrix.chunk }}.log
         env:
@@ -641,15 +641,15 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: فراخوانی Loop Workflow (بدون لاگ دیباگ اضافه)
+      - name: فراخوانی Loop Workflow
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "🔁 فراخوانی loop.yml در شاخه ${{ github.ref_name }} ..."
-          if gh workflow run loop.yml --ref "${{ github.ref_name }}"; then
+          echo "🚀 راه‌اندازی loop.yml روی شاخه main ..."
+          if gh workflow run loop.yml --ref main; then
             echo "✅ فراخوانی موفق بود."
           else
             echo "⚠️ فراخوانی اول ناموفق بود؛ ۵ ثانیه صبر و یک تلاش دوم..."
             sleep 5
-            gh workflow run loop.yml --ref "${{ github.ref_name }}" || echo "❌ فراخوانی دوم هم ناموفق بود."
+            gh workflow run loop.yml --ref main || echo "❌ فراخوانی دوم هم ناموفق بود."
           fi
