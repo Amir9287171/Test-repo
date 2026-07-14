@@ -280,7 +280,7 @@ jobs:
             echo "❌ داده‌ای یافت نشد. چرخه متوقف می‌شود."
             exit 0
           fi
-          CHUNK_SIZE=50
+          CHUNK_SIZE=100
           TOTAL_CHUNKS=$(( (TOTAL_CSV + CHUNK_SIZE - 1) / CHUNK_SIZE ))
 
           SELECTED=""
