@@ -537,7 +537,6 @@ jobs:
             git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
             git update-index --assume-unchanged encrypted_data/src/run-backtest.js 2>/dev/null || true
             git add -A results/
-            git add logs/backtest-output-${{ matrix.chunk }}.log 2>/dev/null || true
             git commit -m "backtest ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
             RETRY=0; MAX=10000
             while [ $RETRY -lt $MAX ]; do
@@ -602,11 +601,16 @@ jobs:
         run: |
           SAFE_STRAT=$(echo "${{ matrix.strategy_file }}" | sed 's/[^a-zA-Z0-9._-]/_/g')
           ERROR_FILE="error_${SAFE_STRAT}_chunk_${{ matrix.chunk }}_run.enc"
-          if [ -f "logs/backtest-output-${{ matrix.chunk }}.log" ]; then
+          LOG_FILE="logs/backtest-output-${{ matrix.chunk }}.log"
+          if [ -f "$LOG_FILE" ]; then
+            SIZE=$(stat -c%s "$LOG_FILE" 2>/dev/null || stat -f%z "$LOG_FILE")
+            if [ "$SIZE" -gt 20000000 ]; then
+              tail -c 20000000 "$LOG_FILE" > "${LOG_FILE}.trimmed" && mv "${LOG_FILE}.trimmed" "$LOG_FILE"
+            fi
             node -e "
               const crypto=require('crypto'),fs=require('fs');
               const pass=process.env.RESULTS_PASSWORD;
-              const data=fs.readFileSync('logs/backtest-output-${{ matrix.chunk }}.log');
+              const data=fs.readFileSync('$LOG_FILE');
               const key=crypto.scryptSync(pass,'salt',32);
               const iv=crypto.randomBytes(16);
               const cipher=crypto.createCipheriv('aes-256-cbc',key,iv);
