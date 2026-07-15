@@ -646,10 +646,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "🚀 راه‌اندازی loop.yml روی شاخه main ..."
-          if gh workflow run loop.yml --ref main; then
+          if gh workflow run loop.yml --repo "${{ github.repository }}" --ref main; then
             echo "✅ فراخوانی موفق بود."
           else
             echo "⚠️ فراخوانی اول ناموفق بود؛ ۵ ثانیه صبر و یک تلاش دوم..."
             sleep 5
-            gh workflow run loop.yml --ref main || echo "❌ فراخوانی دوم هم ناموفق بود."
+            gh workflow run loop.yml --repo "${{ github.repository }}" --ref main || echo "❌ فراخوانی دوم هم ناموفق بود."
           fi
