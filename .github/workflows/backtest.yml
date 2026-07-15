@@ -540,6 +540,8 @@ jobs:
             git commit -m "backtest ${{ matrix.strategy_file }} chunk ${{ matrix.chunk }}" || true
             RETRY=0; MAX=10000
             while [ $RETRY -lt $MAX ]; do
+              git rebase --abort 2>/dev/null || true
+              git merge --abort 2>/dev/null || true
               if git pull --rebase && git push; then
                 echo "✅ push موفق (تلاش $RETRY)"
                 break
