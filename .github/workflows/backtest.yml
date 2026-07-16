@@ -489,7 +489,10 @@ jobs:
       - name: نصب papaparse
         run: |
           cd encrypted_data/src
-          [ ! -d node_modules/papaparse ] && { npm init -y --silent 2>/dev/null || true; npm install papaparse --silent; }
+          if [ ! -d node_modules/papaparse ]; then
+            npm init -y --silent 2>/dev/null || true
+            npm install papaparse --silent
+          fi
 
       - name: ساختن پوشه‌های results و logs
         run: mkdir -p results logs
