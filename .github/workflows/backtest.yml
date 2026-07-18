@@ -401,6 +401,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: main
 
+      - name: چک‌اوت now-test-repo (برای aggregated/)
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ github.repository_owner }}/now-test-repo
+          path: now-test-repo
+
       - name: 2. دریافت محیط آماده شده
         uses: actions/download-artifact@v4
         with:
@@ -488,6 +494,7 @@ jobs:
             --start-index ${{ matrix.chunk }} \
             --chunk-size 100 \
             --data-dir data/All_Coins_Combined \
+            --aggregated-repo-dir "${{ github.workspace }}/now-test-repo" \
             2>&1 | tee logs/backtest-output-${{ matrix.chunk }}.log
         env:
           RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
