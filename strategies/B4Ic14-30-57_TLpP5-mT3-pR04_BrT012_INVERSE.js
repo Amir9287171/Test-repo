@@ -23,7 +23,7 @@ const ANALYSIS_CONFIG = {
     useTKCross: true,
     useChikou: false
   },
-  enableSmartContinuation: true
+  enableSmartContinuation: false
 };
 
 const stopLossStages = [
