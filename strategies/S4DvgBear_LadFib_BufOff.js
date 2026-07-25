@@ -48,8 +48,19 @@ function customStrategy(data, index, breakPointsParam, _ichimokuUnused, trendLin
   const divSignals = getDivergenceSignals();
   if (!divSignals || divSignals.length === 0) return null;
 
+  // اصلاح باگ آینده‌نگری واگرایی: قبلاً انتظار می‌رفت واگرایی دقیقاً یک کندل بعد از
+  // فرم شدن پیوت (فاصله=۱) در دسترس باشد. اما divergence-detector.js برای جلوگیری از
+  // آینده‌نگری، هر پیوت را فقط وقتی تأیید می‌کند که PIVOT_PERIOD (=۳) کندلِ بعد از آن
+  // هم واقعاً دیده شده باشند (نگاه کنید به findPivots در divergence-detector.js). یعنی
+  // زودتر از فاصله‌ی ۳ کندل، هیچ سیگنالی حتی در بک‌تست/لایو کندل‌به‌کندل با maxIndex
+  // درست، وجود خارجی ندارد؛ شرط قبلی (فاصله=۱) هیچ‌وقت true نمی‌شد و نتیجه‌اش همیشه
+  // صفر سیگنال بود. این‌جا فقط انتظار با اولین لحظه‌ی واقعاً در دسترس تطبیق داده شده؛
+  // هیچ داده‌ی آینده‌ای اضافه نشده—getDivergenceSignals() همچنان فقط سیگنال‌هایی را
+  // برمی‌گرداند که با maxIndex=index-1 (فقط کندل‌های تا همین لحظه) محاسبه شده‌اند.
+  const PIVOT_CONFIRM_LAG = 3; // باید با DIVERGENCE_CONFIG.PIVOT_PERIOD در divergence-detector.js یکسان باشد
   const hasBearishDivergence = divSignals.some(sig =>
-    (sig.type === 'RegularBearish' || sig.type === 'HiddenBearish') && sig.endIndex === sigIndex
+    (sig.type === 'RegularBearish' || sig.type === 'HiddenBearish') &&
+    (sigIndex - sig.endIndex === PIVOT_CONFIRM_LAG)
   );
   if (!hasBearishDivergence) return null;
 
