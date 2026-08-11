@@ -19,6 +19,10 @@ on:
         description: 'تاریخ پایان فایل‌ها (YYYY-MM-DD)'
         required: false
         default: ''
+      timeframes_filter:
+        description: 'فقط این تایم‌فریم‌ها اجرا شوند (مثلاً 4h,24h). خالی = همه تایم‌فریم‌ها'
+        required: false
+        default: ''
 
 concurrency:
   group: backtest-main
@@ -291,7 +295,22 @@ jobs:
           START_DATE="${{ github.event.inputs.filter_start_date }}"
           END_DATE="${{ github.event.inputs.filter_end_date }}"
           DATA_DIR="data/All_Coins_Combined"
-          PROGRESS_FILE="progress.json"
+          TF_FILTER="${{ github.event.inputs.timeframes_filter }}"
+
+          # ⚠️ حالت استثنا (timeframes_filter پر باشد، مثلاً "4h,24h"): چون progress.json و
+          # پوشه‌ی results/${STRAT}_5m فقط تکمیل بودن تایم‌فریم‌های قدیمی (5m/15m/30m/1h) را
+          # نشان می‌دهند، اگر از همان‌ها برای skip کردن چانک استفاده کنیم، چون همه‌ی
+          # استراتژی‌ها از قبل «کامل» هستند هیچ چانکی ساخته نمی‌شود و بکتست 4h/24h هرگز اجرا
+          # نمی‌شود. برای همین در این حالت از یک فایل progress جدا (progress_4h24h.json) و
+          # پوشه‌ی results/${STRAT}_4h به‌جای results/${STRAT}_5m استفاده می‌شود.
+          if [ -n "$TF_FILTER" ]; then
+            PROGRESS_FILE="progress_4h24h.json"
+            STRAT_DIR_SUFFIX="4h"
+            echo "🧪 حالت استثنا فعال: timeframes_filter=$TF_FILTER, PROGRESS_FILE=$PROGRESS_FILE"
+          else
+            PROGRESS_FILE="progress.json"
+            STRAT_DIR_SUFFIX="5m"
+          fi
 
           mapfile -t ALL_FILES < <(find "$DATA_DIR" -maxdepth 1 -name "*.csv" -printf '%f\n' | sort)
 
@@ -306,7 +325,7 @@ jobs:
               for chunk in $DONE_LIST; do
                 DONE_CHUNKS[$chunk]=1
               done
-              echo "📊 چانک‌های انجام‌شده برای $STRAT_NAME: ${!DONE_CHUNKS[*]}"
+              echo "📊 چانک‌های انجام‌شده برای $STRAT_NAME (طبق $PROGRESS_FILE): ${!DONE_CHUNKS[*]}"
             fi
           fi
 
@@ -333,10 +352,10 @@ jobs:
           for ((i=0; i<n; i++)); do
             s=$((i*SIZE))
             if [ -n "${DONE_CHUNKS[$s]}" ]; then
-              echo "⏩ چانک $s قبلاً در progress.json ثبت شده. نادیده گرفته می‌شود."
+              echo "⏩ چانک $s قبلاً در $PROGRESS_FILE ثبت شده. نادیده گرفته می‌شود."
               continue
             fi
-            STRAT_DIR="results/${STRAT_NAME}_5m"
+            STRAT_DIR="results/${STRAT_NAME}_${STRAT_DIR_SUFFIX}"
             if [ -d "$STRAT_DIR" ]; then
               ENC_COUNT=$(find "$STRAT_DIR" -name "results.enc" -type f | wc -l)
               if [ "$ENC_COUNT" -ge "$cnt" ]; then
@@ -486,18 +505,25 @@ jobs:
 
       - name: 5. اجرای بکتست
         id: backtest_run
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          TF_FILTER: ${{ github.event.inputs.timeframes_filter }}
         run: |
           set -e
           echo "شروع بکتست: ${{ matrix.strategy_file }} - چانک ${{ matrix.chunk }}"
+          TF_ARGS=()
+          if [ -n "$TF_FILTER" ]; then
+            echo "🧪 حالت استثنا: فقط تایم‌فریم‌های $TF_FILTER اجرا می‌شوند."
+            TF_ARGS=(--timeframes-only "$TF_FILTER")
+          fi
           node encrypted_data/src/run-backtest.js \
             --strategy-file "strategies/${{ matrix.strategy_file }}" \
             --start-index ${{ matrix.chunk }} \
             --chunk-size 100 \
             --data-dir data/All_Coins_Combined \
             --aggregated-repo-dir "${{ github.workspace }}/now-test-repo" \
+            "${TF_ARGS[@]}" \
             2>&1 | tee logs/backtest-output-${{ matrix.chunk }}.log
-        env:
-          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
 
       - name: کپی نتایج به ریشه
         if: always()
@@ -555,7 +581,15 @@ jobs:
         run: |
           STRAT_NAME="${{ matrix.strategy_file }}"
           CHUNK="${{ matrix.chunk }}"
-          PROGRESS_FILE="progress.json"
+          TF_FILTER="${{ github.event.inputs.timeframes_filter }}"
+          # ⚠️ حالت استثنا (4h/24h): پیشرفت این حالت باید جدا از progress.json اصلی ثبت شود؛
+          # وگرنه یک چانک که فقط برای 4h/24h انجام شده، در progress.json اصلی «کامل» علامت
+          # می‌خورد و اجرای عادی (5m/15m/30m/1h) آن چانک را برای همیشه رد می‌کند.
+          if [ -n "$TF_FILTER" ]; then
+            PROGRESS_FILE="progress_4h24h.json"
+          else
+            PROGRESS_FILE="progress.json"
+          fi
           if [ ! -f "$PROGRESS_FILE" ]; then echo '{}' > $PROGRESS_FILE; fi
           cat $PROGRESS_FILE | jq --arg strat "$STRAT_NAME" --arg chunk "$CHUNK" '.[$strat] += [$chunk | tonumber]' > tmp.json && mv tmp.json $PROGRESS_FILE
           cp "$PROGRESS_FILE" /tmp/progress_backup.json 2>/dev/null || true
