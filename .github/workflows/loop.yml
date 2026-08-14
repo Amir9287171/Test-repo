@@ -203,23 +203,51 @@ jobs:
       # ------------------------------------------------------------
       # 5. آپلود نتایج و لاگ‌های خطا به مخزن سوم (با retry)
       # ------------------------------------------------------------
-      - name: 5. آپلود نتایج و لاگ‌های خطا به مخزن واسطه (با clone یک‌باره)
+      - name: 5. آپلود نتایج و لاگ‌های خطا به مخزن واسطه (محدود به ۴۰ پوشه‌ی کامل در هر اجرا)
         id: upload
         if: steps.turn_check.outputs.proceed == 'true'
         env:
           GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
           THIRD_REPO: ${{ secrets.THIRD_REPO }}
+          MAX_FOLDERS_PER_RUN: "40"
         run: |
           echo "=============================================="
-          echo "   📤 شروع فرآیند آپلود (clone-based)"
+          echo "   📤 شروع فرآیند آپلود (clone-based، سقف ${MAX_FOLDERS_PER_RUN} پوشه‌ی کامل در هر اجرا)"
           echo "=============================================="
 
-          TOTAL_RESULTS=$(find results -name "results.enc" -type f 2>/dev/null | wc -l)
-          TOTAL_ERRORS=$(find errors -name "*.enc" -type f 2>/dev/null | wc -l)
-          echo "تعداد فایل‌های results.enc: $TOTAL_RESULTS | تعداد لاگ‌های خطا: $TOTAL_ERRORS"
+          > /tmp/uploaded_folders.list
+          > /tmp/complete_folders.list
 
-          if [ "$TOTAL_RESULTS" -eq 0 ] && [ "$TOTAL_ERRORS" -eq 0 ]; then
-            echo "⚠️ هیچ فایلی برای آپلود وجود ندارد."
+          TOTAL_CSV=$(find data/All_Coins_Combined -maxdepth 1 -name "*.csv" 2>/dev/null | wc -l)
+          echo "1- تعداد کل فایل‌های CSV (ملاک کامل بودن هر پوشه‌ی نتیجه): $TOTAL_CSV"
+
+          # هر زیرپوشه‌ی سطح‌بالای results/ (مثل results/StrategyA_5m) یک بکتست کامل
+          # از یک استراتژی/تایم‌فریم است. فقط پوشه‌ای «کامل» حساب می‌شود که تعداد
+          # results.enc داخلش دقیقاً برابر تعداد کل CSV باشد؛ در غیر این صورت یعنی
+          # backtest.yml هنوز روی آن در حال کار است و باید کاملاً دست‌نخورده بماند.
+          echo "2- بررسی کامل/ناقص بودن پوشه‌های results/ ..."
+          INCOMPLETE_COUNT=0
+          if [ -d results ] && [ "$TOTAL_CSV" -gt 0 ]; then
+            for D in results/*/; do
+              [ -d "$D" ] || continue
+              FOLDER_NAME=$(basename "$D")
+              ENC_COUNT=$(find "$D" -name "results.enc" -type f 2>/dev/null | wc -l)
+              if [ "$ENC_COUNT" -eq "$TOTAL_CSV" ]; then
+                echo "$FOLDER_NAME" >> /tmp/complete_folders.list
+              else
+                INCOMPLETE_COUNT=$((INCOMPLETE_COUNT + 1))
+                echo "   ⏸️ $FOLDER_NAME ناقص است ($ENC_COUNT از $TOTAL_CSV) — کاملاً نادیده گرفته می‌شود."
+              fi
+            done
+          fi
+          COMPLETE_COUNT=$(wc -l < /tmp/complete_folders.list)
+          echo "   📁 پوشه‌های کامل: $COMPLETE_COUNT | پوشه‌های ناقص (دست‌نخورده می‌مانند): $INCOMPLETE_COUNT"
+
+          TOTAL_ERRORS=$(find errors -name "*.enc" -type f 2>/dev/null | wc -l)
+          echo "3- تعداد لاگ‌های خطا: $TOTAL_ERRORS"
+
+          if [ "$COMPLETE_COUNT" -eq 0 ] && [ "$TOTAL_ERRORS" -eq 0 ]; then
+            echo "⚠️ هیچ پوشه‌ی کامل یا لاگ خطایی برای آپلود وجود ندارد."
             echo "had_work=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -234,21 +262,38 @@ jobs:
 
           SUCCESS_UPLOADS=0
           SKIPPED_UPLOADS=0
+          PROCESSED_FOLDERS=0
 
-          if [ -d "$GITHUB_WORKSPACE/results" ]; then
-            while read -r ENC; do
-              REL=${ENC#"$GITHUB_WORKSPACE"/results/}
-              DEST="backtest_results/$REL"
-              mkdir -p "$(dirname "$DEST")"
-              if [ -f "$DEST" ]; then
-                SKIPPED_UPLOADS=$((SKIPPED_UPLOADS + 1))
-              else
-                cp "$ENC" "$DEST"
-                SUCCESS_UPLOADS=$((SUCCESS_UPLOADS + 1))
+          # هر پوشه یا کامل (با همه‌ی enc های داخلش) آپلود می‌شود یا اصلاً لمس نمی‌شود؛
+          # هیچ‌وقت نصفه رها نمی‌شود. تا سقف MAX_FOLDERS_PER_RUN پوشه‌ی کامل در این اجرا.
+          if [ -s /tmp/complete_folders.list ]; then
+            while read -r FOLDER_NAME; do
+              [ -z "$FOLDER_NAME" ] && continue
+              if [ "$PROCESSED_FOLDERS" -ge "$MAX_FOLDERS_PER_RUN" ]; then
+                echo "⏸️ سقف $MAX_FOLDERS_PER_RUN پوشه در این اجرا تکمیل شد."
+                echo "   بقیه پوشه‌های کامل (از جمله $FOLDER_NAME) برای نوبت بعدی loop باقی می‌مانند."
+                break
               fi
-            done < <(find "$GITHUB_WORKSPACE/results" -name "results.enc" -type f)
+              SRC_DIR="$GITHUB_WORKSPACE/results/$FOLDER_NAME"
+              echo "📦 آپلود کامل پوشه: $FOLDER_NAME"
+              while read -r ENC; do
+                REL=${ENC#"$GITHUB_WORKSPACE"/results/}
+                DEST="backtest_results/$REL"
+                mkdir -p "$(dirname "$DEST")"
+                if [ -f "$DEST" ]; then
+                  SKIPPED_UPLOADS=$((SKIPPED_UPLOADS + 1))
+                else
+                  cp "$ENC" "$DEST"
+                  SUCCESS_UPLOADS=$((SUCCESS_UPLOADS + 1))
+                fi
+              done < <(find "$SRC_DIR" -name "results.enc" -type f)
+              echo "$FOLDER_NAME" >> /tmp/uploaded_folders.list
+              PROCESSED_FOLDERS=$((PROCESSED_FOLDERS + 1))
+            done < /tmp/complete_folders.list
           fi
+          echo "📊 پوشه‌های کامل آپلودشده در این اجرا: $PROCESSED_FOLDERS / $MAX_FOLDERS_PER_RUN"
 
+          # errors/ خارج از سقف ۴۰-پوشه‌ای است و همیشه کامل آپلود می‌شود (ساختار پوشه‌ای مثل results ندارد)
           if [ -d "$GITHUB_WORKSPACE/errors" ]; then
             while read -r ERR; do
               DEST="backtest_results/logs/$(basename "$ERR")"
@@ -311,15 +356,32 @@ jobs:
       # ------------------------------------------------------------
       # 6. پاک‌سازی نتایج و خطاها از مخزن اصلی (نسخه مقاوم با flag)
       # ------------------------------------------------------------
-      - name: 6. پاک‌سازی نتایج و خطاها از مخزن اصلی
+      - name: 6. پاک‌سازی نتایج و خطاهای آپلودشده از مخزن اصلی (فقط پوشه‌هایی که کامل آپلود شدند)
         if: steps.turn_check.outputs.proceed == 'true'
         run: |
-          if [ -d results ] || [ -d errors ] || [ -d logs ]; then
-            echo "🧹 حذف پوشه‌های results, errors, logs از مخزن اصلی..."
+          HAS_UPLOADED_FOLDERS=false
+          [ -s /tmp/uploaded_folders.list ] && HAS_UPLOADED_FOLDERS=true
+
+          if [ "$HAS_UPLOADED_FOLDERS" = true ] || [ -d errors ] || [ -d logs ]; then
+            echo "🧹 پاک‌سازی پوشه‌های کامل‌آپلودشده از results/ (و همه‌ی errors/, logs/) از مخزن اصلی..."
             git config user.name "github-actions[bot]"
             git config user.email "actions@github.com"
             git checkout main || git checkout -b main origin/main
-            rm -rf results errors logs
+
+            if [ "$HAS_UPLOADED_FOLDERS" = true ]; then
+              # فقط همان پوشه‌هایی که در مرحله ۵ کامل آپلود شدند حذف می‌شوند.
+              # پوشه‌های ناقص و پوشه‌های کاملی که به‌خاطر سقف ۴۰-تایی نوبتشان نشد
+              # دست‌نخورده می‌مانند تا نوبت بعدی loop.
+              while read -r FOLDER_NAME; do
+                [ -z "$FOLDER_NAME" ] && continue
+                echo "   🗑️ حذف results/$FOLDER_NAME (این اجرا کامل آپلود شد)"
+                rm -rf "results/$FOLDER_NAME"
+              done < /tmp/uploaded_folders.list
+            else
+              echo "   ℹ️ هیچ پوشه‌ای در این اجرا آپلود نشد؛ results/ کاملاً دست‌نخورده می‌ماند."
+            fi
+            rm -rf errors logs
+
             git add -A .
             git commit -m "clean up uploaded results, logs and errors" || true
             RETRY=0; MAX=1000
