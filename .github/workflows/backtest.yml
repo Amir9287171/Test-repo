@@ -617,13 +617,18 @@ jobs:
           echo "✅ همه‌ی $EXPECTED خروجی مورد انتظار روی origin/main تأیید شد."
 
           # ── فقط حالا که همه‌چیز تأیید شد، progress.json به‌روزرسانی، commit و push می‌شود ──
+          # از این لحظه به بعد manifest همین چانک دیگر هیچ نقشی در تصمیم‌گیری ندارد
+          # (وظیفه‌اش فقط تأیید بالا بود)، پس همراه با progress.json در همان commit حذف
+          # می‌شود تا حجم مخزن اضافه نماند.
           if [ ! -f "$PROGRESS_FILE" ]; then echo '{}' > $PROGRESS_FILE; fi
           cat $PROGRESS_FILE | jq --arg strat "$STRAT_NAME" --arg chunk "$CHUNK" '.[$strat] += [$chunk | tonumber]' > tmp.json && mv tmp.json $PROGRESS_FILE
           cp "$PROGRESS_FILE" /tmp/progress_backup.json 2>/dev/null || true
           git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
           git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
           git update-index --assume-unchanged encrypted_data/src/run-backtest.js 2>/dev/null || true
-          git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
+          git add $PROGRESS_FILE
+          git rm -f "$MANIFEST_FILE" 2>/dev/null || true
+          git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
           RETRY=0; MAX=10000
           while [ $RETRY -lt $MAX ]; do
             git rebase --abort 2>/dev/null || true
@@ -633,7 +638,9 @@ jobs:
             git update-index --assume-unchanged encrypted_data/src/backtest-core.js 2>/dev/null || true
             git update-index --assume-unchanged encrypted_data/src/divergence-detector.js 2>/dev/null || true
             git update-index --assume-unchanged encrypted_data/src/run-backtest.js 2>/dev/null || true
-            git add $PROGRESS_FILE && git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
+            git add $PROGRESS_FILE
+            git rm -f "$MANIFEST_FILE" 2>/dev/null || true
+            git commit -m "update progress for $STRAT_NAME chunk $CHUNK" || true
             if git push; then
               echo "✅ push progress موفق (تلاش $RETRY)"
               break
