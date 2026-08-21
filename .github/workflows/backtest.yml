@@ -573,6 +573,13 @@ jobs:
             errors/
           if-no-files-found: warn
           retention-days: 3
+          # ⚠️ رفع باگ: منیفست با نقطه شروع می‌شود (.manifest_*.json) و
+          # actions/upload-artifact@v4 به‌طور پیش‌فرض include-hidden-files را
+          # false در نظر می‌گیرد، یعنی این فایل هرگز وارد artifact نمی‌شد.
+          # نتیجه: جاب collect همیشه «منیفست یافت نشد» می‌داد، هر ۴ چانک را
+          # skip می‌کرد و هیچ‌چیز commit نمی‌شد — بدون اینکه هیچ خطای واضحی
+          # نشان داده شود.
+          include-hidden-files: true
 
   # ============================================================
   # Job 3: جمع‌آوری و ثبت نهایی — تک‌نویسنده، تداخل صفر
