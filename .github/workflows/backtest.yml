@@ -341,13 +341,26 @@ jobs:
               echo "⏩ چانک $s قبلاً در $PROGRESS_FILE ثبت شده. نادیده گرفته می‌شود."
               continue
             fi
-            STRAT_DIR="results/${STRAT_NAME}_${STRAT_DIR_SUFFIX}"
-            if [ -d "$STRAT_DIR" ]; then
+            # ⚠️ رفع باگ: قبلاً این چک فقط پوشهٔ ${STRAT_NAME}_5m را می‌دید و به
+            # محض کامل بودنِ همان یک تایم‌فریم، کل حلقه break می‌شد — یعنی اگر
+            # تایم‌فریم‌های دیگر (1h/4h/24h و ...) هنوز ناقص بودند، چانک لازم
+            # برای تکمیل‌شان هرگز اضافه نمی‌شد. حالا همهٔ پوشه‌های
+            # results/${STRAT_NAME}_* (همهٔ تایم‌فریم‌های موجود) بررسی می‌شوند و
+            # فقط زمانی «کامل» در نظر گرفته می‌شود که همهٔ آن‌ها پر باشند.
+            ALL_TF_COMPLETE=true
+            FOUND_ANY_DIR=false
+            for STRAT_DIR in results/${STRAT_NAME}_*/; do
+              [ -d "$STRAT_DIR" ] || continue
+              FOUND_ANY_DIR=true
               ENC_COUNT=$(find "$STRAT_DIR" -name "results.enc" -type f | wc -l)
-              if [ "$ENC_COUNT" -ge "$cnt" ]; then
-                echo "⏩ استراتژی $STRAT_NAME کامل است ($ENC_COUNT results.enc روی دیسک). هیچ چانکی اضافه نمی‌شود."
+              if [ "$ENC_COUNT" -lt "$cnt" ]; then
+                ALL_TF_COMPLETE=false
                 break
               fi
+            done
+            if [ "$FOUND_ANY_DIR" = true ] && [ "$ALL_TF_COMPLETE" = true ]; then
+              echo "⏩ استراتژی $STRAT_NAME در همهٔ تایم‌فریم‌های موجود کامل است. هیچ چانکی اضافه نمی‌شود."
+              break
             fi
             [ $CHUNKS_ADDED -gt 0 ] && chunks+=", "
             chunks+="$s"
