@@ -438,6 +438,7 @@ jobs:
           TOTAL_CHUNKS=$(( (TOTAL_CSV + CHUNK_SIZE - 1) / CHUNK_SIZE ))
 
           SELECTED=""
+          TARGET_CHUNKS_JSON=""
           for STRAT in $STRATEGIES; do
             # بررسی ۱: از progress.json
             DONE_COUNT=$(jq -r --arg s "$STRAT" '.[$s] // [] | length' "$PROGRESS_FILE")
@@ -493,6 +494,49 @@ jobs:
               if [ -n "$MATCHED_STRAT" ]; then
                 SELECTED="$MATCHED_STRAT"
                 echo "✅ پوشهٔ ناقص یافت شد: $FOLDER_NAME ($ENC_COUNT از $TOTAL_CSV). استراتژی $MATCHED_STRAT برای تکمیل نواقص انتخاب شد."
+
+                # --------------------------------------------------------
+                # 🎯 محاسبه‌ی دقیق چانک‌های ناقص همین پوشه، مستقیماً روی دیسک.
+                # این جایگزینِ اتکا به progress.json در backtest.yml است: اینجا
+                # چک می‌شود هر چانک ۱۰۰‌تایی از فایل‌های داده، آیا نتیجه‌اش برای
+                # همین پوشه‌ی خاص (این استراتژی + این تایم‌فریم) کامل روی دیسک
+                # هست یا نه — صرف‌نظر از این‌که progress.json چه چیزی برای این
+                # استراتژی (در تایم‌فریم دیگری مثلاً 5m) ثبت کرده است.
+                # --------------------------------------------------------
+                mapfile -t ALL_FILES < <(find data/All_Coins_Combined -maxdepth 1 -name "*.csv" -printf '%f\n' | sort)
+                CHUNK_SIZE_LOCAL=100
+                n=$(( (TOTAL_CSV + CHUNK_SIZE_LOCAL - 1) / CHUNK_SIZE_LOCAL ))
+                MISSING_CHUNKS="["
+                ADDED=0
+                for ((i=0; i<n; i++)); do
+                  s=$((i*CHUNK_SIZE_LOCAL))
+                  e=$((s+CHUNK_SIZE_LOCAL))
+                  [ $e -gt $TOTAL_CSV ] && e=$TOTAL_CSV
+                  CHUNK_COMPLETE=true
+                  for ((j=s; j<e; j++)); do
+                    FN="${ALL_FILES[$j]}"
+                    if [ ! -f "${D}${FN}/results.enc" ]; then
+                      CHUNK_COMPLETE=false
+                      break
+                    fi
+                  done
+                  if [ "$CHUNK_COMPLETE" = false ]; then
+                    [ $ADDED -gt 0 ] && MISSING_CHUNKS+=", "
+                    MISSING_CHUNKS+="$s"
+                    ADDED=$((ADDED+1))
+                  fi
+                done
+                MISSING_CHUNKS+="]"
+
+                if [ "$ADDED" -eq 0 ]; then
+                  # اتفاق نباید بیفتد (چون ENC_COUNT < TOTAL_CSV بود)، ولی محض احتیاط:
+                  # اگر به هر دلیلی هیچ چانک ناقصی پیدا نشد، به مسیر عادی برمی‌گردیم
+                  # تا backtest.yml خودش با progress.json تصمیم بگیرد.
+                  echo "⚠️ محاسبه‌ی چانک ناقص چیزی پیدا نکرد؛ به مسیر عادی برگشت داده می‌شود."
+                else
+                  TARGET_CHUNKS_JSON="$MISSING_CHUNKS"
+                  echo "🎯 چانک‌های ناقص محاسبه‌شده برای $FOLDER_NAME: $TARGET_CHUNKS_JSON"
+                fi
                 break
               fi
             done
@@ -503,5 +547,10 @@ jobs:
             exit 0
           fi
 
-          echo "🚀 راه‌اندازی backtest.yml برای $SELECTED ..."
-          gh workflow run backtest.yml --ref main -f strategy_name="$SELECTED"
+          if [ -n "$TARGET_CHUNKS_JSON" ]; then
+            echo "🚀 راه‌اندازی backtest.yml برای $SELECTED با چانک‌های هدفمند (مسیر تکمیل ناقص) ..."
+            gh workflow run backtest.yml --ref main -f strategy_name="$SELECTED" -f target_chunks="$TARGET_CHUNKS_JSON"
+          else
+            echo "🚀 راه‌اندازی backtest.yml برای $SELECTED (مسیر عادی) ..."
+            gh workflow run backtest.yml --ref main -f strategy_name="$SELECTED"
+          fi
