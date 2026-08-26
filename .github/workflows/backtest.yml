@@ -23,6 +23,10 @@ on:
         description: 'فقط این تایم‌فریم‌ها اجرا شوند (مثلاً 4h,24h). خالی = همه تایم‌فریم‌ها'
         required: false
         default: ''
+      target_chunks:
+        description: 'آرایه‌ی JSON چانک‌های مشخص (مثلاً [200,300]). فقط توسط loop.yml در مسیر "تکمیل استراتژی ناقص" پر می‌شود. خالی = مسیر عادی (محاسبه‌ی خودکار چانک‌ها طبق progress.json)'
+        required: false
+        default: ''
 
 concurrency:
   group: backtest-main
@@ -292,6 +296,25 @@ jobs:
       - name: 17. فیلتر و ساختن چانک‌های پویا (با هوشمندی progress.json)
         id: build_chunks
         run: |
+          # ============================================================
+          # 🎯 مسیر هدفمند: وقتی loop.yml در حالت «تکمیل استراتژی ناقص»
+          # این workflow را صدا می‌زند، خودش دقیقاً روی دیسک چک کرده که
+          # کدام چانک‌ها برای این استراتژی ناقص‌اند و آن‌ها را مستقیماً در
+          # target_chunks می‌فرستد. در این حالت هیچ محاسبه‌ی دیگری
+          # (progress.json، DONE_CHUNKS، ALL_TF_COMPLETE) انجام نمی‌شود —
+          # چون همان محاسبه از قبل و با اطلاعات دقیق‌تر (سطح فایل، نه فقط
+          # سطح استراتژی) توسط loop.yml انجام شده. مسیر عادی (زیر همین
+          # if) کاملاً دست‌نخورده باقی می‌ماند.
+          # ============================================================
+          TARGET_CHUNKS='${{ github.event.inputs.target_chunks }}'
+          if [ -n "$TARGET_CHUNKS" ] && [ "$TARGET_CHUNKS" != "[]" ] && echo "$TARGET_CHUNKS" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1; then
+            echo "🎯 حالت هدفمند فعال است: چانک‌های داده‌شده توسط loop.yml مستقیماً استفاده می‌شوند."
+            echo "   چانک‌ها: $TARGET_CHUNKS"
+            echo "   (بدون بررسی progress.json — چون این لیست از قبل روی وضعیت واقعی دیسک محاسبه شده است)"
+            echo "chunks=$TARGET_CHUNKS" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           START_DATE="${{ github.event.inputs.filter_start_date }}"
           END_DATE="${{ github.event.inputs.filter_end_date }}"
           DATA_DIR="data/All_Coins_Combined"
