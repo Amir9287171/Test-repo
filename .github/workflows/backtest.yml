@@ -353,7 +353,9 @@ jobs:
           done
 
           cnt=${#FILTERED[@]}
-          SIZE=100
+          # ⚠️ باید دقیقاً با CHUNK_SIZE در loop.yml (استپ ۷) و --chunk-size
+          # پایین‌تر در همین فایل یکی باشد — نگاه کنید به توضیح در loop.yml.
+          SIZE=66
 
           n=$(( (cnt + SIZE - 1) / SIZE ))
           chunks="["
@@ -541,7 +543,7 @@ jobs:
           node encrypted_data/src/run-backtest.js \
             --strategy-file "strategies/${{ matrix.strategy_file }}" \
             --start-index ${{ matrix.chunk }} \
-            --chunk-size 100 \
+            --chunk-size 66 \
             --data-dir data/All_Coins_Combined \
             --aggregated-repo-dir "${{ github.workspace }}/now-test-repo" \
             "${TF_ARGS[@]}" \

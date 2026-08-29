@@ -110,7 +110,7 @@ jobs:
           echo ""
           TOTAL_RESULTS=$(find results -name "results.enc" -type f 2>/dev/null | wc -l)
           echo "2- تعداد فایل‌های results.enc: $TOTAL_RESULTS"
-          TOTAL_ERRORS=$(find errors -name "*.enc" -type f 2>/dev/null | wc -l)
+          TOTAL_ERRORS=$(find errors \( -name "*.enc" -o -name "*.json" \) -type f 2>/dev/null | wc -l)
           echo "3- تعداد فایل‌های لاگ خطا (.enc): $TOTAL_ERRORS"
           TOTAL_LOGS=$(find logs -name "*.log" -type f 2>/dev/null | wc -l)
           echo "4- تعداد فایل‌های لاگ اجرا (.log): $TOTAL_LOGS"
@@ -243,7 +243,7 @@ jobs:
           COMPLETE_COUNT=$(wc -l < /tmp/complete_folders.list)
           echo "   📁 پوشه‌های کامل: $COMPLETE_COUNT | پوشه‌های ناقص (دست‌نخورده می‌مانند): $INCOMPLETE_COUNT"
 
-          TOTAL_ERRORS=$(find errors -name "*.enc" -type f 2>/dev/null | wc -l)
+          TOTAL_ERRORS=$(find errors \( -name "*.enc" -o -name "*.json" \) -type f 2>/dev/null | wc -l)
           echo "3- تعداد لاگ‌های خطا: $TOTAL_ERRORS"
 
           if [ "$COMPLETE_COUNT" -eq 0 ] && [ "$TOTAL_ERRORS" -eq 0 ]; then
@@ -304,7 +304,7 @@ jobs:
                 cp "$ERR" "$DEST"
                 SUCCESS_UPLOADS=$((SUCCESS_UPLOADS + 1))
               fi
-            done < <(find "$GITHUB_WORKSPACE/errors" -name "*.enc" -type f)
+            done < <(find "$GITHUB_WORKSPACE/errors" \( -name "*.enc" -o -name "*.json" \) -type f)
           fi
 
           echo "آپلودهای جدید: $SUCCESS_UPLOADS | skip شده (از قبل موجود): $SKIPPED_UPLOADS"
@@ -408,149 +408,225 @@ jobs:
           fi
 
       # ------------------------------------------------------------
-      # 7. انتخاب استراتژی بعدی با در نظر گرفتن چانک‌های نیمه‌تمام
+      # 7. انتخاب استراتژی بعدی (نسخه‌ی اصلاح‌شده)
+      #
+      # چرا این بازنویسی لازم بود (خلاصه‌ی چیزی که در لاگ‌های واقعی دیده شد):
+      #   - نسخه‌ی قبلی «مرحله‌ی اول» فقط پوشه‌ی ${STRAT}_5m و طول آرایه‌ی
+      #     progress.json را چک می‌کرد. اگر progress.json می‌گفت فلان
+      #     استراتژی 14/14 چانک دارد، همان کافی بود تا «کامل» در نظر گرفته
+      #     شود -- حتی اگر پوشه‌های تایم‌فریم دیگرش (1h/4h/24h/...) روی دیسک
+      #     ناقص بودند. در لاگ‌های واقعی این پروژه، progress.json برای *همه‌ی*
+      #     استراتژی‌ها 14/14 نشان می‌داد در حالی که پوشه‌های results/ واقعی‌شان
+      #     بین ۷٪ تا ۹۲٪ ناقص بودند.
+      #   - چون تشخیص «کامل» به progress.json اعتماد می‌کرد، همیشه به «مرحله‌ی
+      #     دوم» (اسکن کامل دیسک) می‌رسید. مرحله‌ی دوم درست همان استراتژی/
+      #     چانک‌های ناقص را پیدا می‌کرد، backtest.yml را با target_chunks
+      #     صدا می‌زد، و collect هم می‌گفت «600/600 تأیید شد و اعمال شد» --
+      #     ولی در اجرای loop.yml بعدی، دقیقاً همان پوشه با دقیقاً همان عدد
+      #     ناقص (مثلاً 1214/1314) دوباره پیدا می‌شد. یعنی یک استراتژی خاص
+      #     می‌توانست تا ابد بدون پیشرفت واقعی دوباره و دوباره انتخاب شود و
+      #     مانع رسیدن نوبت به استراتژی‌های بعدی شود.
+      #
+      # این نسخه دو مشکل را جدا از هم حل می‌کند:
+      #   الف) تشخیص «کامل بودن» دیگر کورکورانه به progress.json اعتماد
+      #      نمی‌کند: همه‌ی پوشه‌های تایم‌فریم موجودِ یک استراتژی چک می‌شوند،
+      #      نه فقط _5m. فقط وقتی هیچ پوشه‌ای روی دیسک نمانده (یعنی قبلاً
+      #      کامل آپلود و پاک‌سازی شده) به progress.json اعتماد می‌شود.
+      #   ب) یک «قطع‌کننده‌ی مدار» (circuit breaker): اگر یک استراتژی با
+      #      دقیقاً همان مجموعه‌چانک‌های ناقص چند اجرای پیاپی تکرار شود بدون
+      #      این‌که چیزی روی دیسک عوض شود، به‌جای تکرار ابدی، آن استراتژی
+      #      برای این دور رد می‌شود، یک لاگ خطا برای بررسی دستی ثبت می‌شود، و
+      #      نوبت به استراتژی بعدی می‌رسد. این دقیقاً همان چیزی است که جلوی
+      #      «گیر کردن کل چرخه روی یک استراتژی» را می‌گیرد.
       # ------------------------------------------------------------
-      - name: 7. انتخاب استراتژی بعدی و ادامه چرخه
+      - name: 7. انتخاب استراتژی بعدی (بررسی همه‌ی تایم‌فریم‌ها + قطع‌کننده‌ی مدار)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "🔍 جستجوی استراتژی دارای چانک باقی‌مانده..."
 
           PROGRESS_FILE="progress.json"
-          if [ ! -f "$PROGRESS_FILE" ]; then
-            echo "{}" > "$PROGRESS_FILE"
-          fi
+          [ -f "$PROGRESS_FILE" ] || echo "{}" > "$PROGRESS_FILE"
 
-          # لیست استراتژی‌ها
+          STUCK_FILE="stuck_tracker.json"
+          [ -f "$STUCK_FILE" ] || echo "{}" > "$STUCK_FILE"
+          STUCK_THRESHOLD=3
+
           STRATEGIES=$(find strategies -maxdepth 1 -name "*.js" -exec basename {} \; | sort)
           if [ -z "$STRATEGIES" ]; then
             echo "❌ هیچ استراتژی‌ای در پوشه strategies یافت نشد. چرخه متوقف می‌شود."
             exit 0
           fi
 
-          # تعداد کل فایل‌های CSV برای محاسبه تعداد کل چانک‌ها
-          TOTAL_CSV=$(find data/All_Coins_Combined -maxdepth 1 -name "*.csv" 2>/dev/null | wc -l)
+          # ⚠️ رفع باگ ریشه‌ای: قبلاً اینجا فایل‌ها بر اساس رشته‌ی کامل نام‌فایل
+          # (الفبایی) مرتب می‌شدند و TOTAL_CSV هم از یک find/wc -l جدا (شامل هر
+          # فایلی با پسوند csv.، حتی بدون الگوی تاریخ) محاسبه می‌شد. اما
+          # run-backtest.js («چانک N» واقعی که پردازش می‌شود) فقط بر اساس تاریخ
+          # مرتب می‌کند، نماد را نادیده می‌گیرد، و فایل‌های بدون الگوی تاریخ را
+          # اصلاً در نظر نمی‌گیرد. این یعنی «چانک ۳۰۰» طبق این اسکریپت با
+          # «چانک ۳۰۰»ی که واقعاً پردازش می‌شد یکی نبود — دقیقاً همان چیزی که
+          # باعث می‌شد یک چانک هدفمند دوباره و دوباره verify شود ولی گپ واقعی
+          # هرگز بسته نشود. حالا هم مرتب‌سازی (تاریخ، سپس نام‌فایل) و هم فیلترِ
+          # «فقط فایل‌های دارای الگوی تاریخ»، عیناً مطابق run-backtest.js اینجا
+          # تکرار می‌شود، و TOTAL_CSV/TOTAL_CHUNKS از طول همین آرایه (نه یک
+          # find جداگانه) محاسبه می‌شود تا «چانک N» همه‌جا دقیقاً یک معنی داشته
+          # باشد.
+          mapfile -t ALL_FILES < <(
+            find data/All_Coins_Combined -maxdepth 1 -name "*.csv" -printf '%f\n' |
+            awk 'match($0, /[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{4}-[0-9]{2}-[0-9]{2}\.csv$/) { print substr($0, RSTART, 10) "\t" $0 }' |
+            sort -k1,1 -k2,2 |
+            cut -f2
+          )
+          TOTAL_CSV="${#ALL_FILES[@]}"
           if [ "$TOTAL_CSV" -eq 0 ]; then
-            echo "❌ داده‌ای یافت نشد. چرخه متوقف می‌شود."
+            echo "❌ داده‌ای (با الگوی نام‌فایل تاریخ‌دار) یافت نشد. چرخه متوقف می‌شود."
             exit 0
           fi
-          CHUNK_SIZE=100
+          # ⚠️ تغییر برای سرعت: قبلاً ۱۰۰ بود که با اندازه‌ی فعلی دیتاست (~۱۳۰۰
+          # فایل) فقط ۱۳-۱۴ چانک در کل تولید می‌کرد، در حالی که max-parallel در
+          # backtest.yml از قبل روی ۲۰ تنظیم شده بود — یعنی ۶-۷ اسلات همیشه
+          # بلااستفاده می‌ماند. با CHUNK_SIZE=66، هر اجرا حدود ۲۰ چانک تولید
+          # می‌کند و از همان ظرفیت ۲۰-تاییِ موجود به‌طور کامل استفاده می‌شود.
+          # ⚠️ این عدد باید دقیقاً با SIZE در backtest.yml (استپ build_chunks)
+          # و --chunk-size در استپ اجرای بکتست یکی باشد؛ در غیر این صورت همان
+          # مشکل «چانک N یک‌جا دو معنی مختلف دارد» که قبلاً رفع شد دوباره پیش
+          # می‌آید. اگر بعداً خواستید این عدد را تغییر دهید، هر سه‌جا را با هم
+          # عوض کنید — و فقط وقتی progress.json/results خالی یا تازه‌ریست‌شده
+          # باشد (وگرنه چانک‌های قبلاً ثبت‌شده با اندازه‌ی جدید هم‌خوان نمی‌مانند).
+          CHUNK_SIZE=66
           TOTAL_CHUNKS=$(( (TOTAL_CSV + CHUNK_SIZE - 1) / CHUNK_SIZE ))
 
           SELECTED=""
           TARGET_CHUNKS_JSON=""
+
           for STRAT in $STRATEGIES; do
-            # بررسی ۱: از progress.json
-            DONE_COUNT=$(jq -r --arg s "$STRAT" '.[$s] // [] | length' "$PROGRESS_FILE")
-
-            # بررسی ۲: شمارش results.enc روی دیسک (پوشه _5m به‌عنوان شاخص اصلی)
             STRAT_BASE="${STRAT%.js}"
-            STRAT_DIR="results/${STRAT_BASE}_5m"
-            ENC_COUNT=0
-            if [ -d "$STRAT_DIR" ]; then
-              ENC_COUNT=$(find "$STRAT_DIR" -name "results.enc" -type f | wc -l)
-            fi
 
-            # استراتژی کامل است اگر: progress.json کامل باشد یا تعداد results.enc روی دیسک کافی باشد
-            if [ "$DONE_COUNT" -ge "$TOTAL_CHUNKS" ] || [ "$ENC_COUNT" -ge "$TOTAL_CSV" ]; then
-              echo "ℹ️ استراتژی $STRAT کامل شده است (progress: $DONE_COUNT/$TOTAL_CHUNKS، دیسک: $ENC_COUNT/$TOTAL_CSV)."
-            else
-              SELECTED="$STRAT"
-              echo "✅ استراتژی $STRAT: $DONE_COUNT از $TOTAL_CHUNKS چانک در progress، $ENC_COUNT از $TOTAL_CSV فایل روی دیسک. انتخاب شد."
-              break
-            fi
-          done
-
-          # ------------------------------------------------------------
-          # مرحلهٔ دوم (فقط وقتی هیچ استراتژی جدیدی پیدا نشد): جستجوی
-          # استراتژی‌های «ناقص» بر اساس فایل‌های واقعی روی دیسک.
-          # بررسی بالا فقط پوشهٔ ${STRAT}_5m را چک می‌کند؛ اگر تایم‌فریم ۵m یک
-          # استراتژی کامل باشد ولی تایم‌فریم‌های دیگر (1h/4h/24h و ...) ناقص
-          # مانده باشند، آن استراتژی در حلقهٔ بالا اشتباهاً «کامل» شمرده می‌شود.
-          # این بخش دقیقاً همان معیاری را که مرحلهٔ ۵ (آپلود) برای تشخیص پوشهٔ
-          # ناقص استفاده می‌کند به کار می‌برد (ENC_COUNT < TOTAL_CSV) اما این
-          # بار روی همهٔ results/*/ (همهٔ تایم‌فریم‌ها)، نه فقط _5m.
-          # ------------------------------------------------------------
-          if [ -z "$SELECTED" ] && [ -d results ]; then
-            echo "🔎 استراتژی جدید/ناتمام (طبق progress.json و دیسک _5m) پیدا نشد. حالا دنبال پوشه‌های ناقص در همهٔ تایم‌فریم‌ها می‌گردیم..."
-            for D in results/*/; do
+            # همه‌ی پوشه‌های تایم‌فریمِ *موجود* برای این استراتژی (نه فقط _5m)
+            EXISTING_DIRS=()
+            for D in results/${STRAT_BASE}_*/; do
               [ -d "$D" ] || continue
-              FOLDER_NAME=$(basename "$D")
-              ENC_COUNT=$(find "$D" -name "results.enc" -type f | wc -l)
-              if [ "$ENC_COUNT" -ge "$TOTAL_CSV" ]; then
+              EXISTING_DIRS+=("$D")
+            done
+
+            if [ "${#EXISTING_DIRS[@]}" -eq 0 ]; then
+              # هیچ پوشه‌ای روی دیسک نیست: یا هنوز اصلاً شروع نشده، یا قبلاً
+              # کامل آپلود و پاک‌سازی شده. این تنها حالتی است که به
+              # progress.json اعتماد می‌کنیم.
+              DONE_COUNT=$(jq -r --arg s "$STRAT" '(.[$s] // []) | length' "$PROGRESS_FILE")
+              if [ "$DONE_COUNT" -ge "$TOTAL_CHUNKS" ]; then
+                echo "ℹ️ استراتژی $STRAT کامل شده و آپلود/پاک‌سازی شده است (progress: $DONE_COUNT/$TOTAL_CHUNKS، پوشه‌ای روی دیسک نمانده)."
                 continue
               fi
-              # نگاشت نام پوشه به نام فایل استراتژی: پسوند تایم‌فریم می‌تواند
-              # 5m، 1h، 4h، 24h و... باشد، پس هر استراتژی شناخته‌شده را به‌عنوان
-              # پیشوند نام پوشه امتحان می‌کنیم.
-              MATCHED_STRAT=""
-              for STRAT in $STRATEGIES; do
-                STRAT_BASE="${STRAT%.js}"
-                if [[ "$FOLDER_NAME" == "${STRAT_BASE}_"* ]]; then
-                  MATCHED_STRAT="$STRAT"
+              echo "🆕 استراتژی $STRAT هنوز نتیجه‌ای روی دیسک ندارد؛ کل $TOTAL_CHUNKS چانک لازم است."
+            else
+              ALL_TF_COMPLETE=true
+              for D in "${EXISTING_DIRS[@]}"; do
+                ENC_COUNT=$(find "$D" -name "results.enc" -type f | wc -l)
+                if [ "$ENC_COUNT" -lt "$TOTAL_CSV" ]; then
+                  ALL_TF_COMPLETE=false
                   break
                 fi
               done
-              if [ -n "$MATCHED_STRAT" ]; then
-                SELECTED="$MATCHED_STRAT"
-                echo "✅ پوشهٔ ناقص یافت شد: $FOLDER_NAME ($ENC_COUNT از $TOTAL_CSV). استراتژی $MATCHED_STRAT برای تکمیل نواقص انتخاب شد."
+              if [ "$ALL_TF_COMPLETE" = true ]; then
+                echo "ℹ️ استراتژی $STRAT در هر ${#EXISTING_DIRS[@]} پوشه‌ی تایم‌فریم موجودش کامل است."
+                continue
+              fi
+              echo "🔎 استراتژی $STRAT در دیسک ناقص است (${#EXISTING_DIRS[@]} پوشه‌ی تایم‌فریم بررسی شد). محاسبه‌ی دقیق چانک‌های ناقص..."
+            fi
 
-                # --------------------------------------------------------
-                # 🎯 محاسبه‌ی دقیق چانک‌های ناقص همین پوشه، مستقیماً روی دیسک.
-                # این جایگزینِ اتکا به progress.json در backtest.yml است: اینجا
-                # چک می‌شود هر چانک ۱۰۰‌تایی از فایل‌های داده، آیا نتیجه‌اش برای
-                # همین پوشه‌ی خاص (این استراتژی + این تایم‌فریم) کامل روی دیسک
-                # هست یا نه — صرف‌نظر از این‌که progress.json چه چیزی برای این
-                # استراتژی (در تایم‌فریم دیگری مثلاً 5m) ثبت کرده است.
-                # --------------------------------------------------------
-                mapfile -t ALL_FILES < <(find data/All_Coins_Combined -maxdepth 1 -name "*.csv" -printf '%f\n' | sort)
-                CHUNK_SIZE_LOCAL=100
-                n=$(( (TOTAL_CSV + CHUNK_SIZE_LOCAL - 1) / CHUNK_SIZE_LOCAL ))
-                MISSING_CHUNKS="["
-                ADDED=0
-                for ((i=0; i<n; i++)); do
-                  s=$((i*CHUNK_SIZE_LOCAL))
-                  e=$((s+CHUNK_SIZE_LOCAL))
-                  [ $e -gt $TOTAL_CSV ] && e=$TOTAL_CSV
-                  CHUNK_COMPLETE=true
+            # --- محاسبه‌ی دقیق چانک‌های ناقص روی دیسک، با در نظر گرفتن *همه‌ی*
+            # پوشه‌های تایم‌فریم موجود (نه فقط یکی). اگر هیچ پوشه‌ای نبود، کل
+            # محدوده ناقص است.
+            MISSING_CHUNKS="["
+            ADDED=0
+            for ((i=0; i<TOTAL_CHUNKS; i++)); do
+              s=$((i*CHUNK_SIZE))
+              e=$((s+CHUNK_SIZE))
+              [ $e -gt $TOTAL_CSV ] && e=$TOTAL_CSV
+              CHUNK_COMPLETE=true
+              if [ "${#EXISTING_DIRS[@]}" -eq 0 ]; then
+                CHUNK_COMPLETE=false
+              else
+                for D in "${EXISTING_DIRS[@]}"; do
                   for ((j=s; j<e; j++)); do
                     FN="${ALL_FILES[$j]}"
                     if [ ! -f "${D}${FN}/results.enc" ]; then
                       CHUNK_COMPLETE=false
-                      break
+                      break 2
                     fi
                   done
-                  if [ "$CHUNK_COMPLETE" = false ]; then
-                    [ $ADDED -gt 0 ] && MISSING_CHUNKS+=", "
-                    MISSING_CHUNKS+="$s"
-                    ADDED=$((ADDED+1))
-                  fi
                 done
-                MISSING_CHUNKS+="]"
+              fi
+              if [ "$CHUNK_COMPLETE" = false ]; then
+                [ $ADDED -gt 0 ] && MISSING_CHUNKS+=", "
+                MISSING_CHUNKS+="$s"
+                ADDED=$((ADDED+1))
+              fi
+            done
+            MISSING_CHUNKS+="]"
 
-                if [ "$ADDED" -eq 0 ]; then
-                  # اتفاق نباید بیفتد (چون ENC_COUNT < TOTAL_CSV بود)، ولی محض احتیاط:
-                  # اگر به هر دلیلی هیچ چانک ناقصی پیدا نشد، به مسیر عادی برمی‌گردیم
-                  # تا backtest.yml خودش با progress.json تصمیم بگیرد.
-                  echo "⚠️ محاسبه‌ی چانک ناقص چیزی پیدا نکرد؛ به مسیر عادی برگشت داده می‌شود."
-                else
-                  TARGET_CHUNKS_JSON="$MISSING_CHUNKS"
-                  echo "🎯 چانک‌های ناقص محاسبه‌شده برای $FOLDER_NAME: $TARGET_CHUNKS_JSON"
-                fi
+            if [ "$ADDED" -eq 0 ]; then
+              echo "⚠️ هیچ چانک ناقصی برای $STRAT پیدا نشد (اختلاف فقط در شمارش کلی بود)؛ رد می‌شویم."
+              continue
+            fi
+
+            # --- قطع‌کننده‌ی مدار ---
+            SIG="${MISSING_CHUNKS}"
+            PREV_SIG=$(jq -r --arg s "$STRAT" '(.[$s] // {}) | .signature // ""' "$STUCK_FILE")
+            PREV_COUNT=$(jq -r --arg s "$STRAT" '(.[$s] // {}) | .count // 0' "$STUCK_FILE")
+
+            if [ "$PREV_SIG" = "$SIG" ]; then
+              NEW_COUNT=$((PREV_COUNT + 1))
+            else
+              NEW_COUNT=1
+            fi
+
+            if [ "$NEW_COUNT" -ge "$STUCK_THRESHOLD" ]; then
+              echo "🛑 استراتژی $STRAT دقیقاً با همین چانک‌های ناقص ($MISSING_CHUNKS) $NEW_COUNT بار پیاپی تکرار شده بدون پیشرفت روی دیسک. برای این دور رد می‌شود؛ برای بررسی دستی ثبت می‌شود."
+              mkdir -p errors
+              {
+                echo "strategy: $STRAT"
+                echo "missing_chunks: $MISSING_CHUNKS"
+                echo "attempts: $NEW_COUNT"
+                echo "detected_at: $(date -u +%FT%TZ)"
+                echo "note: این استراتژی با همین چانک‌های ناقص چند بار پیاپی از نو اجرا شده ولی فایل‌های results.enc مربوطه هرگز کامل روی دیسک ننشسته‌اند. منطق «قبلاً انجام‌شده» در run-backtest.js (چک در برابر now-test-repo) را برای همین چانک‌ها دستی بررسی کنید."
+              } > "errors/STUCK_${STRAT_BASE}_$(date -u +%Y%m%dT%H%M%SZ).txt"
+              continue
+            fi
+
+            SELECTED="$STRAT"
+            TARGET_CHUNKS_JSON="$MISSING_CHUNKS"
+            jq --arg s "$STRAT" --arg sig "$SIG" --argjson cnt "$NEW_COUNT" \
+              '.[$s] = {"signature": $sig, "count": $cnt}' "$STUCK_FILE" > /tmp/stuck_tmp.json && mv /tmp/stuck_tmp.json "$STUCK_FILE"
+            echo "✅ استراتژی $STRAT انتخاب شد. چانک‌های ناقص: $TARGET_CHUNKS_JSON (تلاش $NEW_COUNT از $STUCK_THRESHOLD قبل از رد‌شدن خودکار)"
+            break
+          done
+
+          # هر تغییری در stuck_tracker.json یا errors/ (چه استراتژی انتخاب
+          # شده باشد چه نه) را commit و push می‌کنیم تا دفعه‌ی بعد لحاظ شود.
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add "$STUCK_FILE" 2>/dev/null || true
+          [ -d errors ] && git add errors/
+          if ! git diff --cached --quiet 2>/dev/null; then
+            git commit -m "update stuck-strategy tracker" || true
+            RETRY=0; MAX=20
+            while [ $RETRY -lt $MAX ]; do
+              if git pull --rebase && git push; then
+                echo "✅ push وضعیت قطع‌کننده‌ی مدار موفق بود."
                 break
+              else
+                RETRY=$((RETRY+1))
+                sleep $(( (RANDOM % 5) + 1 ))
               fi
             done
           fi
 
           if [ -z "$SELECTED" ]; then
-            echo "🎉 همهٔ استراتژی‌ها کامل شده‌اند (چه در progress.json، چه روی دیسک در همهٔ تایم‌فریم‌ها). چرخه متوقف می‌شود."
+            echo "🎉 همه‌ی استراتژی‌ها یا کامل‌اند یا فعلاً به‌خاطر قطع‌کننده‌ی مدار رد شده‌اند (نیازمند بررسی دستی). چرخه برای این دور متوقف می‌شود."
             exit 0
           fi
 
-          if [ -n "$TARGET_CHUNKS_JSON" ]; then
-            echo "🚀 راه‌اندازی backtest.yml برای $SELECTED با چانک‌های هدفمند (مسیر تکمیل ناقص) ..."
-            gh workflow run backtest.yml --ref main -f strategy_name="$SELECTED" -f target_chunks="$TARGET_CHUNKS_JSON"
-          else
-            echo "🚀 راه‌اندازی backtest.yml برای $SELECTED (مسیر عادی) ..."
-            gh workflow run backtest.yml --ref main -f strategy_name="$SELECTED"
-          fi
+          echo "🚀 راه‌اندازی backtest.yml برای $SELECTED با چانک‌های هدفمند: $TARGET_CHUNKS_JSON ..."
+          gh workflow run backtest.yml --ref main -f strategy_name="$SELECTED" -f target_chunks="$TARGET_CHUNKS_JSON"
