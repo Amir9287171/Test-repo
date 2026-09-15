@@ -1,6 +1,5 @@
 name: Prepare Intent Model
 
-# اجرای دستی از تب Actions، یا خودکار هروقت این دو فایل تغییر کنن
 on:
   workflow_dispatch: {}
   push:
@@ -15,6 +14,7 @@ permissions:
 jobs:
   build-model:
     runs-on: ubuntu-latest
+
     steps:
       - name: چک‌اوت مخزن
         uses: actions/checkout@v4
@@ -23,7 +23,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip'
+
+      - name: کش کردن pip (با کلید دستی — بدون نیاز به requirements.txt)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('prepare_intent_model.py', 'intents.json') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: نصب پیش‌نیازها
         run: |
@@ -38,6 +45,7 @@ jobs:
           echo "### حجم فایل‌های تولیدشده" >> $GITHUB_STEP_SUMMARY
           du -h onnx_export/model_int8.onnx onnx_export/tokenizer.onnx onnx_export/intent_embeddings.json >> $GITHUB_STEP_SUMMARY
           SIZE_BYTES=$(stat -c%s onnx_export/model_int8.onnx)
+          echo "حجم مدل: $((SIZE_BYTES / 1024 / 1024)) مگابایت" >> $GITHUB_STEP_SUMMARY
           if [ "$SIZE_BYTES" -gt 95000000 ]; then
             echo "⚠️ فایل مدل نزدیک یا بالای ۱۰۰ مگابایته — GitHub بدون Git LFS اجازه‌ی فایل بالای ۱۰۰MB رو نمی‌ده." >> $GITHUB_STEP_SUMMARY
           fi
@@ -50,7 +58,7 @@ jobs:
             cp onnx_export/intent_embeddings.json app/src/main/assets/
             echo "کپی شد به app/src/main/assets/"
           else
-            echo "پوشه app/src/main/assets پیدا نشد — فایل‌ها فقط داخل onnx_export/ کامیت می‌شن؛ خودت جابه‌جاشون کن."
+            echo "پوشه app/src/main/assets پیدا نشد — فایل‌ها فقط داخل onnx_export/ کامیت می‌شن."
           fi
 
       - name: کامیت و پوش خروجی‌ها به مخزن
