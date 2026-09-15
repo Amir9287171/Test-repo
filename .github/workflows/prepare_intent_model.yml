@@ -16,15 +16,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: چک‌اوت مخزن
+      - name: چکاوت مخزن
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: نصب پایتون
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: کش کردن pip (با کلید دستی — بدون نیاز به requirements.txt)
+      - name: کش کردن pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
@@ -32,41 +34,64 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: نصب پیش‌نیازها
+      - name: نصب پیشنیازها
         run: |
           python -m pip install --upgrade pip
           pip install "optimum[onnxruntime]" onnxruntime onnxruntime-extensions transformers numpy
 
-      - name: اجرای اسکریپت آماده‌سازی مدل
+      - name: اجرای اسکریپت آمادهسازی
         run: python prepare_intent_model.py
 
-      - name: بررسی حجم خروجی‌ها
+      - name: بررسی حجم خروجیها
         run: |
-          echo "### حجم فایل‌های تولیدشده" >> $GITHUB_STEP_SUMMARY
+          echo "### حجم فایلهای تولیدشده" >> $GITHUB_STEP_SUMMARY
           du -h onnx_export/model_int8.onnx onnx_export/tokenizer.onnx onnx_export/intent_embeddings.json >> $GITHUB_STEP_SUMMARY
-          SIZE_BYTES=$(stat -c%s onnx_export/model_int8.onnx)
-          echo "حجم مدل: $((SIZE_BYTES / 1024 / 1024)) مگابایت" >> $GITHUB_STEP_SUMMARY
-          if [ "$SIZE_BYTES" -gt 95000000 ]; then
-            echo "⚠️ فایل مدل نزدیک یا بالای ۱۰۰ مگابایته — GitHub بدون Git LFS اجازه‌ی فایل بالای ۱۰۰MB رو نمی‌ده." >> $GITHUB_STEP_SUMMARY
-          fi
 
-      - name: کپی خروجی‌ها به پوشه assets اندروید (اگه این پوشه تو مخزن باشه)
+      - name: راهاندازی Git LFS برای فایلهای ONNX
+        run: |
+          git lfs install --local
+          git lfs track "onnx_export/*.onnx"
+          if [ -d "app/src/main/assets" ]; then
+            git lfs track "app/src/main/assets/*.onnx"
+          fi
+          git add .gitattributes
+
+      - name: کپی خروجیها به پوشه assets اندروید (اگر وجود دارد)
         run: |
           if [ -d "app/src/main/assets" ]; then
             cp onnx_export/model_int8.onnx app/src/main/assets/
             cp onnx_export/tokenizer.onnx app/src/main/assets/
             cp onnx_export/intent_embeddings.json app/src/main/assets/
-            echo "کپی شد به app/src/main/assets/"
+            echo "✅ کپی شد به app/src/main/assets/"
           else
-            echo "پوشه app/src/main/assets پیدا نشد — فایل‌ها فقط داخل onnx_export/ کامیت می‌شن."
+            echo "ℹ️ پوشه app/src/main/assets پیدا نشد — فایلها فقط در onnx_export/ میمانند."
           fi
 
-      - name: کامیت و پوش خروجی‌ها به مخزن
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: بازسازی مدل embedding intent [auto]"
-          file_pattern: |
-            onnx_export/**
-            app/src/main/assets/model_int8.onnx
-            app/src/main/assets/tokenizer.onnx
-            app/src/main/assets/intent_embeddings.json
+      - name: کامیت و پوش
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .gitattributes onnx_export/
+          if [ -d "app/src/main/assets" ]; then
+            git add app/src/main/assets/
+          fi
+
+          if git diff --cached --quiet; then
+            echo "ℹ️ چیزی برای کامیت نیست."
+            exit 0
+          fi
+
+          git commit -m "chore: بازسازی مدل embedding intent [auto]"
+
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "✅ پوش موفق (تلاش $attempt)"
+              exit 0
+            fi
+            echo "⚠️ تلاش $attempt ناموفق — rebase و تلاش مجدد..."
+            git pull --rebase origin main || true
+            sleep $((RANDOM % 4 + 2))
+          done
+          echo "❌ پوش بعد از ۳ تلاش ناموفق بود."
+          exit 1
