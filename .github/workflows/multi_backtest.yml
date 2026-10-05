@@ -82,9 +82,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: zips
-          key: zips-${{ hashFiles('encrypted_data/prepare_data.py') }}-${{ github.run_id }}
+          key: zips-${{ hashFiles('encrypted_data/multi_download.py') }}-${{ github.run_id }}
           restore-keys: |
-            zips-${{ hashFiles('encrypted_data/prepare_data.py') }}-
+            zips-${{ hashFiles('encrypted_data/multi_download.py') }}-
 
       - name: 3. راه‌اندازی پایتون
         uses: actions/setup-python@v5
@@ -196,7 +196,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: encrypted_data/data.enc
-          key: data-enc-v1
+          key: multi-data-enc-v1
 
       - name: 7.1 ساخت و رمزنگاری داده (فقط در صورت نبود کش)
         if: steps.cache-data-enc.outputs.cache-hit != 'true'
@@ -204,7 +204,7 @@ jobs:
           DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
         run: |
           echo "⚠️ کش data.enc یافت نشد. در حال ساخت از نو با All_pipeline.py ..."
-          python encrypted_data/All_pipeline.py
+          python encrypted_data/multi_download.py
 
       - name: 7.2 رمزگشایی data.enc برای استفاده در بکتست
         env:
