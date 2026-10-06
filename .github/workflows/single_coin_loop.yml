@@ -1,0 +1,103 @@
+name: Single Coin Loop
+
+# فقط توسط single_coin_backtest.yml (جاب trigger-loop) صدا زده می‌شود. بدون cron و بدون schedule.
+# منطق: ۱) آیا کار باقی‌مانده هست؟ (از _done در مخزن سوم)
+#       ۲) اگر بله → single_coin_backtest.yml را dispatch می‌کند
+#       ۳) اگر نه → هیچ کاری نمی‌کند
+# محافظ حلقه‌ی بی‌پایان: اگر اجرای قبلی هیچ پیشرفتی نداشته (made_progress=false) زنجیره می‌ایستد.
+
+permissions:
+  contents: read
+  actions: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      made_progress:
+        description: 'آیا اجرای قبلی backtest پیشرفت داشته؟ (true/false). دستی: unknown'
+        required: false
+        default: 'unknown'
+      only_coins:
+        description: 'فیلتر ارز (همان ورودی backtest)'
+        required: false
+        default: ''
+      only_strategies:
+        description: 'فیلتر استراتژی (همان ورودی backtest)'
+        required: false
+        default: ''
+      max_jobs_per_run:
+        description: 'سقف job در هر اجرا (به backtest پاس داده می‌شود)'
+        required: false
+        default: ''
+      max_minutes:
+        description: 'بودجه‌ی زمانی (به backtest پاس داده می‌شود)'
+        required: false
+        default: ''
+
+# هماهنگ با single_coin_backtest.yml: هر دو یک گروه دارند و هیچ‌وقت همزمان اجرا نمی‌شوند
+concurrency:
+  group: single-coin-cluster
+  cancel-in-progress: false
+
+env:
+  RESULTS_DIR_NAME: "single_coin_backtest_results"
+
+jobs:
+  check-and-dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: بررسی کار باقی‌مانده
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+          MADE_PROGRESS: ${{ github.event.inputs.made_progress }}
+          ONLY_COINS: ${{ github.event.inputs.only_coins }}
+          ONLY_STRATEGIES: ${{ github.event.inputs.only_strategies }}
+        run: |
+          set -e
+          [ -n "$GH_TOKEN" ] && [ -n "$THIRD_REPO" ] || { echo "❌ CROSS_REPO_TOKEN یا THIRD_REPO تنظیم نشده."; exit 1; }
+
+          if [ "$MADE_PROGRESS" = "false" ]; then
+            echo "🛑 اجرای قبلی هیچ پیشرفتی نداشت؛ زنجیره برای جلوگیری از حلقه‌ی بی‌پایان متوقف شد."
+            echo "   (علت را در لاگ اجرای قبلی بررسی کن؛ بعد backtest را دستی اجرا کن.)"
+            echo "remaining=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          rm -rf /tmp/third
+          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git" /tmp/third 2>&1 | tail -2
+          [ -d /tmp/third/.git ] || { echo "❌ clone مخزن سوم ناموفق بود."; exit 1; }
+
+          ROOT="/tmp/third/${RESULTS_DIR_NAME}" python3 .github/scripts/single_coin_tools.py loop
+          rm -rf /tmp/third
+
+      - name: فراخوانی single_coin_backtest.yml
+        if: steps.check.outputs.remaining != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ONLY_COINS: ${{ github.event.inputs.only_coins }}
+          ONLY_STRATEGIES: ${{ github.event.inputs.only_strategies }}
+          MAX_JOBS: ${{ github.event.inputs.max_jobs_per_run }}
+          MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
+        run: |
+          ARGS=()
+          if [ -n "$ONLY_COINS" ]; then ARGS+=(-f "only_coins=$ONLY_COINS"); fi
+          if [ -n "$ONLY_STRATEGIES" ]; then ARGS+=(-f "only_strategies=$ONLY_STRATEGIES"); fi
+          if [ -n "$MAX_JOBS" ]; then ARGS+=(-f "max_jobs_per_run=$MAX_JOBS"); fi
+          if [ -n "$MAX_MINUTES" ]; then ARGS+=(-f "max_minutes=$MAX_MINUTES"); fi
+
+          echo "🚀 راه‌اندازی single_coin_backtest.yml روی شاخه main ..."
+          if gh workflow run single_coin_backtest.yml --repo "${{ github.repository }}" --ref main "${ARGS[@]}"; then
+            echo "✅ فراخوانی موفق بود."
+          else
+            echo "⚠️ فراخوانی اول ناموفق بود؛ ۵ ثانیه صبر و یک تلاش دوم..."
+            sleep 5
+            gh workflow run single_coin_backtest.yml --repo "${{ github.repository }}" --ref main "${ARGS[@]}" || { echo "❌ فراخوانی دوم هم ناموفق بود."; exit 1; }
+          fi
+
+      - name: پایان
+        if: steps.check.outputs.remaining == '0'
+        run: echo "✅ کار باقی‌مانده‌ای نیست (یا زنجیره به‌خاطر نبود پیشرفت متوقف شد)؛ backtest فراخوانی نمی‌شود."
