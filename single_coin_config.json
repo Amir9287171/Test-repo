@@ -1,4 +1,33 @@
 {
-  "strategies": ["B4Ic14-30-57_TLpP5-mT3-pR0005_BrT012_LadFib_BufOff.js"],
-  "coins": ["BTCUSDT", "ETHUSDT"]
+  "strategies": [
+    "B4Ic14-30-57_TLpP5-mT3-pR0005_BrT012_LadFib_BufOff.js@1h,30m",
+    "B4Ic14-30-57_TLpP5-mT3-pR001_BrT012_DvgBull_LadFib_BufOff.js@30m,5m",
+    "S4Ic14-30-57_TLpP5-mT3-pR0005_LadFib_BufOff.js@1h",
+    "S4Ic14-30-57_TLpP5-mT3-pR001_DvgBear_LadFib_BufOff.js@1h",
+    "S4Ic14-30-57_TLpP5-mT3-pR001_DvgBear_LadLine_BufOff.js@30m,15m",
+    "S4Ic14-30-57_TLpP5-mT4-pR001_LadLine_BufOn.js@1h",
+    "S4Touch+DvgBear_TLpP5-mT3-pR001_LadFib_BufOff.js@1h",
+    "S4Touch+DvgBear_TLpP5-mT3-pR001_LadLine_BufOff.js@30m",
+    "B4Ic14-30-57_TLpP5-mT4-pR001_BrT012_LadLine_BufOff.js@15m",
+    "S4Ic14-30-57_TLpP5-mT3-pR0005_LadLine_BufOn.js@1h",
+    "B4Ic14-30-57_TLpP5-mT3-pR001_BrT012_DvgBull_LadFib_BufOn.js@1h",
+    "B4Ic14-30-57_TLpP5-mT3-pR001_BrT012_DvgBull_LadLine_BufOn.js@1h",
+    "B4Ic14-30-57_TLpP5-mT3-pR001_BrT012_LadLine_BufOff.js@30m",
+    "B4Ic14-30-57_TLpP5-mT3-pR001_BrT012_LadLine_BufOn.js@30m",
+    "B4Ic14-30-57_TLpP5-mT4-pR001_BrT012_LadFib_BufOn.js@1h",
+    "B4Ic14-30-57_TLpP5-mT4-pR001_BrT012_LadLine_BufOn.js@15m",
+    "B4Touch+DvgBull_TLpP5-mT3-pR001_LadLine_BufOn.js@1h",
+    "S4DvgBear_PP12Macd.js@1h",
+    "S4DvgBear_PP12Rsi10Lb2Tol12_HiddenOnly.js@30m",
+    "S4Ic14-30-57_TLpP5-mT3-pR0005_LadLine_BufOff.js@1h",
+    "S4Ic14-30-57_TLpP5-mT3-pR001_LadLine_BufOff.js@30m"
+  ],
+  "coins": [
+    "XRPUSDT", "HBARUSDT", "ALGOUSDT", "XLMUSDT", "LTCUSDT",
+    "SOLUSDT", "AVAXUSDT", "APTUSDT", "SUIUSDT", "SEIUSDT",
+    "LINKUSDT", "DOTUSDT", "ATOMUSDT", "GRTUSDT", "ARUSDT",
+    "DOGEUSDT", "SHIBUSDT", "PEPEUSDT", "WIFUSDT", "BONKUSDT",
+    "BNBUSDT", "CROUSDT",
+    "BTCUSDT", "PAXGUSDT"
+  ]
 }
