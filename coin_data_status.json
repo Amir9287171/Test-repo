@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T12:00:04Z",
+  "generated_at": "2026-10-07T12:37:48Z",
   "interval": "1m",
   "coins": {
     "ALGOUSDT": {
@@ -51,6 +51,26 @@
       "csv_files": 217,
       "size_mb": 203.3,
       "last_updated": "2026-10-07T11:15:27Z"
+    },
+    "BNBUSDT": {
+      "status": "downloaded",
+      "first_month": "2018-01",
+      "last_month": "2026-09",
+      "months_available": 105,
+      "months_downloaded": 105,
+      "csv_files": 315,
+      "size_mb": 310.3,
+      "last_updated": "2026-10-07T12:11:29Z"
+    },
+    "BONKUSDT": {
+      "status": "downloaded",
+      "first_month": "2023-12",
+      "last_month": "2026-09",
+      "months_available": 34,
+      "months_downloaded": 34,
+      "csv_files": 101,
+      "size_mb": 120.8,
+      "last_updated": "2026-10-07T12:09:00Z"
     },
     "BTCUSDT": {
       "status": "downloaded",
@@ -121,6 +141,16 @@
       "csv_files": 315,
       "size_mb": 301.0,
       "last_updated": "2026-10-07T11:23:48Z"
+    },
+    "PAXGUSDT": {
+      "status": "downloaded",
+      "first_month": "2020-08",
+      "last_month": "2026-09",
+      "months_available": 74,
+      "months_downloaded": 74,
+      "csv_files": 220,
+      "size_mb": 219.2,
+      "last_updated": "2026-10-07T12:13:13Z"
     },
     "PEPEUSDT": {
       "status": "downloaded",
