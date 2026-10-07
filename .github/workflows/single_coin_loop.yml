@@ -4,6 +4,8 @@ name: Single Coin Loop
 # منطق: ۱) آیا کار باقی‌مانده هست؟ (از _done در مخزن سوم)
 #       ۲) اگر بله → single_coin_backtest.yml را dispatch می‌کند
 #       ۳) اگر نه → هیچ کاری نمی‌کند
+# قبل از این منطق، نتایج خام مخزن سوم (single_coin_backtest_results) یکپارچه می‌شود (aggregate-*)
+# و در پوشه‌ی جدید single_coin_aggregated نوشته می‌شود.
 # محافظ حلقه‌ی بی‌پایان: اگر اجرای قبلی هیچ پیشرفتی نداشته (made_progress=false) زنجیره می‌ایستد.
 
 permissions:
@@ -41,9 +43,693 @@ concurrency:
 
 env:
   RESULTS_DIR_NAME: "single_coin_backtest_results"
+  # پوشه‌ی جدید خروجی یکپارچه‌سازی (در همان مخزن سوم، کنار RESULTS_DIR_NAME)
+  AGG_DIR_NAME: "single_coin_aggregated"
 
 jobs:
+  # ============================================================
+  # Job A: یکپارچه‌سازی نتایج Single Coin Backtest (نسخه موازی/ماتریکسی)
+  # همان معماری loop_analysis.yml:
+  #   A1) aggregate-prepare : ساخت لیست واحدها (COIN/<strategy>_<tf>) فقط برای jobهایی که
+  #       _done دارند، و تقسیم به حداکثر ۲۰ چانک ۱۰تایی
+  #   A2) aggregate-results : ماتریکس موازی؛ هر چانک فقط روی clone محلی خودش کار می‌کند
+  #       و تغییراتش را artifact می‌کند (بدون push)
+  #   A3) aggregate-collect : همه‌ی artifactها روی یک clone تازه اعمال می‌شود و فقط یک push انجام می‌شود
+  # ورودی : ${RESULTS_DIR_NAME}/<COIN>/<strategy>_<tf>/<file>/results.enc
+  # خروجی : ${AGG_DIR_NAME}/<COIN>/<strategy>_<tf>/<strategy>_<tf>_trades.enc  (پوشه‌ی جدید، همان مخزن سوم)
+  # بعد از پایان این جاب‌ها (حتی با خطا) جاب check-and-dispatch زنجیره را ادامه می‌دهد.
+  # ============================================================
+
+  aggregate-prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      has_more: ${{ steps.build_chunks.outputs.has_more }}
+      chunk_count: ${{ steps.build_chunks.outputs.chunk_count }}
+      chunk_indices: ${{ steps.build_chunks.outputs.chunk_indices }}
+      chunks: ${{ steps.build_chunks.outputs.chunks }}
+    steps:
+      - name: 0. نصب jq
+        run: |
+          if ! command -v jq &> /dev/null; then
+            echo "📦 jq یافت نشد. در حال نصب..."
+            sudo apt-get update -qq && sudo apt-get install -y -qq jq
+            if ! command -v jq &> /dev/null; then
+              echo "❌ خطای بحرانی: نصب jq ناموفق بود."
+              exit 1
+            fi
+          fi
+          echo "✅ jq آماده است."
+
+      - name: 0.5. پاکسازی فضای موقت
+        run: |
+          rm -rf /tmp/third_repo 2>/dev/null || true
+          echo "✅ پاکسازی فضای موقت انجام شد."
+
+      - name: Clone third repository (shallow clone، فقط خواندن)
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+        run: |
+          git clone --depth 1 https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git /tmp/third_repo
+          echo "✅ مخزن سوم با موفقیت clone شد (فقط خواندن)."
+
+      - name: ساخت لیست واحدهای «استراتژی_تایم‌فریم» (مستقل از کوین) و تقسیم به چانک‌ها
+        id: build_chunks
+        env:
+          MAX_STRATEGIES_PER_RUN: "200"
+          CHUNK_SIZE: "5"
+        run: |
+          {
+            cd /tmp/third_repo
+            # واحد جدید = <strategy>_<tf> (بدون کوین). هر واحد در خروجی یک فایل یکپارچه برای همه‌ی کوین‌ها دارد.
+            SKIP_META=$(mktemp); SKIP_PAIR=$(mktemp)
+            [ -f "$AGG_DIR_NAME/missing_metadata.flag" ] && cat "$AGG_DIR_NAME/missing_metadata.flag" >> "$SKIP_META"
+            for F in incomplete_files.flag no_trades.flag; do
+              [ -f "$AGG_DIR_NAME/$F" ] && cat "$AGG_DIR_NAME/$F" >> "$SKIP_PAIR"
+            done
+            sort -u -o "$SKIP_META" "$SKIP_META"; sort -u -o "$SKIP_PAIR" "$SKIP_PAIR"
+            echo "🚫 پرچم‌های دائمی: missing_metadata=$(grep -c . "$SKIP_META" || true) / incomplete+no_trades=$(grep -c . "$SKIP_PAIR" || true)"
+
+            # ۱) جفت‌های COIN/<strategy>_<tf> که job‌شان کامل شده (_done) و پرچم دائمی ندارند
+            PAIRS=""
+            if [ -d "$RESULTS_DIR_NAME" ]; then
+              PAIRS=$(find "$RESULTS_DIR_NAME" -mindepth 2 -maxdepth 2 -type d -not -path "$RESULTS_DIR_NAME/_*" -printf '%P\n' | sort -u)
+            else
+              echo "ℹ️ پوشه $RESULTS_DIR_NAME وجود ندارد."
+            fi
+            echo "📊 تعداد کل جفت‌های COIN/STRAT خام: $(printf '%s\n' "$PAIRS" | grep -c . || true)"
+
+            UNITS=$(printf '%s\n' "$PAIRS" | while IFS= read -r NAME; do
+              [ -z "$NAME" ] && continue
+              COIN="${NAME%%/*}"; STRAT="${NAME#*/}"
+              TF="${STRAT##*_}"; KEY="${STRAT%_*}"
+              grep -qxF "$KEY" "$SKIP_META" 2>/dev/null && continue
+              grep -qxF "$NAME" "$SKIP_PAIR" 2>/dev/null && continue
+              DONE_JSON="$RESULTS_DIR_NAME/_done/$COIN/$KEY.json"
+              [ -f "$DONE_JSON" ] || continue
+              jq -e --arg tf "$TF" '(.tfs // null) as $t | ($t == null) or (($t | length) == 0) or ($t | index($tf) != null)' "$DONE_JSON" >/dev/null 2>&1 || continue
+              printf '%s\n' "$STRAT"
+            done | sort -u)
+
+            # ۲) واحدهایی که فقط فایل قدیمیِ per-coin دارند (AGG/COIN/STRAT/STRAT_trades.enc) → برای مهاجرت به فایل یکپارچه
+            LEGACY_UNITS=""
+            if [ -d "$AGG_DIR_NAME" ]; then
+              LEGACY_UNITS=$(find "$AGG_DIR_NAME" -mindepth 3 -maxdepth 3 -type f -name '*_trades.enc' -not -path "$AGG_DIR_NAME/_*" -printf '%f\n' | sed 's/_trades\.enc$//' | sort -u)
+            fi
+            LEGACY_UNITS=$(printf '%s\n' "$LEGACY_UNITS" | while IFS= read -r STRAT; do
+              [ -z "$STRAT" ] && continue
+              BASE=$(echo "$STRAT" | sed 's/_5m$//;s/_15m$//;s/_30m$//;s/_1h$//;s/_4h$//;s/_24h$//')
+              grep -qxF "$BASE" "$SKIP_META" 2>/dev/null && continue
+              printf '%s\n' "$STRAT"
+            done)
+            echo "📊 واحدهای دارای کار جدید: $(printf '%s\n' "$UNITS" | grep -c . || true) | واحدهای دارای فایل قدیمی per-coin: $(printf '%s\n' "$LEGACY_UNITS" | grep -c . || true)"
+            rm -f "$SKIP_META" "$SKIP_PAIR"
+
+            FULL_LIST=$(printf '%s\n%s\n' "$UNITS" "$LEGACY_UNITS" | grep . | sort -u || true)
+            TOTAL_COUNT=$(printf '%s\n' "$FULL_LIST" | grep -c . || true)
+            echo "📊 تعداد کل واحدهای (استراتژی_تایم‌فریم) در صف: $TOTAL_COUNT"
+
+            WORK_LIST=$(printf '%s\n' "$FULL_LIST" | head -n "$MAX_STRATEGIES_PER_RUN")
+            HAS_MORE=false
+            if [ "$TOTAL_COUNT" -gt "$MAX_STRATEGIES_PER_RUN" ]; then
+              HAS_MORE=true
+            fi
+
+            CHUNKS_JSON=$(printf '%s\n' "$WORK_LIST" | jq -R -s -c --argjson n "$CHUNK_SIZE" '
+              def nwise(n): def n1: if length <= n then . else .[0:n], (.[n:] | n1) end; n1;
+              [splits("\n")] | map(select(length>0)) | [nwise($n)]
+            ')
+            CHUNK_COUNT=$(echo "$CHUNKS_JSON" | jq 'length')
+            CHUNK_INDICES=$(echo "$CHUNKS_JSON" | jq -c '[range(0; length)]')
+
+            echo "   📦 تعداد چانک‌ها: $CHUNK_COUNT (هر چانک حداکثر $CHUNK_SIZE واحد)"
+            echo "   📋 محتوای چانک‌ها: $CHUNKS_JSON"
+            echo "   ℹ️ has_more=$HAS_MORE"
+
+            echo "has_more=$HAS_MORE" >> "$GITHUB_OUTPUT"
+            echo "chunk_count=$CHUNK_COUNT" >> "$GITHUB_OUTPUT"
+            echo "chunk_indices=$CHUNK_INDICES" >> "$GITHUB_OUTPUT"
+            {
+              echo "chunks<<CHUNKS_EOF"
+              echo "$CHUNKS_JSON"
+              echo "CHUNKS_EOF"
+            } >> "$GITHUB_OUTPUT"
+          }
+
+  # ============================================================
+  # Job A2: یکپارچه‌سازی موازی (ماتریکس) — هر چانک ۱۰ واحد
+  # ============================================================
+  aggregate-results:
+    needs: aggregate-prepare
+    if: needs.aggregate-prepare.result == 'success' && needs.aggregate-prepare.outputs.chunk_count != '0'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        chunk_index: ${{ fromJSON(needs.aggregate-prepare.outputs.chunk_indices) }}
+    steps:
+      - name: Checkout مخزن اصلی (فقط strategies/ برای استخراج متادیتا)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          sparse-checkout: strategies
+
+      - name: 0. نصب jq
+        run: |
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq jq
+          fi
+
+      - name: Clone third repository (shallow clone)
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+        run: |
+          git clone --depth 1 https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git /tmp/third_repo
+          cd /tmp/third_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          echo "✅ مخزن سوم با موفقیت clone شد (چانک ${{ matrix.chunk_index }})."
+
+      - name: یکپارچه‌سازی چانک ${{ matrix.chunk_index }} (هر واحد = یک استراتژی_تایم‌فریم، همه‌ی کوین‌ها)
+        id: aggregate
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          CHUNKS_JSON: ${{ needs.aggregate-prepare.outputs.chunks }}
+          CHUNK_INDEX: ${{ matrix.chunk_index }}
+        run: |
+          {
+            echo "=============================================="
+            echo "   🔄 شروع یکپارچه‌سازی چانک $CHUNK_INDEX"
+            echo "=============================================="
+            mkdir -p /tmp/chunk_out/files
+            UNITS_LIST=$(echo "$CHUNKS_JSON" | jq -r --argjson i "$CHUNK_INDEX" '.[$i][]')
+            echo "📦 واحدهای محول‌شده به این چانک:"
+            echo "$UNITS_LIST"
+            echo ""
+
+            # رمزگشایی/رمزنگاری با آرگومان (بدون interpolate مسیر داخل کد JS)
+            cat > /tmp/crypt.js <<'JSEOF'
+          const crypto=require('crypto'),fs=require('fs');
+          const [mode,inp,out]=process.argv.slice(2);
+          const key=crypto.scryptSync(process.env.RESULTS_PASSWORD,'salt',32);
+          const data=fs.readFileSync(inp);
+          if(mode==='dec'){
+            const iv=data.slice(0,16),enc=data.slice(16);
+            const d=crypto.createDecipheriv('aes-256-cbc',key,iv);
+            fs.writeFileSync(out,Buffer.concat([d.update(enc),d.final()]));
+          } else {
+            const iv=crypto.randomBytes(16);
+            const c=crypto.createCipheriv('aes-256-cbc',key,iv);
+            fs.writeFileSync(out,Buffer.concat([iv,c.update(data),c.final()]));
+          }
+          JSEOF
+
+            # پرچم‌ها: هر چانک افزوده‌های خودش را جدا می‌نویسد؛ aggregate-collect ادغام می‌کند
+            MISSING_META_FILE="/tmp/third_repo/${AGG_DIR_NAME}/missing_metadata.flag"
+            MISSING_ADDITIONS="/tmp/chunk_out/missing_additions_${CHUNK_INDEX}.txt"
+            touch "$MISSING_ADDITIONS"
+            add_missing_metadata() {
+              local NAME="$1"
+              if ! grep -qxF "$NAME" "$MISSING_META_FILE" 2>/dev/null && ! grep -qxF "$NAME" "$MISSING_ADDITIONS" 2>/dev/null; then
+                echo "$NAME" >> "$MISSING_ADDITIONS"
+              fi
+            }
+            INCOMPLETE_FILE="/tmp/third_repo/${AGG_DIR_NAME}/incomplete_files.flag"
+            INCOMPLETE_ADDITIONS="/tmp/chunk_out/incomplete_additions_${CHUNK_INDEX}.txt"
+            touch "$INCOMPLETE_ADDITIONS"
+            add_incomplete() {
+              local NAME="$1"
+              if ! grep -qxF "$NAME" "$INCOMPLETE_FILE" 2>/dev/null && ! grep -qxF "$NAME" "$INCOMPLETE_ADDITIONS" 2>/dev/null; then
+                echo "$NAME" >> "$INCOMPLETE_ADDITIONS"
+              fi
+            }
+            NO_TRADES_FILE="/tmp/third_repo/${AGG_DIR_NAME}/no_trades.flag"
+            NO_TRADES_ADDITIONS="/tmp/chunk_out/no_trades_additions_${CHUNK_INDEX}.txt"
+            touch "$NO_TRADES_ADDITIONS"
+            add_no_trades() {
+              local NAME="$1"
+              if ! grep -qxF "$NAME" "$NO_TRADES_FILE" 2>/dev/null && ! grep -qxF "$NAME" "$NO_TRADES_ADDITIONS" 2>/dev/null; then
+                echo "$NAME" >> "$NO_TRADES_ADDITIONS"
+              fi
+            }
+
+            cd /tmp/third_repo
+
+            for STRAT in $UNITS_LIST; do
+              [ -z "$STRAT" ] && continue
+              K="$STRAT"
+              echo "=============================================="
+              echo "   📊 واحد: $STRAT (چانک $CHUNK_INDEX) — همه‌ی کوین‌ها در یک فایل"
+              echo "=============================================="
+              BASE_STRAT=$(echo "$STRAT" | sed 's/_5m$//;s/_15m$//;s/_30m$//;s/_1h$//;s/_4h$//;s/_24h$//')
+              if [ -f "$MISSING_META_FILE" ] && grep -qxF "$BASE_STRAT" "$MISSING_META_FILE" 2>/dev/null; then
+                echo "   ⏭️ $BASE_STRAT قبلاً در missing_metadata.flag ثبت شده. رد می‌شود."
+                continue
+              fi
+
+              AGG_FILE="${AGG_DIR_NAME}/${STRAT}/${STRAT}_trades.enc"
+              rm -rf "/tmp/agg_${K}"
+              mkdir -p "/tmp/agg_${K}/coins"
+              # ========== متادیتا: اولویت ۱ .js، اولویت ۲ 1.json ==========
+              echo "   📥 بررسی متادیتا برای $STRAT (BASE_STRAT=$BASE_STRAT)..."
+              METADATA_SUCCESS=false
+              META_SOURCE=""
+              META_FILE="/tmp/third_repo/${AGG_DIR_NAME}/_metadata/${BASE_STRAT}/1.json"
+              META_DONE_FLAG="/tmp/third_repo/${AGG_DIR_NAME}/_metadata/${BASE_STRAT}/.metadata_generated"
+              JS_FILE="${GITHUB_WORKSPACE}/strategies/${BASE_STRAT}.js"
+              STRAT_DIR="/tmp/third_repo/${AGG_DIR_NAME}/_metadata/${BASE_STRAT}/"
+              mkdir -p "$STRAT_DIR"
+
+              if [ -f "$JS_FILE" ]; then
+                echo "   🔧 [اولویت ۱] فایل ${JS_FILE} یافت شد → استخراج متادیتا از .js..."
+                set +e
+                node -e "
+                  const fs = require('fs');
+                  const jsContent = fs.readFileSync('$JS_FILE', 'utf8');
+                  let move_percents = [];
+                  let source = 'none';
+                  const stagesMatch = jsContent.match(/stopLossStages\s*[:=]\s*\[([\s\S]*?)\]/);
+                  if (stagesMatch) {
+                    const mpMatches = [...stagesMatch[1].matchAll(/movePercent\s*:\s*([\d.]+)/g)];
+                    if (mpMatches.length > 0) { move_percents = mpMatches.map(m => parseFloat(m[1])); source = 'stopLossStages'; }
+                  }
+                  if (move_percents.length === 0) {
+                    const mmArr = jsContent.match(/movePercent\s*[:=]\s*\[(.*?)\]/s);
+                    if (mmArr) {
+                      const numbers = mmArr[1].match(/[\d.]+/g);
+                      if (numbers && numbers.length > 0) { move_percents = numbers.map(Number); source = 'movePercent_direct'; }
+                    }
+                  }
+                  if (move_percents.length === 0) { source = 'empty_fallback'; }
+                  console.log('منبع move_percents: ' + source);
+                  console.log('move_percents استخراج‌شده (' + move_percents.length + ' عنصر): ' + JSON.stringify(move_percents));
+
+                  let stop_loss = null;
+                  let sl_source = 'none';
+                  let slMatch = jsContent.match(/stopLossInitial\s*[:=]\s*(-?[\d.]+)/);
+                  if (slMatch) { stop_loss = parseFloat(slMatch[1]); sl_source = 'stopLossInitial_direct'; }
+                  else {
+                    const slFormulaMatch = jsContent.match(/stopLoss\s*:\s*close\s*\*\s*([\d.]+)/);
+                    if (slFormulaMatch) {
+                      const multiplier = parseFloat(slFormulaMatch[1]);
+                      stop_loss = parseFloat(((1 - multiplier) * 100).toFixed(6));
+                      sl_source = 'stopLoss_close_formula';
+                    }
+                  }
+                  if (stop_loss === null) { console.error('__NO_STOP_LOSS_INITIAL__'); process.exit(1); }
+                  console.log('منبع stop_loss_initial: ' + sl_source);
+                  console.log('stop_loss_initial از .js خوانده شد: ' + stop_loss);
+                  let max_move = move_percents.length ? move_percents[move_percents.length-1] : null;
+                  const meta = { move_percents: move_percents, stop_loss_initial: stop_loss, max_move_percent: max_move };
+                  fs.writeFileSync('$META_FILE', JSON.stringify(meta, null, 2));
+                "
+                JS_META_EXIT=$?
+                set -e
+
+                if [ $JS_META_EXIT -ne 0 ]; then
+                  echo "   ❌ نه stopLossInitial و نه فرمول stopLoss: close * عدد در فایل ${JS_FILE} یافت نشد."
+                  echo "   📝 $BASE_STRAT در فهرست افزوده‌های این چانک ثبت می‌شود و رد می‌شود (بدون fail شدن pipeline)."
+                  add_missing_metadata "$BASE_STRAT"
+                  rm -rf "/tmp/agg_${K}"
+                  continue
+                fi
+
+                if [ -s "$META_FILE" ]; then
+                  echo "   ✅ متادیتا با موفقیت از .js استخراج و در 1.json ذخیره شد."
+                  cp "$META_FILE" "/tmp/agg_${K}/1.json"
+                  METADATA_SUCCESS=true
+                  META_SOURCE=".js"
+                  touch "$META_DONE_FLAG"
+                else
+                  echo "   ❌ ساخت فایل 1.json از .js ناموفق بود."
+                  rm -rf "/tmp/agg_${K}"
+                  continue
+                fi
+              fi
+
+              if [ "$METADATA_SUCCESS" = false ]; then
+                echo "   ℹ️ فایل ${JS_FILE} یافت نشد → بازگشت به fallback (1.json)."
+                if [ -f "$META_FILE" ]; then
+                  HAS_SL=$(jq 'has("stop_loss_initial") and .stop_loss_initial != null' "$META_FILE")
+                  if [ "$HAS_SL" != "true" ]; then
+                    echo "   ❌ stop_loss_initial در فایل ${META_FILE} یافت نشد."
+                    echo "   📝 $BASE_STRAT در فهرست افزوده‌های این چانک ثبت می‌شود و رد می‌شود."
+                    add_missing_metadata "$BASE_STRAT"
+                    rm -rf "/tmp/agg_${K}"
+                    continue
+                  fi
+                  echo "   ✅ فایل 1.json از مخزن محلی یافت شد."
+                  cp "$META_FILE" "/tmp/agg_${K}/1.json"
+                  METADATA_SUCCESS=true
+                  META_SOURCE="1.json"
+                  touch "$META_DONE_FLAG"
+                else
+                  echo "   ❌ نه فایل ${JS_FILE} و نه فایل ${META_FILE} یافت نشد. این استراتژی رد می‌شود."
+                  echo "   📝 $BASE_STRAT در فهرست افزوده‌های این چانک ثبت می‌شود و رد می‌شود."
+                  add_missing_metadata "$BASE_STRAT"
+                  rm -rf "/tmp/agg_${K}"
+                  continue
+                fi
+              fi
+
+              echo "   ✅ [متادیتا] منبع نهایی برای $STRAT: $META_SOURCE"
+
+              MOVE_PERCENTS=$(jq -c '.move_percents // []' "/tmp/agg_${K}/1.json")
+              STOP_LOSS=$(jq '.stop_loss_initial' "/tmp/agg_${K}/1.json")
+              if [ "$STOP_LOSS" = "null" ]; then
+                echo "   ❌ stop_loss_initial اجباری است و در متادیتای نهایی یافت نشد."
+                add_missing_metadata "$BASE_STRAT"
+                rm -rf "/tmp/agg_${K}"
+                continue
+              fi
+              MAX_MOVE=$(jq '.max_move_percent // (if .move_percents then .move_percents[-1] else null end)' "/tmp/agg_${K}/1.json")
+
+              # ========== بارگذاری فایل یکپارچه‌ی فعلی (فرمت جدید) ==========
+              echo "1- بارگذاری فایل یکپارچه‌ی فعلی ..."
+              BASE_TRADES_FILE="/tmp/agg_${K}/base_trades.json"
+              echo "[]" > "$BASE_TRADES_FILE"
+              if [ -f "/tmp/third_repo/$AGG_FILE" ]; then
+                if node /tmp/crypt.js dec "/tmp/third_repo/$AGG_FILE" "/tmp/agg_${K}/existing.json" 2>/dev/null \
+                   && jq -c 'if type=="object" then (.trades // []) else . end' "/tmp/agg_${K}/existing.json" > "/tmp/agg_${K}/existing_trades.json" 2>/dev/null; then
+                  cp "/tmp/agg_${K}/existing_trades.json" "$BASE_TRADES_FILE"
+                  echo "   ✅ فایل یکپارچه‌ی قبلی بارگذاری شد."
+                else
+                  echo "   ❌ رمزگشایی فایل یکپارچه‌ی قبلی ناموفق بود؛ برای جلوگیری از از دست رفتن داده، این واحد رد می‌شود."
+                  rm -rf "/tmp/agg_${K}"
+                  continue
+                fi
+              else
+                echo "   ℹ️ فایل یکپارچه‌ی قبلی وجود ندارد؛ فایل جدید ساخته می‌شود."
+              fi
+
+              # ========== مهاجرت فایل‌های قدیمیِ per-coin: AGG/COIN/STRAT/STRAT_trades.enc ==========
+              LEGACY_FILES=$(find "${AGG_DIR_NAME}" -mindepth 3 -maxdepth 3 -type f -name "${STRAT}_trades.enc" -not -path "${AGG_DIR_NAME}/_*" 2>/dev/null | sort || true)
+              LEGACY_OK_DIRS=""
+              LEGACY_BAD=0
+              for LF in $LEGACY_FILES; do
+                [ -z "$LF" ] && continue
+                if node /tmp/crypt.js dec "/tmp/third_repo/$LF" "/tmp/agg_${K}/legacy.json" 2>/dev/null \
+                   && jq -c 'if type=="object" then (.trades // []) else . end' "/tmp/agg_${K}/legacy.json" > "/tmp/agg_${K}/legacy_trades.json" 2>/dev/null; then
+                  jq -s '.[0] + .[1]' "$BASE_TRADES_FILE" "/tmp/agg_${K}/legacy_trades.json" > "/tmp/agg_${K}/base_tmp.json" && mv "/tmp/agg_${K}/base_tmp.json" "$BASE_TRADES_FILE"
+                  LEGACY_OK_DIRS="${LEGACY_OK_DIRS} $(dirname "$LF")"
+                  echo "   ♻️ فایل قدیمی per-coin ادغام شد: $LF"
+                else
+                  LEGACY_BAD=$((LEGACY_BAD + 1))
+                  echo "   ❌ رمزگشایی فایل قدیمی ناموفق: $LF (دست‌نخورده می‌ماند)"
+                fi
+                rm -f "/tmp/agg_${K}/legacy.json" "/tmp/agg_${K}/legacy_trades.json"
+              done
+
+              # ========== کوین‌های دارای نتیجه‌ی خام آماده برای همین واحد ==========
+              COIN_LIST=$(find "${RESULTS_DIR_NAME}" -mindepth 2 -maxdepth 2 -type d -name "${STRAT}" -not -path "${RESULTS_DIR_NAME}/_*" -printf '%h\n' 2>/dev/null | xargs -r -n1 basename | sort -u || true)
+              echo "2- کوین‌های دارای نتیجه‌ی خام: $(printf '%s\n' "$COIN_LIST" | grep -c . || true)"
+
+              OK_COINS=()
+              RAW_TO_DELETE=()
+              for COIN in $COIN_LIST; do
+                [ -z "$COIN" ] && continue
+                PAIR="${COIN}/${STRAT}"
+                if [ -f "$INCOMPLETE_FILE" ] && grep -qxF "$PAIR" "$INCOMPLETE_FILE" 2>/dev/null; then continue; fi
+                if [ -f "$NO_TRADES_FILE" ] && grep -qxF "$PAIR" "$NO_TRADES_FILE" 2>/dev/null; then continue; fi
+
+                DONE_JSON="/tmp/third_repo/${RESULTS_DIR_NAME}/_done/${COIN}/${BASE_STRAT}.json"
+                [ -f "$DONE_JSON" ] || { echo "   ⏭️ $PAIR: نشانه‌ی _done ندارد؛ رد شد."; continue; }
+                # تایم‌فریم این جفت باید در _done پوشش داده شده باشد؛ وگرنه هنوز نیمه‌کاره است
+                # (رد می‌شود، بدون پرچم دائمی تا بعداً که کامل شد پردازش شود)
+                PAIR_TF="${STRAT##*_}"
+                if ! jq -e --arg tf "$PAIR_TF" '(.tfs // null) as $t | ($t == null) or (($t | length) == 0) or ($t | index($tf) != null)' "$DONE_JSON" >/dev/null 2>&1; then
+                  echo "   ⏭️ $PAIR: تایم‌فریم $PAIR_TF هنوز در _done کامل نشده؛ رد شد (بدون پرچم)."
+                  continue
+                fi
+                REQUIRED_FILE_COUNT=$(jq -r '.files // empty' "$DONE_JSON" 2>/dev/null || true)
+                [ -n "$REQUIRED_FILE_COUNT" ] || { echo "   ⏭️ $PAIR: تعداد فایل‌ها در _done نیست؛ رد شد."; continue; }
+
+                COIN_DIR="/tmp/third_repo/${RESULTS_DIR_NAME}/${COIN}/${STRAT}"
+                FILES=$(find "$COIN_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -u)
+                FILE_COUNT=$(printf '%s\n' "$FILES" | grep -c . || true)
+                if [ "$FILE_COUNT" -ne "$REQUIRED_FILE_COUNT" ]; then
+                  echo "   ⚠️ $PAIR: تعداد فایل‌ها ($FILE_COUNT) ≠ $REQUIRED_FILE_COUNT → incomplete"
+                  add_incomplete "$PAIR"
+                  continue
+                fi
+
+                COIN_TRADES="/tmp/agg_${K}/coins/${COIN}.json"
+                echo "[]" > "$COIN_TRADES"
+                COIN_FAIL=0
+                for FOLDER in $FILES; do
+                  ENC_FILE="${COIN_DIR}/${FOLDER}/results.enc"
+                  if [ ! -f "$ENC_FILE" ]; then COIN_FAIL=$((COIN_FAIL + 1)); continue; fi
+                  if ! node /tmp/crypt.js dec "$ENC_FILE" "/tmp/agg_${K}/temp.tar.gz" 2>/dev/null || [ ! -s "/tmp/agg_${K}/temp.tar.gz" ]; then
+                    COIN_FAIL=$((COIN_FAIL + 1)); rm -f "/tmp/agg_${K}/temp.tar.gz"; continue
+                  fi
+                  if ! tar -xzf "/tmp/agg_${K}/temp.tar.gz" -C "/tmp/agg_${K}/" 2>/dev/null; then
+                    COIN_FAIL=$((COIN_FAIL + 1)); rm -f "/tmp/agg_${K}/temp.tar.gz"; continue
+                  fi
+                  TRADE_FILE="/tmp/agg_${K}/${FOLDER}/trades_summary.json"
+                  if [ -f "$TRADE_FILE" ]; then
+                    if jq -c --arg sym "$COIN" '[(.trades // [])[] | . + {symbol: $sym}]' "$TRADE_FILE" > "/tmp/agg_${K}/current.json" 2>/dev/null && [ -s "/tmp/agg_${K}/current.json" ]; then
+                      jq -s '.[0] + .[1]' "$COIN_TRADES" "/tmp/agg_${K}/current.json" > "/tmp/agg_${K}/merged_tmp.json" && mv "/tmp/agg_${K}/merged_tmp.json" "$COIN_TRADES"
+                    else
+                      COIN_FAIL=$((COIN_FAIL + 1))
+                    fi
+                  else
+                    COIN_FAIL=$((COIN_FAIL + 1))
+                  fi
+                  rm -rf "/tmp/agg_${K}/${FOLDER}" "/tmp/agg_${K}/temp.tar.gz" "/tmp/agg_${K}/current.json" "/tmp/agg_${K}/merged_tmp.json"
+                done
+
+                if [ "$COIN_FAIL" -gt 0 ]; then
+                  # بخشی از فایل‌ها خوانده نشد: ادغام ناقص نمی‌کنیم و نتیجه‌ی خام را نگه می‌داریم
+                  echo "   ❌ $PAIR: $COIN_FAIL فایل ناخوانا → incomplete (نتیجه‌ی خام نگه داشته شد)"
+                  add_incomplete "$PAIR"
+                  rm -f "$COIN_TRADES"
+                  continue
+                fi
+                if [ "$(jq 'length' "$COIN_TRADES")" = "0" ]; then
+                  echo "   ⚠️ $PAIR: معامله‌ای نیست → no_trades"
+                  add_no_trades "$PAIR"
+                  RAW_TO_DELETE+=("$COIN_DIR")
+                  rm -f "$COIN_TRADES"
+                  continue
+                fi
+                echo "   ✅ $PAIR: $(jq 'length' "$COIN_TRADES") معامله"
+                OK_COINS+=("$COIN")
+                RAW_TO_DELETE+=("$COIN_DIR")
+              done
+
+              # ========== ادغام: فایل فعلی (+قدیمی‌ها) − کوین‌های دوباره‌پردازش‌شده + معاملات جدید ==========
+              if [ "${#OK_COINS[@]}" -eq 0 ] && [ -z "$LEGACY_OK_DIRS" ]; then
+                echo "   ℹ️ چیزی برای نوشتن در فایل یکپارچه‌ی $STRAT نیست."
+                for D in "${RAW_TO_DELETE[@]}"; do rm -rf "$D"; done
+                rm -rf "/tmp/agg_${K}"
+                continue
+              fi
+
+              COINS_JSON=$(printf '%s\n' "${OK_COINS[@]}" | jq -R -s -c 'split("\n") | map(select(length>0))')
+              COIN_FILES=()
+              for C in "${OK_COINS[@]}"; do COIN_FILES+=("/tmp/agg_${K}/coins/${C}.json"); done
+              jq -s --argjson coins "$COINS_JSON" '
+                (.[0] | map(select((.symbol // "") as $s | ($coins | index($s)) | not)))
+                + (.[1:] | add // [])
+              ' "$BASE_TRADES_FILE" "${COIN_FILES[@]}" > "/tmp/agg_${K}/combined_trades.json"
+              echo "   ✅ ادغام کامل شد: $(jq 'length' "/tmp/agg_${K}/combined_trades.json") معامله در کل ($(jq '[.[].symbol] | unique | length' "/tmp/agg_${K}/combined_trades.json") کوین)."
+
+              jq -n \
+                --argjson move_percents "$MOVE_PERCENTS" \
+                --argjson stop_loss "$STOP_LOSS" \
+                --argjson max_move "$MAX_MOVE" \
+                --slurpfile trades "/tmp/agg_${K}/combined_trades.json" \
+                '{trades: $trades[0], metadata: {move_percents: $move_percents, stop_loss_initial: $stop_loss, max_move_percent: $max_move}}' \
+                > "/tmp/agg_${K}/final_package.json"
+
+              echo "3- رمزنگاری فایل یکپارچه‌ی جدید (شامل متادیتا)..."
+              if ! node /tmp/crypt.js enc "/tmp/agg_${K}/final_package.json" "/tmp/agg_${K}/final.enc"; then
+                echo "   ❌ خطا در رمزنگاری؛ نتایج خام دست‌نخورده ماندند."
+                rm -rf "/tmp/agg_${K}"
+                continue
+              fi
+              mkdir -p "/tmp/third_repo/${AGG_DIR_NAME}/${STRAT}"
+              cp "/tmp/agg_${K}/final.enc" "/tmp/third_repo/$AGG_FILE"
+              echo "   ✅ فایل یکپارچه ذخیره شد: $AGG_FILE"
+
+              echo "4- پاک‌سازی نتایج خام و فایل‌های قدیمی per-coin ..."
+              for D in "${RAW_TO_DELETE[@]}"; do rm -rf "$D" && echo "   🧹 $D"; done
+              for D in $LEGACY_OK_DIRS; do rm -rf "$D" && echo "   🧹 (قدیمی) $D"; done
+
+              rm -rf "/tmp/agg_${K}"
+              echo ""
+            done
+
+            echo ""
+            echo "📦 بسته‌بندی تغییرات چانک $CHUNK_INDEX به‌صورت artifact (بدون push مستقیم)..."
+            cd /tmp/third_repo
+            git add -A
+            CHANGES_FILE="/tmp/chunk_out/changes_${CHUNK_INDEX}.txt"
+            git diff --cached --name-status > "$CHANGES_FILE" || true
+            while IFS=$'\t' read -r FSTATUS FILEPATH; do
+              [ -z "$FILEPATH" ] && continue
+              case "$FSTATUS" in
+                A|M)
+                  mkdir -p "/tmp/chunk_out/files/$(dirname "$FILEPATH")"
+                  cp "$FILEPATH" "/tmp/chunk_out/files/$FILEPATH"
+                  ;;
+              esac
+            done < "$CHANGES_FILE"
+            CHANGE_COUNT=$(wc -l < "$CHANGES_FILE" | tr -d ' ')
+            echo "✅ تغییرات چانک $CHUNK_INDEX بسته‌بندی شد ($CHANGE_COUNT تغییر)."
+          }
+
+      - name: آپلود artifact چانک ${{ matrix.chunk_index }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agg-chunk-${{ matrix.chunk_index }}
+          path: /tmp/chunk_out
+          retention-days: 1
+          if-no-files-found: warn
+
+  # ============================================================
+  # Job A3: اعمال یکجای تغییرات همه چانک‌ها + تنها push به مخزن سوم
+  # این جاب به aggregate-results وابسته است، پس تا وقتی هر ۲۰ چانک
+  # (یا تعداد کمتر در صورت وجود استراتژی‌های کمتر) تمام نشوند اجرا نمی‌شود.
+  # اگر حتی یک چانک fail/cancel شود، هیچ push ای انجام نمی‌شود.
+  # ============================================================
+  aggregate-collect:
+    needs: [aggregate-prepare, aggregate-results]
+    if: >
+      needs.aggregate-prepare.result == 'success' &&
+      needs.aggregate-prepare.outputs.chunk_count != '0' &&
+      needs.aggregate-results.result != 'failure' &&
+      needs.aggregate-results.result != 'cancelled'
+    runs-on: ubuntu-latest
+    outputs:
+      had_work: ${{ steps.apply.outputs.had_work }}
+    steps:
+      - name: 0. نصب jq
+        run: |
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq jq
+          fi
+
+      - name: دانلود همه artifact های چانک‌ها
+        uses: actions/download-artifact@v4
+        with:
+          pattern: agg-chunk-*
+          path: /tmp/collected
+          merge-multiple: true
+
+      - name: Clone third repository (تنها نویسنده در کل فرآیند — بدون رقابت)
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+        run: |
+          git clone --depth 1 https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git /tmp/third_repo
+          cd /tmp/third_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          echo "✅ مخزن سوم با موفقیت clone شد."
+
+      - name: اعمال تغییرات همه چانک‌ها روی clone
+        id: apply
+        run: |
+          {
+            TOTAL_CHANGES=0
+            if [ -d /tmp/collected ]; then
+              for CH in /tmp/collected/changes_*.txt; do
+                [ -f "$CH" ] || continue
+                echo "🔧 اعمال $CH ..."
+                while IFS=$'\t' read -r FSTATUS FILEPATH; do
+                  [ -z "$FILEPATH" ] && continue
+                  TOTAL_CHANGES=$((TOTAL_CHANGES + 1))
+                  case "$FSTATUS" in
+                    A|M)
+                      mkdir -p "/tmp/third_repo/$(dirname "$FILEPATH")"
+                      cp "/tmp/collected/files/$FILEPATH" "/tmp/third_repo/$FILEPATH"
+                      ;;
+                    D)
+                      rm -f "/tmp/third_repo/$FILEPATH" 2>/dev/null
+                      ;;
+                  esac
+                done < "$CH"
+              done
+
+              mkdir -p "/tmp/third_repo/${AGG_DIR_NAME}"
+              echo "🔧 ادغام افزوده‌های missing_metadata.flag از همه چانک‌ها..."
+              touch /tmp/third_repo/${AGG_DIR_NAME}/missing_metadata.flag
+              for MF in /tmp/collected/missing_additions_*.txt; do
+                [ -f "$MF" ] || continue
+                while IFS= read -r NAME; do
+                  [ -z "$NAME" ] && continue
+                  grep -qxF "$NAME" /tmp/third_repo/${AGG_DIR_NAME}/missing_metadata.flag 2>/dev/null || echo "$NAME" >> /tmp/third_repo/${AGG_DIR_NAME}/missing_metadata.flag
+                done < "$MF"
+              done
+
+              echo "🔧 ادغام افزوده‌های incomplete_files.flag از همه چانک‌ها..."
+              touch /tmp/third_repo/${AGG_DIR_NAME}/incomplete_files.flag
+              for MF in /tmp/collected/incomplete_additions_*.txt; do
+                [ -f "$MF" ] || continue
+                while IFS= read -r NAME; do
+                  [ -z "$NAME" ] && continue
+                  grep -qxF "$NAME" /tmp/third_repo/${AGG_DIR_NAME}/incomplete_files.flag 2>/dev/null || echo "$NAME" >> /tmp/third_repo/${AGG_DIR_NAME}/incomplete_files.flag
+                done < "$MF"
+              done
+
+              echo "🔧 ادغام افزوده‌های no_trades.flag از همه چانک‌ها..."
+              touch /tmp/third_repo/${AGG_DIR_NAME}/no_trades.flag
+              for MF in /tmp/collected/no_trades_additions_*.txt; do
+                [ -f "$MF" ] || continue
+                while IFS= read -r NAME; do
+                  [ -z "$NAME" ] && continue
+                  grep -qxF "$NAME" /tmp/third_repo/${AGG_DIR_NAME}/no_trades.flag 2>/dev/null || echo "$NAME" >> /tmp/third_repo/${AGG_DIR_NAME}/no_trades.flag
+                done < "$MF"
+              done
+            else
+              echo "ℹ️ هیچ artifact ای دانلود نشد."
+            fi
+
+            echo "📊 مجموع تغییرات جمع‌آوری‌شده از همه چانک‌ها: $TOTAL_CHANGES"
+            if [ "$TOTAL_CHANGES" -gt 0 ]; then
+              echo "had_work=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "had_work=false" >> "$GITHUB_OUTPUT"
+            fi
+          }
+
+      - name: Commit and push changes back to third repo (تنها push در کل فرآیند یکپارچه‌سازی)
+        run: |
+          cd /tmp/third_repo
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Aggregate single-coin results (matrix chunks) and clean up processed files (run ${{ github.run_id }})"
+            PUSH_SUCCESS=false
+            for attempt in $(seq 1 10); do
+              git pull --rebase || true
+              if git push; then
+                echo "✅ push موفق بود (تلاش $attempt)."
+                PUSH_SUCCESS=true
+                break
+              fi
+              WAIT=$((RANDOM % 10 + 3))
+              echo "⚠️ تلاش $attempt ناموفق (non-fast-forward یا conflict). ${WAIT} ثانیه صبر می‌کنم..."
+              sleep $WAIT
+            done
+            if [ "$PUSH_SUCCESS" = "false" ]; then
+              echo "❌ push پس از ۱۰ تلاش ناموفق بود."
+              exit 1
+            fi
+          fi
+
+  # ============================================================
+  # ادامه‌ی زنجیره: بعد از یکپارچه‌سازی (حتی اگر ناموفق یا رد شده باشد) اجرا می‌شود
+  # تا زنجیره‌ی backtest → loop هیچ‌وقت به‌خاطر یکپارچه‌سازی نشکند.
+  # ============================================================
   check-and-dispatch:
+    needs: [aggregate-prepare, aggregate-collect]
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -97,6 +783,34 @@ jobs:
             sleep 5
             gh workflow run single_coin_backtest.yml --repo "${{ github.repository }}" --ref main "${ARGS[@]}" || { echo "❌ فراخوانی دوم هم ناموفق بود."; exit 1; }
           fi
+
+      - name: ادامه‌ی یکپارچه‌سازی (صف بیش از سقف یک اجرا)
+        if: steps.check.outputs.remaining == '0' && needs.aggregate-prepare.outputs.has_more == 'true' && needs.aggregate-collect.outputs.had_work == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ONLY_COINS: ${{ github.event.inputs.only_coins }}
+          ONLY_STRATEGIES: ${{ github.event.inputs.only_strategies }}
+          MAX_JOBS: ${{ github.event.inputs.max_jobs_per_run }}
+          MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
+        run: |
+          # backtest کاری ندارد ولی هنوز واحدِ یکپارچه‌نشده مانده → همین workflow دوباره صدا زده می‌شود.
+          # شرط had_work=true از حلقه‌ی بی‌پایان جلوگیری می‌کند (اگر اجرای قبلی هیچ تغییری نداشت، نمی‌ایستد).
+          ARGS=()
+          if [ -n "$ONLY_COINS" ]; then ARGS+=(-f "only_coins=$ONLY_COINS"); fi
+          if [ -n "$ONLY_STRATEGIES" ]; then ARGS+=(-f "only_strategies=$ONLY_STRATEGIES"); fi
+          if [ -n "$MAX_JOBS" ]; then ARGS+=(-f "max_jobs_per_run=$MAX_JOBS"); fi
+          if [ -n "$MAX_MINUTES" ]; then ARGS+=(-f "max_minutes=$MAX_MINUTES"); fi
+          echo "🔁 هنوز واحد یکپارچه‌نشده مانده؛ فراخوانی مجدد single_coin_loop.yml ..."
+          for attempt in 1 2 3; do
+            if gh workflow run single_coin_loop.yml --repo "${{ github.repository }}" --ref main "${ARGS[@]}"; then
+              echo "✅ فراخوانی مجدد موفق بود (تلاش $attempt)."
+              exit 0
+            fi
+            echo "⚠️ تلاش $attempt ناموفق؛ ۵ ثانیه صبر..."
+            sleep 5
+          done
+          echo "❌ هر سه تلاش ناموفق بود."
+          exit 1
 
       - name: پایان
         if: steps.check.outputs.remaining == '0'
