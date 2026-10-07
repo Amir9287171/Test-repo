@@ -1,0 +1,106 @@
+{
+  "generated_at": "2026-10-07T11:31:45Z",
+  "interval": "1m",
+  "coins": {
+    "ALGOUSDT": {
+      "status": "downloaded",
+      "first_month": "2019-06",
+      "last_month": "2026-09",
+      "months_available": 88,
+      "months_downloaded": 88,
+      "csv_files": 262,
+      "size_mb": 258.2,
+      "last_updated": "2026-10-07T11:13:45Z"
+    },
+    "APTUSDT": {
+      "status": "downloaded",
+      "first_month": "2022-10",
+      "last_month": "2026-09",
+      "months_available": 48,
+      "months_downloaded": 48,
+      "csv_files": 143,
+      "size_mb": 135.1,
+      "last_updated": "2026-10-07T11:13:31Z"
+    },
+    "AVAXUSDT": {
+      "status": "downloaded",
+      "first_month": "2020-09",
+      "last_month": "2026-09",
+      "months_available": 73,
+      "months_downloaded": 73,
+      "csv_files": 217,
+      "size_mb": 203.3,
+      "last_updated": "2026-10-07T11:15:27Z"
+    },
+    "BTCUSDT": {
+      "status": "downloaded",
+      "first_month": "2018-01",
+      "last_month": "2026-09",
+      "months_available": 105,
+      "months_downloaded": 105,
+      "csv_files": 315,
+      "size_mb": 348.1,
+      "last_updated": "2026-10-07T11:15:51Z"
+    },
+    "HBARUSDT": {
+      "status": "downloaded",
+      "first_month": "2019-09",
+      "last_month": "2026-09",
+      "months_available": 85,
+      "months_downloaded": 85,
+      "csv_files": 253,
+      "size_mb": 257.3,
+      "last_updated": "2026-10-07T11:13:31Z"
+    },
+    "LTCUSDT": {
+      "status": "downloaded",
+      "first_month": "2018-01",
+      "last_month": "2026-09",
+      "months_available": 105,
+      "months_downloaded": 105,
+      "csv_files": 315,
+      "size_mb": 301.0,
+      "last_updated": "2026-10-07T11:23:48Z"
+    },
+    "SOLUSDT": {
+      "status": "downloaded",
+      "first_month": "2020-08",
+      "last_month": "2026-09",
+      "months_available": 74,
+      "months_downloaded": 74,
+      "csv_files": 221,
+      "size_mb": 215.1,
+      "last_updated": "2026-10-07T11:16:26Z"
+    },
+    "SUIUSDT": {
+      "status": "downloaded",
+      "first_month": "2023-05",
+      "last_month": "2026-09",
+      "months_available": 41,
+      "months_downloaded": 41,
+      "csv_files": 123,
+      "size_mb": 121.9,
+      "last_updated": "2026-10-07T11:18:56Z"
+    },
+    "XLMUSDT": {
+      "status": "downloaded",
+      "first_month": "2018-05",
+      "last_month": "2026-09",
+      "months_available": 101,
+      "months_downloaded": 101,
+      "csv_files": 301,
+      "size_mb": 303.8,
+      "last_updated": "2026-10-07T11:25:14Z"
+    },
+    "XRPUSDT": {
+      "status": "downloaded",
+      "first_month": "2018-05",
+      "last_month": "2026-09",
+      "months_available": 101,
+      "months_downloaded": 101,
+      "csv_files": 303,
+      "size_mb": 308.6,
+      "last_updated": "2026-10-07T11:23:36Z"
+    }
+  }
+}
