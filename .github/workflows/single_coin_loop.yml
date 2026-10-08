@@ -589,6 +589,7 @@ jobs:
           path: /tmp/chunk_out
           retention-days: 1
           if-no-files-found: warn
+          include-hidden-files: true
 
   # ============================================================
   # Job A3: اعمال یکجای تغییرات همه چانک‌ها + تنها push به مخزن سوم
@@ -646,7 +647,11 @@ jobs:
                   case "$FSTATUS" in
                     A|M)
                       mkdir -p "/tmp/third_repo/$(dirname "$FILEPATH")"
-                      cp "/tmp/collected/files/$FILEPATH" "/tmp/third_repo/$FILEPATH"
+                      if [ -f "/tmp/collected/files/$FILEPATH" ]; then
+                        cp "/tmp/collected/files/$FILEPATH" "/tmp/third_repo/$FILEPATH"
+                      else
+                        echo "⚠️ فایل در artifact نیست، رد شد: $FILEPATH"
+                      fi
                       ;;
                     D)
                       rm -f "/tmp/third_repo/$FILEPATH" 2>/dev/null
