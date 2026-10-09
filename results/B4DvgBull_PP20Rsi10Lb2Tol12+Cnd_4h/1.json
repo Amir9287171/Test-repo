@@ -1,0 +1,32 @@
+/**
+ * @filename B4DvgBull_PP20Rsi10Lb2Tol12_Cnd+Cnd.js
+ * @description [+تایید کندل Cnd] BUY با تایید واگرایی صعودی خالص (بدون خط روند/ایچیموکو).
+ *   اندیکاتور(ها): RSI | نوع سیگنال پذیرفته‌شده: Regular و Hidden هردو
+ *   مثل باین اصلی ولی PIVOT_PERIOD بزرگ‌تر (۲۰). روی داده‌ی کوتاه، مقادیر خیلی بزرگ (۲۵-۳۰) با نمونه‌ی کم (زیر ۱۰ معامله) نتایج فریبنده دادند — روی ۷.۵ سال × ۵ نماد نمونه‌ی کافی برای قضاوت واقعی درباره‌ی PP=20 وجود دارد؛ اینجا واقعاً می‌شود فهمید نویز بود یا الگوی واقعی.
+ *   حد ضرر ثابت اولیه: ۰.۴٪ | حد ضرر پلکانی: مجموعه‌ی «فیبوناچی تعدیل‌شده» (بخش ۶.۲.۰ راهنما)
+ */
+
+const ANALYSIS_CONFIG = {
+  entryType: "nextCandle",
+  breakTolerance: 0.001,           // اجباری طبق راهنما، ولی در این استراتژی مصرف نمی‌شود (بدون خط روند)
+  enableSmartContinuation: true,
+  divergence: {
+    indicators: ["RSI"],
+    config: {
+      PIVOT_PERIOD: 20,
+      RSI_PERIOD: 10,
+      LOOKBACK_PIVOTS: 2,
+      PIVOT_ALIGNMENT_TOLERANCE: 12
+    }
+  }
+};
+
+const stopLossInitial = 0.4; // درصد
+
+const stopLossStages = [
+  { movePercent: 0.4, stopLossPercent: 0.2 },
+  { movePercent: 2.4, stopLossPercent: 1.9 },
+  { movePercent: 4.2, stopLossPercent: 3.5 },
+  { movePercent: 6.1, stopLossPercent: 5.0 },
+  { movePercent: 8.0, stopLossPercent: 6.6 },
+  { movePercent: 9
