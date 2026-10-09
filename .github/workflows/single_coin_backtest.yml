@@ -189,16 +189,42 @@ jobs:
           echo "emit=$EMIT" >> "$GITHUB_OUTPUT"
 
       - name: دانلود و پردازش داده‌ی ${{ matrix.coin }}
+        id: download
         if: steps.decide.outputs.download == 'true'
         env:
           COIN: ${{ matrix.coin }}
           WRITE_COMBINED: "no"
           ENCRYPT_OUTPUT: "no"
-        run: python encrypted_data/single_coin_pipeline.py
+        run: |
+          set +e
+          python encrypted_data/single_coin_pipeline.py 2>&1 | tee /tmp/pipeline.log
+          RC=${PIPESTATUS[0]}
+          set -e
+          [ "$RC" -eq 0 ] && exit 0
+          # ارز بدون دیتا: همه‌ی ZIPها ۴۰۴ (۰ موفق و ۰ خطا). خطای شبکه/موقت این‌جا شمرده نمی‌شود.
+          if grep -q 'دانلود تمام شد: 0 موفق' /tmp/pipeline.log \
+             && grep -qE '(^|[^0-9])0 خطا' /tmp/pipeline.log \
+             && grep -q 'هیچ ZIP' /tmp/pipeline.log; then
+            echo "🚫 $COIN در Binance دیتا ندارد → به‌عنوان «بدون دیتا» ثبت می‌شود و اجرا ادامه می‌یابد."
+            mkdir -p /tmp/nodata
+            printf '{"coin":"%s","reason":"binance_all_404","flagged_at":"%s","run_id":"%s"}\n' \
+              "$COIN" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${{ github.run_id }}" > "/tmp/nodata/$COIN.json"
+            echo "nodata=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          exit "$RC"
+
+      - name: بارگذاری پرچم «بدون دیتا» ${{ matrix.coin }}
+        if: steps.download.outputs.nodata == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodata-${{ matrix.coin }}
+          path: /tmp/nodata/${{ matrix.coin }}.json
+          retention-days: 1
 
       # فقط بعد از دانلود کامل و موفق؛ هر بار کلید جدید (کش قابل بازنویسی نیست)
       - name: ذخیره‌ی داده‌ی ${{ matrix.coin }} در کش
-        if: steps.decide.outputs.download == 'true'
+        if: steps.decide.outputs.download == 'true' && steps.download.outputs.nodata != 'true'
         uses: actions/cache/save@v4
         continue-on-error: true
         with:
@@ -206,6 +232,7 @@ jobs:
           key: coin-data-${{ matrix.coin }}-v1-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: فهرست فایل‌ها (مرتب‌سازی مثل backtest.yml) و ساخت متا
+        if: steps.download.outputs.nodata != 'true'
         env:
           COIN: ${{ matrix.coin }}
         run: |
@@ -228,7 +255,7 @@ jobs:
 
       # وضعیت دانلود این ارز (فقط وقتی داده‌ی تازه یا تأییدنشده داریم)
       - name: ساخت وضعیت دانلود ${{ matrix.coin }}
-        if: steps.decide.outputs.emit == 'true'
+        if: steps.decide.outputs.emit == 'true' && steps.download.outputs.nodata != 'true'
         env:
           COIN: ${{ matrix.coin }}
         run: |
@@ -260,7 +287,7 @@ jobs:
           PY
 
       - name: بارگذاری وضعیت دانلود ${{ matrix.coin }}
-        if: steps.decide.outputs.emit == 'true'
+        if: steps.decide.outputs.emit == 'true' && steps.download.outputs.nodata != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: coin-status-${{ matrix.coin }}
@@ -268,6 +295,7 @@ jobs:
           retention-days: 1
 
       - name: بارگذاری داده‌ی موقت ${{ matrix.coin }}
+        if: steps.download.outputs.nodata != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: data-${{ matrix.coin }}
@@ -276,6 +304,7 @@ jobs:
           if-no-files-found: error
 
       - name: بارگذاری متا
+        if: steps.download.outputs.nodata != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: meta-${{ matrix.coin }}
@@ -523,7 +552,8 @@ jobs:
   # ============================================================
   finalize:
     needs: [plan, build-matrix, backtest]
-    if: ${{ always() && needs.build-matrix.result == 'success' && needs.build-matrix.outputs.has_plan == 'true' }}
+    # حتی بدون plan هم اجرا می‌شود (مثلاً وقتی همه‌ی ارزهای این اجرا «بدون دیتا» بودند) تا پرچم‌ها ثبت شوند
+    if: ${{ always() && needs.build-matrix.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     # contents: write فقط برای commit فایل coin_data_status.json در مخزن اصلی
@@ -532,12 +562,22 @@ jobs:
     outputs:
       verified: ${{ steps.verify.outputs.verified_count }}
       done_count: ${{ steps.upload.outputs.n_done }}
+      nodata_count: ${{ steps.upload.outputs.n_nodata }}
     steps:
       - name: دانلود plan
         uses: actions/download-artifact@v4
         with:
           name: run-plan
           path: /tmp/run-plan
+        continue-on-error: true
+
+      - name: دانلود پرچم ارزهای بدون دیتا
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nodata-*
+          path: /tmp/nodata
+          merge-multiple: true
+        continue-on-error: true
 
       - name: دانلود artifact نتایج همه‌ی چانک‌ها
         uses: actions/download-artifact@v4
@@ -644,6 +684,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "actions@github.com"
 
+          # ثبت دائمی ارزهای بدون دیتا (_nodata/<COIN>.json) تا plan دیگر انتخابشان نکند
+          N_NODATA=0
+          if ls /tmp/nodata/*.json >/dev/null 2>&1; then
+            mkdir -p "/tmp/third_upload/${RESULTS_DIR_NAME}/_nodata"
+            for F in /tmp/nodata/*.json; do
+              cp "$F" "/tmp/third_upload/${RESULTS_DIR_NAME}/_nodata/"
+              N_NODATA=$((N_NODATA + 1))
+              echo "🚫 ثبت بدون‌دیتا: $(basename "$F" .json)"
+            done
+          fi
+          echo "n_nodata=$N_NODATA" >> "$GITHUB_OUTPUT"
+
           # ادغام نتایج تأییدشده + نشانه‌ی چانک‌ها + _done فقط برای jobهای کاملاً تمام‌شده
           ROOT="/tmp/third_upload/${RESULTS_DIR_NAME}" RUN_ID="${{ github.run_id }}" python3 "$SCRIPT" merge
           N_DONE=$(grep '^n_done=' "$GITHUB_OUTPUT" | cut -d= -f2)
@@ -690,6 +742,7 @@ jobs:
           FINALIZE_RESULT: ${{ needs.finalize.result }}
           VERIFIED: ${{ needs.finalize.outputs.verified }}
           DONE_COUNT: ${{ needs.finalize.outputs.done_count }}
+          NODATA_COUNT: ${{ needs.finalize.outputs.nodata_count }}
           ONLY_COINS: ${{ github.event.inputs.only_coins }}
           ONLY_STRATEGIES: ${{ github.event.inputs.only_strategies }}
           MAX_JOBS: ${{ github.event.inputs.max_jobs_per_run }}
@@ -698,12 +751,12 @@ jobs:
           if [ "$HAS_WORK" != "true" ]; then
             echo "✅ کاری برای انجام نبود؛ loop فراخوانی نمی‌شود."; exit 0
           fi
-          # پیشرفت = finalize موفق بوده و حداقل یک چانک تأیید یا یک job کامل شده
+          # پیشرفت = finalize موفق بوده و حداقل یک چانک تأیید، یک job کامل، یا یک ارزِ بدون دیتا از صف حذف شده
           PROGRESS=false
           if [ "$FINALIZE_RESULT" = "success" ]; then
-            if [ "${VERIFIED:-0}" -gt 0 ] || [ "${DONE_COUNT:-0}" -gt 0 ]; then PROGRESS=true; fi
+            if [ "${VERIFIED:-0}" -gt 0 ] || [ "${DONE_COUNT:-0}" -gt 0 ] || [ "${NODATA_COUNT:-0}" -gt 0 ]; then PROGRESS=true; fi
           fi
-          echo "📈 پیشرفت این اجرا: $PROGRESS (finalize=$FINALIZE_RESULT، چانک تأییدشده=${VERIFIED:-0}، job کامل=${DONE_COUNT:-0})"
+          echo "📈 پیشرفت این اجرا: $PROGRESS (finalize=$FINALIZE_RESULT، چانک تأییدشده=${VERIFIED:-0}، job کامل=${DONE_COUNT:-0}، ارز بدون دیتا=${NODATA_COUNT:-0})"
 
           ARGS=(-f "made_progress=$PROGRESS")
           if [ -n "$ONLY_COINS" ]; then ARGS+=(-f "only_coins=$ONLY_COINS"); fi
