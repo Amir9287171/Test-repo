@@ -151,6 +151,20 @@ def is_partial(root, pair):
     return os.path.isdir(d) and any(f.endswith('.json') for f in os.listdir(d))
 
 
+def drop_nodata(pairs, root, force):
+    """ارزهایی که در Binance هیچ دیتایی ندارند (_nodata/<COIN>.json) از صف حذف می‌شوند.
+    با force=yes نادیده گرفته می‌شود تا بتوان دوباره امتحان کرد."""
+    if force:
+        return pairs
+    bad = {os.path.basename(f)[:-5] for f in glob.glob(f'{root}/_nodata/*.json')}
+    if not bad:
+        return pairs
+    hit = sorted({p['coin'] for p in pairs} & bad)
+    if hit:
+        print(f'🚫 ارزهای بدون دیتا در Binance (از صف حذف شدند): {", ".join(hit)}')
+    return [p for p in pairs if p['coin'] not in bad]
+
+
 def classify(pairs, root, force):
     done, partial, fresh = 0, [], []
     for p in pairs:
@@ -168,7 +182,7 @@ def cmd_plan():
     root = os.environ['ROOT']
     force = os.environ.get('FORCE') == 'yes'
     max_jobs = max(1, int(os.environ.get('MAX_JOBS') or 10))
-    pairs = build_pairs()
+    pairs = drop_nodata(build_pairs(), root, force)
     print(f'📋 کل ترکیب‌ها: {len(pairs)}')
     done, partial, fresh = classify(pairs, root, force)
     allp = partial + fresh
@@ -186,7 +200,7 @@ def cmd_plan():
 
 def cmd_loop():
     root = os.environ['ROOT']
-    pairs = build_pairs()
+    pairs = drop_nodata(build_pairs(), root, False)
     done, partial, fresh = classify(pairs, root, False)
     remaining = partial + fresh
     print(f'📊 انجام‌شده: {done} | باقی‌مانده: {len(remaining)} (نیمه‌کاره: {len(partial)})')
