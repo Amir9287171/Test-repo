@@ -533,7 +533,10 @@ jobs:
           RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
           TF_FILTER: ${{ github.event.inputs.timeframes_filter }}
         run: |
-          set -e
+          # اصلاح باگ: بدون pipefail، خروجی node | tee همیشه exit-code مربوط به tee (صفر) بود؛ پس وقتی
+          # run-backtest.js با exit(1) می‌مرد، استپ «موفق» دیده می‌شد، استپ ۶ (if: failure) هرگز اجرا نمی‌شد
+          # و هیچ خطایی ذخیره نمی‌شد (فقط «منیفست یافت نشد» در collect).
+          set -eo pipefail
           echo "شروع بکتست: ${{ matrix.strategy_file }} - چانک ${{ matrix.chunk }}"
           TF_ARGS=()
           if [ -n "$TF_FILTER" ]; then
