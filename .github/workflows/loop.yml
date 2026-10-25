@@ -225,8 +225,9 @@ jobs:
           # از یک استراتژی/تایم‌فریم است. فقط پوشه‌ای «کامل» حساب می‌شود که تعداد
           # results.enc داخلش دقیقاً برابر تعداد کل CSV باشد؛ در غیر این صورت یعنی
           # backtest.yml هنوز روی آن در حال کار است و باید کاملاً دست‌نخورده بماند.
-          # تعداد دقیق نتایج هر پوشه برای «کامل بودن» (1314 داده + 6 نتیجه‌ی ژوئن)
-          EXPECTED_RESULTS=1320
+          # تعداد دقیق نتایج هر پوشه برای «کامل بودن»: یا 1320 (1314 داده + 6 نتیجه‌ی ژوئن)
+          # یا 1314 (بدون نتایج ژوئن). هر دو عدد کامل حساب می‌شوند و انتقال انجام می‌شود.
+          EXPECTED_RESULTS_LIST="1320 1314"
           echo "2- بررسی کامل/ناقص بودن پوشه‌های results/ ..."
           INCOMPLETE_COUNT=0
           if [ -d results ] && [ "$TOTAL_CSV" -gt 0 ]; then
@@ -234,11 +235,15 @@ jobs:
               [ -d "$D" ] || continue
               FOLDER_NAME=$(basename "$D")
               ENC_COUNT=$(find "$D" -name "results.enc" -type f 2>/dev/null | wc -l)
-              if [ "$ENC_COUNT" -eq "$EXPECTED_RESULTS" ]; then
+              IS_COMPLETE=false
+              for N in $EXPECTED_RESULTS_LIST; do
+                if [ "$ENC_COUNT" -eq "$N" ]; then IS_COMPLETE=true; fi
+              done
+              if [ "$IS_COMPLETE" = true ]; then
                 echo "$FOLDER_NAME" >> /tmp/complete_folders.list
               else
                 INCOMPLETE_COUNT=$((INCOMPLETE_COUNT + 1))
-                echo "   ⏸️ $FOLDER_NAME ناقص است ($ENC_COUNT از $EXPECTED_RESULTS) — کاملاً نادیده گرفته می‌شود."
+                echo "   ⏸️ $FOLDER_NAME ناقص است ($ENC_COUNT؛ مقدار مجاز: $EXPECTED_RESULTS_LIST) — کاملاً نادیده گرفته می‌شود."
               fi
             done
           fi
