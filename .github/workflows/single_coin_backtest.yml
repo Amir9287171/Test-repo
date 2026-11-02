@@ -1,0 +1,774 @@
+name: Single Coin Backtest (strategies x coins)
+
+# زنجیره: single_coin_backtest.yml → (trigger-loop) → single_coin_loop.yml → دوباره backtest
+# تا وقتی کار باقی‌مانده هست و اجرای قبلی پیشرفت داشته. بدون cron.
+
+# config:  single_coin_config.json
+#   - "strategy": "a.js"                  → حالت تکی (رفتار قبلی)
+#   - "strategies": ["a.js", "b.js"]      → حالت چندگانه
+#   - "coins": ["BTCUSDT", ...]
+#
+# واحد کار = یک (استراتژی، ارز). هر اجرا فقط بخشی از jobها را برمی‌دارد
+# (max_jobs_per_run) و تا max_minutes کار می‌کند؛ بقیه به اجرای بعد می‌رود.
+# پیشرفت هر چانک در مخزن سوم ثبت می‌شود (_chunks/)، و فقط وقتی همه‌ی چانک‌های
+# یک job کامل شد، نشانه‌ی _done/<COIN>/<strategy>.json در همان commit می‌نشیند.
+# هیچ داده یا نتیجه‌ای در مخزن اصلی commit نمی‌شود.
+
+on:
+  workflow_dispatch:
+    inputs:
+      only_coins:
+        description: 'فقط این ارزها (مثلاً SOLUSDT,XRPUSDT). خالی = همه‌ی ارزهای config'
+        required: false
+        default: ''
+      only_strategies:
+        description: 'فقط این استراتژی‌ها (مثلاً kkk3,abc.js). خالی = همه‌ی استراتژی‌های config'
+        required: false
+        default: ''
+      force:
+        description: 'نادیده گرفتن نتایج قبلی و بکتست دوباره (yes/no)'
+        required: false
+        default: 'no'
+      max_jobs_per_run:
+        description: 'سقف تعداد job (استراتژی×ارز) در هر اجرا'
+        required: false
+        default: '10'
+      max_minutes:
+        description: 'بودجه‌ی زمانی کل اجرا به دقیقه (حداکثر ۳۴۰)'
+        required: false
+        default: '330'
+  push:
+    branches: [main]
+    paths: ['single_coin_config.json']
+
+permissions:
+  contents: read
+
+# هماهنگ با single_coin_loop.yml: هر دو یک گروه دارند و هیچ‌وقت همزمان اجرا نمی‌شوند
+concurrency:
+  group: single-coin-cluster
+  cancel-in-progress: false
+
+env:
+  # اندازه‌ی پیش‌فرض چانک؛ در build-matrix برای هر ارز تعیین و به --chunk-size هر جاب پاس داده می‌شود
+  CHUNK_SIZE: "66"
+  # ارزی که بیش از این تعداد فایل دارد، چانک‌های کوچک‌تر می‌گیرد تا جاب‌های موازی بیشتر شود
+  BIG_COIN_FILES: "1000"
+  BIG_COIN_CHUNK_SIZE: "33"
+  RESULTS_DIR_NAME: "single_coin_backtest_results"
+  # دقیقه‌ی رزرو برای راستی‌آزمایی و آپلود پایانی
+  FINALIZE_RESERVE_MIN: "20"
+
+jobs:
+  # ============================================================
+  # 1) برنامه‌ریزی: انتخاب jobها (نیمه‌کاره‌ها اول) و ثبت ددلاین
+  # ============================================================
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      pairs: ${{ steps.plan.outputs.pairs }}
+      coins: ${{ steps.plan.outputs.coins }}
+      has_work: ${{ steps.plan.outputs.has_work }}
+      deadline_epoch: ${{ steps.plan.outputs.deadline_epoch }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: خواندن config و بررسی مخزن سوم
+        id: plan
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+          ONLY_COINS: ${{ github.event.inputs.only_coins }}
+          ONLY_STRATEGIES: ${{ github.event.inputs.only_strategies }}
+          FORCE: ${{ github.event.inputs.force }}
+          MAX_JOBS: ${{ github.event.inputs.max_jobs_per_run }}
+          MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
+        run: |
+          set -e
+          START_EPOCH=$(date +%s)
+          CFG="single_coin_config.json"
+          [ -f "$CFG" ] || { echo "❌ فایل $CFG وجود ندارد."; exit 1; }
+          [ -n "$GH_TOKEN" ] && [ -n "$THIRD_REPO" ] || { echo "❌ CROSS_REPO_TOKEN یا THIRD_REPO تنظیم نشده."; exit 1; }
+
+          # ---------- پارامترهای عددی ----------
+          MAX="${MAX_JOBS:-10}"
+          if ! [[ "$MAX" =~ ^[0-9]+$ ]] || [ "$MAX" -lt 1 ]; then MAX=10; fi
+          MINUTES="${MAX_MINUTES:-330}"
+          if ! [[ "$MINUTES" =~ ^[0-9]+$ ]]; then MINUTES=330; fi
+          [ "$MINUTES" -gt 340 ] && MINUTES=340
+          [ "$MINUTES" -lt 60 ] && MINUTES=60
+          DEADLINE=$(( START_EPOCH + (MINUTES - FINALIZE_RESERVE_MIN) * 60 ))
+
+          # ---------- وضعیت مخزن سوم ----------
+          rm -rf /tmp/third
+          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git" /tmp/third 2>&1 | tail -2
+          [ -d /tmp/third/.git ] || { echo "❌ clone مخزن سوم ناموفق بود."; exit 1; }
+          ROOT="/tmp/third/${RESULTS_DIR_NAME}"
+
+          # ---------- انتخاب jobها (config، فیلترها، _done، نیمه‌کاره‌ها اول) ----------
+          ROOT="$ROOT" MAX_JOBS="$MAX" python3 .github/scripts/single_coin_tools.py plan
+
+          # ---------- ذخیره‌ی state برای build-matrix ----------
+          rm -rf /tmp/third_state; mkdir -p /tmp/third_state
+          if [ -d "$ROOT/_chunks" ]; then cp -r "$ROOT/_chunks" /tmp/third_state/_chunks; fi
+          if [ -d "$ROOT/_done" ]; then cp -r "$ROOT/_done" /tmp/third_state/_done; fi
+          echo "keep" > /tmp/third_state/.keep
+          rm -rf /tmp/third
+
+          echo "deadline_epoch=$DEADLINE" >> "$GITHUB_OUTPUT"
+          echo "⏱️ ددلاین بکتست: $(date -u -d @$DEADLINE +%H:%M:%S) UTC (بودجه $MINUTES دقیقه)"
+
+      - name: بارگذاری state مخزن سوم
+        if: steps.plan.outputs.has_work == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: third-state
+          path: /tmp/third_state
+          retention-days: 1
+          include-hidden-files: true
+
+  # ============================================================
+  # 2) دانلود و پردازش داده‌ی هر ارز (از صفر، فقط در همین runner)
+  # ============================================================
+  prepare:
+    needs: plan
+    if: needs.plan.outputs.has_work == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        coin: ${{ fromJson(needs.plan.outputs.coins) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: نصب کتابخانه‌ها
+        run: pip install pandas requests cryptography
+
+      # داده‌ی ارزی که قبلاً کامل دانلود شده در کش Actions نگه داشته می‌شود (نه در مخزن)
+      - name: بازیابی داده‌ی ذخیره‌شده‌ی ${{ matrix.coin }} از کش
+        id: restore
+        if: github.event.inputs.force != 'yes'
+        uses: actions/cache/restore@v4
+        with:
+          path: data/${{ matrix.coin }}
+          key: coin-data-${{ matrix.coin }}-v1-none
+          restore-keys: |
+            coin-data-${{ matrix.coin }}-v1-
+
+      - name: تصمیم دانلود (طبق coin_data_status.json و کش)
+        id: decide
+        env:
+          COIN: ${{ matrix.coin }}
+          MATCHED: ${{ steps.restore.outputs.cache-matched-key }}
+          FORCE: ${{ github.event.inputs.force }}
+        run: |
+          HAVE=false
+          if [ -n "$MATCHED" ]; then
+            N=$(find "data/$COIN" -maxdepth 1 -name '*.csv' 2>/dev/null | wc -l)
+            if [ "$N" -gt 0 ]; then HAVE=true; fi
+          fi
+          STATUS=""
+          if [ -f coin_data_status.json ]; then
+            STATUS=$(python3 -c "import json,sys; d=json.load(open('coin_data_status.json')); print(d.get('coins',{}).get(sys.argv[1],{}).get('status',''))" "$COIN" 2>/dev/null || true)
+          fi
+          if [ "$HAVE" = true ] && [ "$FORCE" != "yes" ]; then
+            DOWNLOAD=false
+            if [ "$STATUS" = "downloaded" ]; then EMIT=false; else EMIT=true; fi
+            echo "♻️ $COIN: داده از کش بازیابی شد؛ دانلود نمی‌شود (status در فایل وضعیت: '${STATUS:-ندارد}')."
+          else
+            DOWNLOAD=true; EMIT=true
+            echo "⬇️ $COIN: دانلود از Binance (کش: $HAVE | status: '${STATUS:-ندارد}' | force: '${FORCE:-no}')."
+          fi
+          echo "download=$DOWNLOAD" >> "$GITHUB_OUTPUT"
+          echo "emit=$EMIT" >> "$GITHUB_OUTPUT"
+
+      - name: دانلود و پردازش داده‌ی ${{ matrix.coin }}
+        id: download
+        if: steps.decide.outputs.download == 'true'
+        env:
+          COIN: ${{ matrix.coin }}
+          WRITE_COMBINED: "no"
+          ENCRYPT_OUTPUT: "no"
+        run: |
+          set +e
+          python encrypted_data/single_coin_pipeline.py 2>&1 | tee /tmp/pipeline.log
+          RC=${PIPESTATUS[0]}
+          set -e
+          [ "$RC" -eq 0 ] && exit 0
+          # ارز بدون دیتا: همه‌ی ZIPها ۴۰۴ (۰ موفق و ۰ خطا). خطای شبکه/موقت این‌جا شمرده نمی‌شود.
+          if grep -q 'دانلود تمام شد: 0 موفق' /tmp/pipeline.log \
+             && grep -qE '(^|[^0-9])0 خطا' /tmp/pipeline.log \
+             && grep -q 'هیچ ZIP' /tmp/pipeline.log; then
+            echo "🚫 $COIN در Binance دیتا ندارد → به‌عنوان «بدون دیتا» ثبت می‌شود و اجرا ادامه می‌یابد."
+            mkdir -p /tmp/nodata
+            printf '{"coin":"%s","reason":"binance_all_404","flagged_at":"%s","run_id":"%s"}\n' \
+              "$COIN" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${{ github.run_id }}" > "/tmp/nodata/$COIN.json"
+            echo "nodata=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          exit "$RC"
+
+      - name: بارگذاری پرچم «بدون دیتا» ${{ matrix.coin }}
+        if: steps.download.outputs.nodata == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodata-${{ matrix.coin }}
+          path: /tmp/nodata/${{ matrix.coin }}.json
+          retention-days: 1
+
+      # فقط بعد از دانلود کامل و موفق؛ هر بار کلید جدید (کش قابل بازنویسی نیست)
+      - name: ذخیره‌ی داده‌ی ${{ matrix.coin }} در کش
+        if: steps.decide.outputs.download == 'true' && steps.download.outputs.nodata != 'true'
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: data/${{ matrix.coin }}
+          key: coin-data-${{ matrix.coin }}-v1-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: فهرست فایل‌ها (مرتب‌سازی مثل backtest.yml) و ساخت متا
+        if: steps.download.outputs.nodata != 'true'
+        env:
+          COIN: ${{ matrix.coin }}
+        run: |
+          mkdir -p /tmp/meta
+          # فقط CSVهای تاریخ‌دار؛ مرتب‌سازی اول بر اساس تاریخ، بعد نام فایل (sort -k1,1 -k2,2 روی «تاریخ<TAB>نام»)
+          find "data/$COIN" -maxdepth 1 -name '*.csv' -printf '%f\n' |
+            grep -E '[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{4}-[0-9]{2}-[0-9]{2}\.csv$' |
+            sed -E 's/^(.*)([0-9]{4}-[0-9]{2}-[0-9]{2})(_[0-9]{4}-[0-9]{2}-[0-9]{2}\.csv)$/\2\t&/' |
+            LC_ALL=C sort -k1,1 -k2,2 |
+            cut -f2 > /tmp/names.txt
+          N=$(wc -l < /tmp/names.txt)
+          echo "📂 $COIN: $N فایل CSV تاریخ‌دار | حجم: $(du -sh "data/$COIN" | cut -f1)"
+          [ "$N" -gt 0 ] || { echo "❌ هیچ فایلی ساخته نشد."; exit 1; }
+          python3 - << 'PY'
+          import json, os
+          coin = os.environ['COIN']
+          names = [l.rstrip('\n') for l in open('/tmp/names.txt', encoding='utf-8') if l.strip()]
+          json.dump({'coin': coin, 'names': names}, open(f'/tmp/meta/{coin}.json', 'w'), separators=(',', ':'))
+          PY
+
+      # وضعیت دانلود این ارز (فقط وقتی داده‌ی تازه یا تأییدنشده داریم)
+      - name: ساخت وضعیت دانلود ${{ matrix.coin }}
+        if: steps.decide.outputs.emit == 'true' && steps.download.outputs.nodata != 'true'
+        env:
+          COIN: ${{ matrix.coin }}
+        run: |
+          mkdir -p /tmp/coin_status
+          python3 - << 'PY'
+          import json, os, re, datetime
+          coin = os.environ['COIN']
+          names = json.load(open(f'/tmp/meta/{coin}.json'))['names']
+          rx = re.compile(r'([0-9]{4}-[0-9]{2})-[0-9]{2}_[0-9]{4}-[0-9]{2}-[0-9]{2}\.csv$')
+          months = sorted({rx.search(n).group(1) for n in names if rx.search(n)})
+          if not months:
+              raise SystemExit('❌ هیچ ماهی از نام فایل‌ها استخراج نشد')
+          idx = lambda ym: int(ym[:4]) * 12 + int(ym[5:7])
+          total = sum(os.path.getsize(os.path.join('data', coin, n)) for n in names)
+          now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+          st = {
+              'coin': coin,
+              'status': 'downloaded',
+              'first_month': months[0],
+              'last_month': months[-1],
+              'months_available': idx(months[-1]) - idx(months[0]) + 1,
+              'months_downloaded': len(months),
+              'csv_files': len(names),
+              'size_mb': round(total / 1048576, 1),
+              'last_updated': now,
+          }
+          json.dump(st, open(f'/tmp/coin_status/{coin}.json', 'w'), ensure_ascii=False, indent=2)
+          print(json.dumps(st, ensure_ascii=False))
+          PY
+
+      - name: بارگذاری وضعیت دانلود ${{ matrix.coin }}
+        if: steps.decide.outputs.emit == 'true' && steps.download.outputs.nodata != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coin-status-${{ matrix.coin }}
+          path: /tmp/coin_status/${{ matrix.coin }}.json
+          retention-days: 1
+
+      - name: بارگذاری داده‌ی موقت ${{ matrix.coin }}
+        if: steps.download.outputs.nodata != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-${{ matrix.coin }}
+          path: data/${{ matrix.coin }}
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: بارگذاری متا
+        if: steps.download.outputs.nodata != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: meta-${{ matrix.coin }}
+          path: /tmp/meta/${{ matrix.coin }}.json
+          retention-days: 1
+
+  # ============================================================
+  # 3) ساخت ماتریس: (استراتژی، ارز، چانک) فقط برای چانک‌های ناتمام
+  # ============================================================
+  build-matrix:
+    needs: [plan, prepare]
+    if: ${{ !cancelled() && needs.plan.outputs.has_work == 'true' }}
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+      has_chunks: ${{ steps.build.outputs.has_chunks }}
+      has_plan: ${{ steps.build.outputs.has_plan }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: meta-*
+          path: /tmp/meta
+          merge-multiple: true
+        continue-on-error: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: third-state
+          path: /tmp/third_state
+        continue-on-error: true
+
+      - name: ساخت ماتریس و plan.json
+        id: build
+        env:
+          PAIRS_JSON: ${{ needs.plan.outputs.pairs }}
+          FORCE: ${{ github.event.inputs.force }}
+        run: python3 .github/scripts/single_coin_tools.py matrix
+
+      - name: بارگذاری plan
+        if: steps.build.outputs.has_plan == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-plan
+          path: /tmp/run-plan/plan.json
+          retention-days: 1
+
+  # ============================================================
+  # 4) بکتست (هر job = یک استراتژی × یک ارز × یک چانک)
+  # ============================================================
+  backtest:
+    needs: [plan, build-matrix]
+    if: ${{ !cancelled() && needs.build-matrix.outputs.has_chunks == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
+    steps:
+      # اگر ددلاین گذشته یا نزدیک است، این چانک شروع نمی‌شود (به اجرای بعد می‌ماند)
+      - name: بررسی بودجه‌ی زمانی
+        id: gate
+        env:
+          DEADLINE: ${{ needs.plan.outputs.deadline_epoch }}
+        run: |
+          LEFT=$(( DEADLINE - $(date +%s) ))
+          if [ "$LEFT" -lt 1200 ]; then
+            echo "⏳ فقط $LEFT ثانیه تا ددلاین مانده؛ این چانک به اجرای بعد موکول می‌شود."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "✅ $LEFT ثانیه تا ددلاین؛ شروع می‌شود."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+      - name: چک‌اوت now-test-repo (برای aggregated/)
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ github.repository_owner }}/now-test-repo
+          path: now-test-repo
+
+      - name: دریافت داده‌ی موقت ${{ matrix.coin }}
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: data-${{ matrix.coin }}
+          path: data/${{ matrix.coin }}
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'true'
+        with: { node-version: '18' }
+
+      - name: بازیابی فایل‌های سورس (رمزگشایی مستقیم src.enc)
+        if: steps.gate.outputs.run == 'true'
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          mkdir -p encrypted_data/src
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const data=fs.readFileSync('encrypted_data/src.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('src.tar.gz',dec);"
+          tar -xzf src.tar.gz -C encrypted_data/src
+          rm src.tar.gz
+          for f in backtest-core.js divergence-detector.js run-backtest.js; do
+            TARGET="encrypted_data/src/$f"
+            if [ ! -f "$TARGET" ] || [ ! -s "$TARGET" ]; then
+              echo "❌ $f پس از رمزگشایی وجود ندارد یا خالی است!"; exit 1
+            fi
+            echo "✅ $f ($(stat -c%s "$TARGET") بایت)"
+          done
+
+      - name: رمزگشایی و نصب Wickra (آفلاین)
+        if: steps.gate.outputs.run == 'true'
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+        run: |
+          if [ -f "vendor/wickra.enc" ]; then
+            node -e "
+              const crypto=require('crypto'),fs=require('fs');
+              const pass=process.env.RESULTS_PASSWORD;
+              const data=fs.readFileSync('vendor/wickra.enc');
+              const key=crypto.scryptSync(pass,'salt',32);
+              const iv=data.slice(0,16), enc=data.slice(16);
+              const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);
+              const dec=Buffer.concat([decipher.update(enc),decipher.final()]);
+              fs.writeFileSync('wickra.tgz',dec);
+            "
+            cd encrypted_data/src
+            npm install ../../wickra.tgz --silent
+            cd ../..
+            rm -f wickra.tgz
+            echo "✅ Wickra نصب شد."
+          else
+            echo "⚠️ vendor/wickra.enc یافت نشد؛ نصب Wickra رد شد."
+          fi
+
+      - name: نصب papaparse
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          cd encrypted_data/src
+          if [ ! -d node_modules/papaparse ]; then
+            npm init -y --silent 2>/dev/null || true
+            npm install papaparse --silent
+          fi
+
+      - name: ساختن پوشه‌های results و logs
+        if: steps.gate.outputs.run == 'true'
+        run: mkdir -p results logs
+
+      - name: اجرای بکتست
+        if: steps.gate.outputs.run == 'true'
+        id: backtest_run
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          STRATEGY: ${{ matrix.strategy }}
+          COIN: ${{ matrix.coin }}
+          CHUNK: ${{ matrix.chunk }}
+          SIZE: ${{ matrix.size }}
+          TFS: ${{ matrix.tfs }}
+          JOB_ID: ${{ matrix.id }}
+          DEADLINE: ${{ needs.plan.outputs.deadline_epoch }}
+        run: |
+          # pipefail: اگر node شکست خورد (یا timeout)، tee جلوی fail شدن استپ را نگیرد
+          set -eo pipefail
+          BUDGET=$(( DEADLINE - $(date +%s) ))
+          if [ "$BUDGET" -lt 600 ]; then
+            echo "⏳ بودجه‌ی زمانی ($BUDGET ثانیه) کافی نیست؛ چانک به اجرای بعد موکول می‌شود."
+            exit 0
+          fi
+          # فقط تایم‌فریم‌های خواسته‌شده‌ی این استراتژی (خالی = همه) تا منبع هدر نرود
+          EXTRA=()
+          if [ -n "$TFS" ]; then EXTRA+=(--timeframes-only "$TFS"); fi
+          echo "شروع بکتست: $STRATEGY | $COIN | چانک $CHUNK (اندازه $SIZE) | تایم‌فریم: ${TFS:-همه} | بودجه ${BUDGET}s"
+          timeout --kill-after=60 "${BUDGET}s" node encrypted_data/src/run-backtest.js \
+            "${EXTRA[@]}" \
+            --strategy-file "strategies/$STRATEGY" \
+            --start-index "$CHUNK" \
+            --chunk-size "$SIZE" \
+            --data-dir "data/$COIN" \
+            --aggregated-repo-dir "${{ github.workspace }}/now-test-repo" \
+            2>&1 | tee "logs/backtest-output-${JOB_ID}.log"
+          # نشانه‌ی پایان سالم؛ بدون آن finalize چانک را قبول نمی‌کند
+          echo "ok" > results/.chunk_ok
+
+      - name: کپی نتایج به ریشه
+        if: always() && steps.gate.outputs.run == 'true'
+        run: |
+          if [ -d encrypted_data/src/results ]; then
+            cp -r encrypted_data/src/results/. results/ 2>/dev/null || true
+          fi
+
+      - name: ذخیره لاگ خطای رمزنگاری‌شده (فقط در صورت شکست)
+        if: failure() && steps.gate.outputs.run == 'true'
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          JOB_ID: ${{ matrix.id }}
+          COIN: ${{ matrix.coin }}
+          STRATEGY: ${{ matrix.strategy }}
+          CHUNK: ${{ matrix.chunk }}
+        run: |
+          LOG_FILE="logs/backtest-output-${JOB_ID}.log"
+          ERROR_FILE="error_${COIN}_${STRATEGY%.js}_chunk_${CHUNK}_run.enc"
+          if [ -f "$LOG_FILE" ]; then
+            SIZE=$(stat -c%s "$LOG_FILE")
+            if [ "$SIZE" -gt 20000000 ]; then
+              tail -c 20000000 "$LOG_FILE" > "${LOG_FILE}.trimmed" && mv "${LOG_FILE}.trimmed" "$LOG_FILE"
+            fi
+            LOG_FILE="$LOG_FILE" ERROR_FILE="$ERROR_FILE" node -e "
+              const crypto=require('crypto'),fs=require('fs');
+              const pass=process.env.RESULTS_PASSWORD;
+              const data=fs.readFileSync(process.env.LOG_FILE);
+              const key=crypto.scryptSync(pass,'salt',32);
+              const iv=crypto.randomBytes(16);
+              const cipher=crypto.createCipheriv('aes-256-cbc',key,iv);
+              const enc=Buffer.concat([cipher.update(data),cipher.final()]);
+              fs.writeFileSync(process.env.ERROR_FILE, Buffer.concat([iv,enc]));
+            "
+            mkdir -p errors && cp "$ERROR_FILE" errors/
+          else
+            echo "⚠️ فایل لاگ وجود ندارد."
+          fi
+
+      - name: بارگذاری نتایج این چانک به‌صورت artifact
+        if: always() && steps.gate.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: chunk-output-${{ matrix.id }}
+          path: |
+            results/
+            errors/
+          if-no-files-found: warn
+          retention-days: 3
+          include-hidden-files: true
+
+  # ============================================================
+  # 5) راستی‌آزمایی (تک‌نویسنده) + آپلود به مخزن سوم در یک commit
+  #    - هر چانک کامل: نتایج + نشانه‌ی _chunks/<COIN>/<strategy>/<start>.json
+  #    - هر job (استراتژی×ارز) که همه‌ی چانک‌هایش کامل شد: _done/<COIN>/<strategy>.json
+  # ============================================================
+  finalize:
+    needs: [plan, build-matrix, backtest]
+    # حتی بدون plan هم اجرا می‌شود (مثلاً وقتی همه‌ی ارزهای این اجرا «بدون دیتا» بودند) تا پرچم‌ها ثبت شوند
+    if: ${{ always() && needs.build-matrix.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    # contents: write فقط برای commit فایل coin_data_status.json در مخزن اصلی
+    permissions:
+      contents: write
+    outputs:
+      verified: ${{ steps.verify.outputs.verified_count }}
+      done_count: ${{ steps.upload.outputs.n_done }}
+      nodata_count: ${{ steps.upload.outputs.n_nodata }}
+    steps:
+      - name: دانلود plan
+        uses: actions/download-artifact@v4
+        with:
+          name: run-plan
+          path: /tmp/run-plan
+        continue-on-error: true
+
+      - name: دانلود پرچم ارزهای بدون دیتا
+        uses: actions/download-artifact@v4
+        with:
+          pattern: nodata-*
+          path: /tmp/nodata
+          merge-multiple: true
+        continue-on-error: true
+
+      - name: دانلود artifact نتایج همه‌ی چانک‌ها
+        uses: actions/download-artifact@v4
+        with:
+          pattern: chunk-output-*
+          path: /tmp/chunk_out
+        continue-on-error: true
+
+      - name: دانلود وضعیت دانلود ارزها
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coin-status-*
+          path: /tmp/coin_status
+          merge-multiple: true
+        continue-on-error: true
+
+      - name: چک‌اوت مخزن اصلی (برای coin_data_status.json)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+      # اتمیک: فقط وضعیت‌های کامل و معتبر ادغام می‌شوند؛ فایل جدید کامل ساخته و اعتبارسنجی می‌شود
+      # و بعد با یک os.replace جایگزین می‌شود؛ همه‌ی ارزها در یک commit واحد می‌روند.
+      - name: ثبت coin_data_status.json در مخزن اصلی (یک commit)
+        id: status
+        run: |
+          set -e
+          python3 - << 'PY'
+          import glob, json, os, re, datetime
+          REQ = {'status': str, 'first_month': str, 'last_month': str, 'months_available': int,
+                 'months_downloaded': int, 'csv_files': int, 'size_mb': (int, float), 'last_updated': str}
+          ORDER = ['status', 'first_month', 'last_month', 'months_available', 'months_downloaded',
+                   'csv_files', 'size_mb', 'last_updated']
+          out = os.environ['GITHUB_OUTPUT']
+          new = {}
+          for path in sorted(glob.glob('/tmp/coin_status/*.json')):
+              try:
+                  d = json.load(open(path, encoding='utf-8'))
+              except Exception as e:
+                  print(f'⚠️ {path}: JSON نامعتبر ({e}) → نادیده گرفته شد'); continue
+              coin = d.get('coin')
+              ok = (isinstance(coin, str) and re.fullmatch(r'[A-Z0-9]{3,20}', coin)
+                    and d.get('status') == 'downloaded'
+                    and all(isinstance(d.get(k), t) and not isinstance(d.get(k), bool) for k, t in REQ.items())
+                    and d['csv_files'] > 0 and d['months_downloaded'] > 0)
+              if not ok:
+                  print(f'⚠️ {path}: وضعیت ناقص/نامعتبر → نوشته نمی‌شود'); continue
+              new[coin] = {k: d[k] for k in ORDER}
+          if not new:
+              print('ℹ️ وضعیت جدیدی برای ثبت نیست.')
+              open(out, 'a').write('changed=false\n'); raise SystemExit(0)
+
+          coins = {}
+          if os.path.exists('coin_data_status.json'):
+              try:
+                  old = json.load(open('coin_data_status.json', encoding='utf-8'))
+                  if isinstance(old.get('coins'), dict): coins = old['coins']
+              except Exception as e:
+                  print(f'⚠️ فایل قبلی خوانا نبود ({e}); از نو ساخته می‌شود.')
+          coins.update(new)
+          doc = {'generated_at': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                 'interval': '1m', 'coins': dict(sorted(coins.items()))}
+          text = json.dumps(doc, ensure_ascii=False, indent=2) + '\n'
+          json.loads(text)                      # اعتبارسنجی قبل از نوشتن
+          with open('coin_data_status.json.tmp', 'w', encoding='utf-8') as f:
+              f.write(text)
+          os.replace('coin_data_status.json.tmp', 'coin_data_status.json')   # جایگزینی اتمیک
+          print('✅ ارزهای ثبت‌شده:', ', '.join(sorted(new)))
+          open(out, 'a').write('changed=true\n')
+          PY
+          CHANGED=$(grep -c '^changed=true' "$GITHUB_OUTPUT" || true)
+          if [ "$CHANGED" -eq 0 ]; then exit 0; fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add coin_data_status.json
+          if git diff --cached --quiet; then echo "ℹ️ تغییری برای commit نبود."; exit 0; fi
+          git commit -m "coin_data_status: update (run ${{ github.run_id }})"
+          RETRY=0; MAX=20; PUSHED=false
+          while [ $RETRY -lt $MAX ]; do
+            if git pull --rebase && git push; then PUSHED=true; break; fi
+            RETRY=$((RETRY+1)); sleep $(( (RANDOM % 5) + 2 ))
+          done
+          [ "$PUSHED" = true ] || { echo "❌ push فایل وضعیت پس از $MAX تلاش ناموفق ماند"; exit 1; }
+          echo "✅ coin_data_status.json در مخزن اصلی ثبت شد."
+
+      - name: راستی‌آزمایی هر چانک
+        id: verify
+        run: RUN_ID="${{ github.run_id }}" python3 .github/scripts/single_coin_tools.py verify
+
+      - name: آپلود به مخزن سوم (clone یک‌باره + push با retry)
+        id: upload
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+          FORCE: ${{ github.event.inputs.force }}
+        run: |
+          set -e
+          SCRIPT="$GITHUB_WORKSPACE/.github/scripts/single_coin_tools.py"
+          rm -rf /tmp/third_upload
+          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git" /tmp/third_upload 2>&1 | tail -2
+          cd /tmp/third_upload
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+
+          # ثبت دائمی ارزهای بدون دیتا (_nodata/<COIN>.json) تا plan دیگر انتخابشان نکند
+          N_NODATA=0
+          if ls /tmp/nodata/*.json >/dev/null 2>&1; then
+            mkdir -p "/tmp/third_upload/${RESULTS_DIR_NAME}/_nodata"
+            for F in /tmp/nodata/*.json; do
+              cp "$F" "/tmp/third_upload/${RESULTS_DIR_NAME}/_nodata/"
+              N_NODATA=$((N_NODATA + 1))
+              echo "🚫 ثبت بدون‌دیتا: $(basename "$F" .json)"
+            done
+          fi
+          echo "n_nodata=$N_NODATA" >> "$GITHUB_OUTPUT"
+
+          # ادغام نتایج تأییدشده + نشانه‌ی چانک‌ها + _done فقط برای jobهای کاملاً تمام‌شده
+          ROOT="/tmp/third_upload/${RESULTS_DIR_NAME}" RUN_ID="${{ github.run_id }}" python3 "$SCRIPT" merge
+          N_DONE=$(grep '^n_done=' "$GITHUB_OUTPUT" | cut -d= -f2)
+          N_PART=$(grep '^n_part=' "$GITHUB_OUTPUT" | cut -d= -f2)
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "ℹ️ چیز جدیدی برای commit نبود."; exit 0
+          fi
+          git commit -m "single-coin backtest: ${N_DONE:-0} job(s) done, ${N_PART:-0} partial (run ${{ github.run_id }})"
+
+          RETRY=0; MAX=20; PUSHED=false
+          while [ $RETRY -lt $MAX ]; do
+            if git pull --rebase && git push; then
+              echo "✅ push موفق"; PUSHED=true; break
+            fi
+            RETRY=$((RETRY+1))
+            sleep $(( (RANDOM % 5) + 2 ))
+          done
+          [ "$PUSHED" = true ] || { echo "❌ push پس از $MAX تلاش ناموفق ماند"; exit 1; }
+
+          {
+            echo "### Single Coin Backtest"
+            echo "- job کامل‌شده: **${N_DONE:-0}**"
+            echo "- job نیمه‌کاره (اجرای بعد ادامه می‌دهد): **${N_PART:-0}**"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ============================================================
+  # 6) زنجیره: صدا زدن single_coin_loop.yml (مثل backtest.yml → trigger-loop)
+  #    loop خودش چک می‌کند کار باقی‌مانده هست یا نه و در صورت نیاز دوباره backtest را dispatch می‌کند.
+  # ============================================================
+  trigger-loop:
+    needs: [plan, finalize]
+    if: ${{ always() && needs.plan.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: فراخوانی Loop Workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HAS_WORK: ${{ needs.plan.outputs.has_work }}
+          FINALIZE_RESULT: ${{ needs.finalize.result }}
+          VERIFIED: ${{ needs.finalize.outputs.verified }}
+          DONE_COUNT: ${{ needs.finalize.outputs.done_count }}
+          NODATA_COUNT: ${{ needs.finalize.outputs.nodata_count }}
+          ONLY_COINS: ${{ github.event.inputs.only_coins }}
+          ONLY_STRATEGIES: ${{ github.event.inputs.only_strategies }}
+          MAX_JOBS: ${{ github.event.inputs.max_jobs_per_run }}
+          MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
+        run: |
+          if [ "$HAS_WORK" != "true" ]; then
+            echo "✅ کاری برای انجام نبود؛ loop فراخوانی نمی‌شود."; exit 0
+          fi
+          # پیشرفت = finalize موفق بوده و حداقل یک چانک تأیید، یک job کامل، یا یک ارزِ بدون دیتا از صف حذف شده
+          PROGRESS=false
+          if [ "$FINALIZE_RESULT" = "success" ]; then
+            if [ "${VERIFIED:-0}" -gt 0 ] || [ "${DONE_COUNT:-0}" -gt 0 ] || [ "${NODATA_COUNT:-0}" -gt 0 ]; then PROGRESS=true; fi
+          fi
+          echo "📈 پیشرفت این اجرا: $PROGRESS (finalize=$FINALIZE_RESULT، چانک تأییدشده=${VERIFIED:-0}، job کامل=${DONE_COUNT:-0}، ارز بدون دیتا=${NODATA_COUNT:-0})"
+
+          ARGS=(-f "made_progress=$PROGRESS")
+          if [ -n "$ONLY_COINS" ]; then ARGS+=(-f "only_coins=$ONLY_COINS"); fi
+          if [ -n "$ONLY_STRATEGIES" ]; then ARGS+=(-f "only_strategies=$ONLY_STRATEGIES"); fi
+          if [ -n "$MAX_JOBS" ]; then ARGS+=(-f "max_jobs_per_run=$MAX_JOBS"); fi
+          if [ -n "$MAX_MINUTES" ]; then ARGS+=(-f "max_minutes=$MAX_MINUTES"); fi
+
+          echo "🚀 راه‌اندازی single_coin_loop.yml روی شاخه main ..."
+          if gh workflow run single_coin_loop.yml --repo "${{ github.repository }}" --ref main "${ARGS[@]}"; then
+            echo "✅ فراخوانی موفق بود."
+          else
+            echo "⚠️ فراخوانی اول ناموفق بود؛ ۵ ثانیه صبر و یک تلاش دوم..."
+            sleep 5
+            gh workflow run single_coin_loop.yml --repo "${{ github.repository }}" --ref main "${ARGS[@]}" || echo "❌ فراخوانی دوم هم ناموفق بود."
+          fi

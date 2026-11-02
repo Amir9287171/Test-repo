@@ -1,0 +1,79 @@
+name: Build or Repair data.enc
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'بازسازی اجباری (yes/no)'
+        required: false
+        default: 'no'
+
+permissions:
+  contents: write
+
+jobs:
+  build-data-enc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: بررسی وجود پوشه داده
+        id: check_data
+        run: |
+          if [ -d "data/All_Coins_Combined" ] && [ -n "$(ls -A data/All_Coins_Combined 2>/dev/null)" ]; then
+            echo "data_exists=true" >> $GITHUB_OUTPUT
+            echo "✅ پوشه data/All_Coins_Combined وجود دارد و خالی نیست."
+          else
+            echo "data_exists=false" >> $GITHUB_OUTPUT
+            echo "❌ پوشه data/All_Coins_Combined وجود ندارد یا خالی است!"
+            exit 1
+          fi
+
+      - name: نصب Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: ساخت data.tar.gz و رمزنگاری به data.enc
+        env:
+          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
+        run: |
+          # فشرده‌سازی پوشه All_Coins_Combined (دقیقاً مثل مرحله ۹ بکتست)
+          cd data
+          tar -czf ../data.tar.gz All_Coins_Combined
+          cd ..
+
+          # رمزنگاری با AES-256-CBC و scrypt (نمک ثابت 'salt')
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const pass = process.env.DATA_PASSWORD;
+            if (!pass) throw new Error('DATA_PASSWORD environment variable not set');
+            const key = crypto.scryptSync(pass, 'salt', 32);
+            const iv = crypto.randomBytes(16);
+            const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+            const input = fs.readFileSync('data.tar.gz');
+            const encrypted = Buffer.concat([cipher.update(input), cipher.final()]);
+            const output = Buffer.concat([iv, encrypted]);
+            fs.writeFileSync('encrypted_data/data.enc', output);
+          "
+
+          rm data.tar.gz
+          echo "✅ فایل encrypted_data/data.enc با موفقیت ساخته شد."
+
+      - name: commit و push فایل ساخته شده
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add encrypted_data/data.enc
+          if git diff --cached --quiet; then
+            echo "ℹ️ فایل data.enc تغییری نکرده، نیازی به commit نیست."
+          else
+            git commit -m "build/update data.enc from All_Coins_Combined folder"
+            git pull --rebase
+            git push
+            echo "✅ data.enc به مخزن ارسال شد."
+          fi

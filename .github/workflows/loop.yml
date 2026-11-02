@@ -1,0 +1,639 @@
+name: Loop Workflow
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: loop-main
+  cancel-in-progress: false
+
+jobs:
+  sync-and-continue:
+    runs-on: ubuntu-latest
+    steps:
+      # ------------------------------------------------------------
+      # 1. دریافت کد مخزن اصلی
+      # ------------------------------------------------------------
+      - name: 1. دریافت کد مخزن
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      # ------------------------------------------------------------
+      # 2. دانلود استراتژی‌های جدید از مخزن سوم
+      # ------------------------------------------------------------
+      - name: 2. دانلود استراتژی‌های جدید از مخزن واسطه (با clone یک‌باره)
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+        run: |
+          echo "📥 کلون سبک مخزن سوم برای دریافت لیست استراتژی‌ها ..."
+          rm -rf /tmp/third_repo_strats
+          git clone --depth 1 --filter=blob:none https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git /tmp/third_repo_strats 2>&1 | tail -3
+
+          if [ ! -d /tmp/third_repo_strats/strategies ]; then
+            echo "⚠️ پوشه strategies در مخزن سوم خالی یا وجود ندارد."
+            exit 0
+          fi
+
+          CHANGED=false
+          for SRC in /tmp/third_repo_strats/strategies/*.js; do
+            [ -f "$SRC" ] || continue
+            FILE=$(basename "$SRC")
+            DEST="strategies/${FILE}"
+            if [ -f "$DEST" ] && diff -q "$DEST" "$SRC" >/dev/null 2>&1; then
+              echo "✅ $FILE بدون تغییر است."
+              continue
+            fi
+            echo "⬇️ به‌روزرسانی $FILE ..."
+            cp "$SRC" "$DEST"
+            CHANGED=true
+          done
+          rm -rf /tmp/third_repo_strats
+
+          if $CHANGED; then
+            echo "📌 تغییرات شناسایی شد؛ commit و push انجام می‌شود."
+            git config user.name "github-actions[bot]"
+            git config user.email "actions@github.com"
+            git checkout main || git checkout -b main origin/main
+            git add strategies/
+            git commit -m "download new strategies from 3rd repo" || true
+            git pull --rebase && git push
+          else
+            echo "ℹ️ هیچ استراتژی جدیدی اضافه نشد."
+          fi
+
+      # ------------------------------------------------------------
+      # 3. دریافت آخرین نتایج commit شده از مخزن (جایگزین artifact)
+      # ------------------------------------------------------------
+      - name: 3. دریافت آخرین نتایج با git pull
+        run: |
+          echo "🔃 دریافت آخرین نتایج از مخزن اصلی (git pull)..."
+          git checkout main || git checkout -b main origin/main
+          git pull --rebase
+          if [ -d results ]; then
+            echo "✅ پوشه results موجود است: $(ls -1 results/ | wc -l) فایل"
+          else
+            echo "ℹ️ پوشه results وجود ندارد."
+          fi
+          if [ -d errors ]; then
+            echo "✅ پوشه errors موجود است: $(ls -1 errors/ | wc -l) فایل"
+          else
+            echo "ℹ️ پوشه errors وجود ندارد."
+          fi
+          if [ -d logs ]; then
+            echo "✅ پوشه logs موجود است: $(ls -1 logs/ | wc -l) فایل"
+          else
+            echo "ℹ️ پوشه logs وجود ندارد."
+          fi
+
+      # ------------------------------------------------------------
+      # 4. لاگ‌های اولیه پیش از آپلود
+      # ------------------------------------------------------------
+      - name: 4. لاگ‌های اولیه پیش از آپلود
+        run: |
+          echo "=============================================="
+          echo "   📦 لاگ آپلود به مخزن سوم"
+          echo "=============================================="
+          echo ""
+          echo "1- محتویات پوشه results (در صورت وجود):"
+          if [ -d results ]; then
+            find results -type f -name "results.enc" | wc -l
+          else
+            echo "   (results وجود ندارد)"
+          fi
+          echo ""
+          TOTAL_RESULTS=$(find results -name "results.enc" -type f 2>/dev/null | wc -l)
+          echo "2- تعداد فایل‌های results.enc: $TOTAL_RESULTS"
+          TOTAL_ERRORS=$(find errors \( -name "*.enc" -o -name "*.json" \) -type f 2>/dev/null | wc -l)
+          echo "3- تعداد فایل‌های لاگ خطا (.enc): $TOTAL_ERRORS"
+          TOTAL_LOGS=$(find logs -name "*.log" -type f 2>/dev/null | wc -l)
+          echo "4- تعداد فایل‌های لاگ اجرا (.log): $TOTAL_LOGS"
+          if [ "$TOTAL_RESULTS" -eq 0 ] && [ "$TOTAL_ERRORS" -eq 0 ] && [ "$TOTAL_LOGS" -eq 0 ]; then
+            echo "5- ⚠️ هیچ فایل نتیجه یا خطایی برای آپلود وجود ندارد."
+          fi
+          echo "6- مخزن سوم (THIRD_REPO): ${{ secrets.THIRD_REPO }}"
+          echo "7- وضعیت CROSS_REPO_TOKEN: $([ -z "$CROSS_REPO_TOKEN" ] && echo '❌ تنظیم نشده' || echo '✅ تنظیم شده')"
+          echo "8- تست احراز هویت با توکن cross-repo:"
+          gh auth status --hostname github.com || echo "⚠️ احراز هویت ناموفق"
+          echo "9-11- اطلاعات مخزن سوم (یک تماس API برای هر سه فیلد):"
+          REPO_INFO=$(gh api "repos/${{ secrets.THIRD_REPO }}" 2>/dev/null || echo "{}")
+          echo "    full_name: $(echo "$REPO_INFO" | jq -r '.full_name // "نامشخص"')"
+          echo "    visibility: $(echo "$REPO_INFO" | jq -r '.visibility // "نامشخص"')"
+          echo "    default_branch: $(echo "$REPO_INFO" | jq -r '.default_branch // "main (حدس)"')"
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+
+      # ------------------------------------------------------------
+      # 4.5. حذف پوشه logs برای جلوگیری از آپلود و صرفه‌جویی در زمان
+      # ------------------------------------------------------------
+      - name: 4.5. حذف پوشه logs
+        run: |
+          if [ -d logs ]; then
+            echo "🧹 حذف پوشه logs و محتویات آن (برای جلوگیری از آپلود)..."
+            rm -rf logs
+          else
+            echo "ℹ️ پوشه logs وجود ندارد."
+          fi
+
+      # ------------------------------------------------------------
+      # 5.0. بررسی نوبت منصفانه با loop_analysis (بدون صبر برای قفل)
+      # ------------------------------------------------------------
+      - name: 5.0. بررسی نوبت منصفانه با loop_analysis (بدون صبر برای قفل)
+        id: turn_check
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+        run: |
+          command -v jq &> /dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq jq)
+          {
+            # هدف: این جاب (loop) و جاب aggregate-results در loop_analysis.yml هر دو
+            # روی THIRD_REPO کار می‌کنند. به‌جای صبر پشت یک قفل، نوبتی و منصفانه اجرا می‌شوند.
+            # اگر یک طرف کاری نداشته باشد، طرف دیگر بدون رعایت نوبت ادامه می‌دهد.
+            MY_ID="loop"
+            OTHER_ID="analysis"
+            TURN_FILE="turn.flag"
+            MY_NOWORK_FILE="${MY_ID}_no_work.flag"
+            OTHER_NOWORK_FILE="${OTHER_ID}_no_work.flag"
+            PROCEED=false
+
+            # چون این اجرا شروع شده یعنی قصد کار داریم؛ پرچم «کاری ندارم» خودمان را پاک می‌کنیم
+            RESP=$(gh api "repos/$THIRD_REPO/contents/$MY_NOWORK_FILE" 2>/dev/null || true)
+            if [ -n "$RESP" ] && [ "$RESP" != "null" ] && echo "$RESP" | jq -e '.sha' >/dev/null 2>&1; then
+              SHA=$(echo "$RESP" | jq -r '.sha')
+              gh api "repos/$THIRD_REPO/contents/$MY_NOWORK_FILE" -X DELETE -f message="clear no-work ($MY_ID)" -f sha="$SHA" -f branch="main" >/dev/null 2>&1 || true
+              echo "🧹 پرچم «کاری ندارم» خودمان ($MY_ID) پاک شد."
+            fi
+
+            # اگر طرف مقابل کاری ندارد، رعایت نوبت بی‌معنی است؛ مستقیم ادامه می‌دهیم
+            OTHER_RESP=$(gh api "repos/$THIRD_REPO/contents/$OTHER_NOWORK_FILE" 2>/dev/null || true)
+            if [ -n "$OTHER_RESP" ] && [ "$OTHER_RESP" != "null" ] && echo "$OTHER_RESP" | jq -e '.sha' >/dev/null 2>&1; then
+              echo "ℹ️ طرف مقابل ($OTHER_ID) فعلاً کاری ندارد؛ بدون رعایت نوبت ادامه می‌دهیم."
+              PROCEED=true
+            else
+              TURN_RESP=$(gh api "repos/$THIRD_REPO/contents/$TURN_FILE" 2>/dev/null || true)
+              if [ -z "$TURN_RESP" ] || [ "$TURN_RESP" = "null" ] || ! echo "$TURN_RESP" | jq -e '.sha' >/dev/null 2>&1; then
+                echo "ℹ️ فایل نوبت وجود ندارد؛ این اجرا ($MY_ID) اولین نوبت را برمی‌دارد."
+                CONTENT=$(echo -n "$OTHER_ID" | base64 -w0)
+                gh api "repos/$THIRD_REPO/contents/$TURN_FILE" -X PUT -f message="init turn -> $OTHER_ID next" -f content="$CONTENT" -f branch="main" >/dev/null 2>&1 || true
+                PROCEED=true
+              else
+                CUR_TURN=$(echo "$TURN_RESP" | jq -r '.content' | base64 -d 2>/dev/null | tr -d '[:space:]')
+                if [ "$CUR_TURN" = "$MY_ID" ]; then
+                  SHA=$(echo "$TURN_RESP" | jq -r '.sha')
+                  CONTENT=$(echo -n "$OTHER_ID" | base64 -w0)
+                  gh api "repos/$THIRD_REPO/contents/$TURN_FILE" -X PUT -f message="turn -> $OTHER_ID next" -f content="$CONTENT" -f sha="$SHA" -f branch="main" >/dev/null 2>&1 || true
+                  echo "✅ نوبت $MY_ID بود. ادامه می‌دهیم و نوبت بعدی را برای $OTHER_ID ثبت کردیم."
+                  PROCEED=true
+                else
+                  echo "⏭️ نوبت $OTHER_ID است نه $MY_ID. این اجرا بدون هیچ انتظاری رد می‌شود (نه صف، نه sleep)."
+                  PROCEED=false
+                fi
+              fi
+            fi
+
+            echo "proceed=$PROCEED" >> "$GITHUB_OUTPUT"
+          }
+
+      # ------------------------------------------------------------
+      # 5. آپلود نتایج و لاگ‌های خطا به مخزن سوم (با retry)
+      # ------------------------------------------------------------
+      - name: 5. آپلود نتایج و لاگ‌های خطا به مخزن واسطه (محدود به ۴۰ پوشه‌ی کامل در هر اجرا)
+        id: upload
+        if: steps.turn_check.outputs.proceed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+          MAX_FOLDERS_PER_RUN: "40"
+        run: |
+          echo "=============================================="
+          echo "   📤 شروع فرآیند آپلود (clone-based، سقف ${MAX_FOLDERS_PER_RUN} پوشه‌ی کامل در هر اجرا)"
+          echo "=============================================="
+
+          > /tmp/uploaded_folders.list
+          > /tmp/complete_folders.list
+
+          TOTAL_CSV=$(find data/All_Coins_Combined -maxdepth 1 -name "*.csv" 2>/dev/null | wc -l)
+          echo "1- تعداد کل فایل‌های CSV (ملاک کامل بودن هر پوشه‌ی نتیجه): $TOTAL_CSV"
+
+          # هر زیرپوشه‌ی سطح‌بالای results/ (مثل results/StrategyA_5m) یک بکتست کامل
+          # از یک استراتژی/تایم‌فریم است. فقط پوشه‌ای «کامل» حساب می‌شود که تعداد
+          # results.enc داخلش دقیقاً برابر تعداد کل CSV باشد؛ در غیر این صورت یعنی
+          # backtest.yml هنوز روی آن در حال کار است و باید کاملاً دست‌نخورده بماند.
+          # تعداد دقیق نتایج هر پوشه برای «کامل بودن»: یا 1320 (1314 داده + 6 نتیجه‌ی ژوئن)
+          # یا 1314 (بدون نتایج ژوئن). هر دو عدد کامل حساب می‌شوند و انتقال انجام می‌شود.
+          EXPECTED_RESULTS_LIST="1320 1314"
+          echo "2- بررسی کامل/ناقص بودن پوشه‌های results/ ..."
+          INCOMPLETE_COUNT=0
+          if [ -d results ] && [ "$TOTAL_CSV" -gt 0 ]; then
+            for D in results/*/; do
+              [ -d "$D" ] || continue
+              FOLDER_NAME=$(basename "$D")
+              ENC_COUNT=$(find "$D" -name "results.enc" -type f 2>/dev/null | wc -l)
+              IS_COMPLETE=false
+              for N in $EXPECTED_RESULTS_LIST; do
+                if [ "$ENC_COUNT" -eq "$N" ]; then IS_COMPLETE=true; fi
+              done
+              if [ "$IS_COMPLETE" = true ]; then
+                echo "$FOLDER_NAME" >> /tmp/complete_folders.list
+              else
+                INCOMPLETE_COUNT=$((INCOMPLETE_COUNT + 1))
+                echo "   ⏸️ $FOLDER_NAME ناقص است ($ENC_COUNT؛ مقدار مجاز: $EXPECTED_RESULTS_LIST) — کاملاً نادیده گرفته می‌شود."
+              fi
+            done
+          fi
+          COMPLETE_COUNT=$(wc -l < /tmp/complete_folders.list)
+          echo "   📁 پوشه‌های کامل: $COMPLETE_COUNT | پوشه‌های ناقص (دست‌نخورده می‌مانند): $INCOMPLETE_COUNT"
+
+          TOTAL_ERRORS=$(find errors \( -name "*.enc" -o -name "*.json" \) -type f 2>/dev/null | wc -l)
+          echo "3- تعداد لاگ‌های خطا: $TOTAL_ERRORS"
+
+          if [ "$COMPLETE_COUNT" -eq 0 ] && [ "$TOTAL_ERRORS" -eq 0 ]; then
+            echo "⚠️ هیچ پوشه‌ی کامل یا لاگ خطایی برای آپلود وجود ندارد."
+            echo "had_work=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "had_work=true" >> "$GITHUB_OUTPUT"
+
+          # یک‌بار clone از مخزن سوم -- نه N×2 تماس API برای هر فایل
+          rm -rf /tmp/third_repo_upload
+          git clone --depth 1 https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git /tmp/third_repo_upload
+          cd /tmp/third_repo_upload
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+
+          SUCCESS_UPLOADS=0
+          SKIPPED_UPLOADS=0
+          PROCESSED_FOLDERS=0
+
+          # هر پوشه یا کامل (با همه‌ی enc های داخلش) آپلود می‌شود یا اصلاً لمس نمی‌شود؛
+          # هیچ‌وقت نصفه رها نمی‌شود. تا سقف MAX_FOLDERS_PER_RUN پوشه‌ی کامل در این اجرا.
+          if [ -s /tmp/complete_folders.list ]; then
+            while read -r FOLDER_NAME; do
+              [ -z "$FOLDER_NAME" ] && continue
+              if [ "$PROCESSED_FOLDERS" -ge "$MAX_FOLDERS_PER_RUN" ]; then
+                echo "⏸️ سقف $MAX_FOLDERS_PER_RUN پوشه در این اجرا تکمیل شد."
+                echo "   بقیه پوشه‌های کامل (از جمله $FOLDER_NAME) برای نوبت بعدی loop باقی می‌مانند."
+                break
+              fi
+              SRC_DIR="$GITHUB_WORKSPACE/results/$FOLDER_NAME"
+              echo "📦 آپلود کامل پوشه: $FOLDER_NAME"
+              while read -r ENC; do
+                REL=${ENC#"$GITHUB_WORKSPACE"/results/}
+                DEST="backtest_results/$REL"
+                mkdir -p "$(dirname "$DEST")"
+                if [ -f "$DEST" ]; then
+                  SKIPPED_UPLOADS=$((SKIPPED_UPLOADS + 1))
+                else
+                  cp "$ENC" "$DEST"
+                  SUCCESS_UPLOADS=$((SUCCESS_UPLOADS + 1))
+                fi
+              done < <(find "$SRC_DIR" -name "results.enc" -type f)
+              echo "$FOLDER_NAME" >> /tmp/uploaded_folders.list
+              PROCESSED_FOLDERS=$((PROCESSED_FOLDERS + 1))
+            done < /tmp/complete_folders.list
+          fi
+          echo "📊 پوشه‌های کامل آپلودشده در این اجرا: $PROCESSED_FOLDERS / $MAX_FOLDERS_PER_RUN"
+
+          # errors/ خارج از سقف ۴۰-پوشه‌ای است و همیشه کامل آپلود می‌شود (ساختار پوشه‌ای مثل results ندارد)
+          if [ -d "$GITHUB_WORKSPACE/errors" ]; then
+            while read -r ERR; do
+              DEST="backtest_results/logs/$(basename "$ERR")"
+              mkdir -p "$(dirname "$DEST")"
+              if [ -f "$DEST" ]; then
+                SKIPPED_UPLOADS=$((SKIPPED_UPLOADS + 1))
+              else
+                cp "$ERR" "$DEST"
+                SUCCESS_UPLOADS=$((SUCCESS_UPLOADS + 1))
+              fi
+            done < <(find "$GITHUB_WORKSPACE/errors" \( -name "*.enc" -o -name "*.json" \) -type f)
+          fi
+
+          echo "آپلودهای جدید: $SUCCESS_UPLOADS | skip شده (از قبل موجود): $SKIPPED_UPLOADS"
+
+          if [ "$SUCCESS_UPLOADS" -gt 0 ]; then
+            git add -A
+            git commit -m "upload results (run ${{ github.run_id }})"
+            RETRY=0; MAX=20
+            while [ $RETRY -lt $MAX ]; do
+              if git pull --rebase && git push; then
+                echo "✅ push موفق"
+                break
+              else
+                RETRY=$((RETRY+1))
+                sleep $(( (RANDOM % 5) + 2 ))
+              fi
+            done
+          else
+            echo "ℹ️ چیز جدیدی برای commit نبود."
+          fi
+          cd "$GITHUB_WORKSPACE"
+          rm -rf /tmp/third_repo_upload
+
+      # ------------------------------------------------------------
+      # 5.9. ثبت/پاک‌کردن پرچم «کاری ندارم» برای نوبت‌دهی منصفانه
+      # ------------------------------------------------------------
+      - name: 5.9. ثبت/پاک‌کردن پرچم «کاری ندارم» برای نوبت‌دهی منصفانه
+        if: always() && steps.turn_check.outputs.proceed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+        run: |
+          MY_ID="loop"
+          MY_NOWORK_FILE="${MY_ID}_no_work.flag"
+          HAD_WORK="${{ steps.upload.outputs.had_work }}"
+          if [ "$HAD_WORK" = "false" ]; then
+            RESP=$(gh api "repos/$THIRD_REPO/contents/$MY_NOWORK_FILE" 2>/dev/null || true)
+            if [ -z "$RESP" ] || [ "$RESP" = "null" ] || ! echo "$RESP" | jq -e '.sha' >/dev/null 2>&1; then
+              CONTENT=$(echo -n "no work" | base64 -w0)
+              gh api "repos/$THIRD_REPO/contents/$MY_NOWORK_FILE" -X PUT -f message="mark $MY_ID as no-work" -f content="$CONTENT" -f branch="main" >/dev/null 2>&1 || true
+              echo "🚩 پرچم «کاری ندارم» برای $MY_ID ثبت شد؛ از این پس نوبت رعایت نمی‌شود تا وقتی کار جدید بیاید."
+            else
+              echo "ℹ️ پرچم «کاری ندارم» از قبل ثبت شده بود."
+            fi
+          else
+            echo "✅ این اجرا کار داشت؛ پرچم «کاری ندارم» (که در ابتدای جاب پاک شده بود) دست‌نخورده می‌ماند."
+          fi
+
+      # ------------------------------------------------------------
+      # 6. پاک‌سازی نتایج و خطاها از مخزن اصلی (نسخه مقاوم با flag)
+      # ------------------------------------------------------------
+      - name: 6. پاک‌سازی نتایج و خطاهای آپلودشده از مخزن اصلی (فقط پوشه‌هایی که کامل آپلود شدند)
+        if: steps.turn_check.outputs.proceed == 'true'
+        run: |
+          HAS_UPLOADED_FOLDERS=false
+          [ -s /tmp/uploaded_folders.list ] && HAS_UPLOADED_FOLDERS=true
+
+          if [ "$HAS_UPLOADED_FOLDERS" = true ] || [ -d errors ] || [ -d logs ]; then
+            echo "🧹 پاک‌سازی پوشه‌های کامل‌آپلودشده از results/ (و همه‌ی errors/, logs/) از مخزن اصلی..."
+            git config user.name "github-actions[bot]"
+            git config user.email "actions@github.com"
+            git checkout main || git checkout -b main origin/main
+
+            if [ "$HAS_UPLOADED_FOLDERS" = true ]; then
+              # فقط همان پوشه‌هایی که در مرحله ۵ کامل آپلود شدند حذف می‌شوند.
+              # پوشه‌های ناقص و پوشه‌های کاملی که به‌خاطر سقف ۴۰-تایی نوبتشان نشد
+              # دست‌نخورده می‌مانند تا نوبت بعدی loop.
+              while read -r FOLDER_NAME; do
+                [ -z "$FOLDER_NAME" ] && continue
+                echo "   🗑️ حذف results/$FOLDER_NAME (این اجرا کامل آپلود شد)"
+                rm -rf "results/$FOLDER_NAME"
+              done < /tmp/uploaded_folders.list
+            else
+              echo "   ℹ️ هیچ پوشه‌ای در این اجرا آپلود نشد؛ results/ کاملاً دست‌نخورده می‌ماند."
+            fi
+            rm -rf errors logs
+
+            git add -A .
+            git commit -m "clean up uploaded results, logs and errors" || true
+            RETRY=0; MAX=1000
+            PUSH_SUCCESS=false
+            while [ $RETRY -lt $MAX ]; do
+              git stash push --include-untracked --quiet 2>/dev/null || true
+              if git pull --rebase && git push; then
+                echo "✅ پاک‌سازی و push موفق بود."
+                git stash drop --quiet 2>/dev/null || true
+                PUSH_SUCCESS=true
+                break
+              else
+                git stash drop --quiet 2>/dev/null || true
+                RETRY=$((RETRY+1))
+                sleep $(( (RANDOM % 10) + 1 ))
+              fi
+            done
+            if [ "$PUSH_SUCCESS" = false ]; then
+              echo "❌ push پاک‌سازی بعد از $MAX تلاش ناموفق ماند"
+              exit 1
+            fi
+          else
+            echo "ℹ️ چیزی برای پاک‌سازی وجود ندارد."
+          fi
+
+      # ------------------------------------------------------------
+      # 7. انتخاب استراتژی بعدی (نسخه‌ی اصلاح‌شده)
+      #
+      # چرا این بازنویسی لازم بود (خلاصه‌ی چیزی که در لاگ‌های واقعی دیده شد):
+      #   - نسخه‌ی قبلی «مرحله‌ی اول» فقط پوشه‌ی ${STRAT}_5m و طول آرایه‌ی
+      #     progress.json را چک می‌کرد. اگر progress.json می‌گفت فلان
+      #     استراتژی 14/14 چانک دارد، همان کافی بود تا «کامل» در نظر گرفته
+      #     شود -- حتی اگر پوشه‌های تایم‌فریم دیگرش (1h/4h/24h/...) روی دیسک
+      #     ناقص بودند. در لاگ‌های واقعی این پروژه، progress.json برای *همه‌ی*
+      #     استراتژی‌ها 14/14 نشان می‌داد در حالی که پوشه‌های results/ واقعی‌شان
+      #     بین ۷٪ تا ۹۲٪ ناقص بودند.
+      #   - چون تشخیص «کامل» به progress.json اعتماد می‌کرد، همیشه به «مرحله‌ی
+      #     دوم» (اسکن کامل دیسک) می‌رسید. مرحله‌ی دوم درست همان استراتژی/
+      #     چانک‌های ناقص را پیدا می‌کرد، backtest.yml را با target_chunks
+      #     صدا می‌زد، و collect هم می‌گفت «600/600 تأیید شد و اعمال شد» --
+      #     ولی در اجرای loop.yml بعدی، دقیقاً همان پوشه با دقیقاً همان عدد
+      #     ناقص (مثلاً 1214/1314) دوباره پیدا می‌شد. یعنی یک استراتژی خاص
+      #     می‌توانست تا ابد بدون پیشرفت واقعی دوباره و دوباره انتخاب شود و
+      #     مانع رسیدن نوبت به استراتژی‌های بعدی شود.
+      #
+      # این نسخه دو مشکل را جدا از هم حل می‌کند:
+      #   الف) تشخیص «کامل بودن» دیگر کورکورانه به progress.json اعتماد
+      #      نمی‌کند: همه‌ی پوشه‌های تایم‌فریم موجودِ یک استراتژی چک می‌شوند،
+      #      نه فقط _5m. فقط وقتی هیچ پوشه‌ای روی دیسک نمانده (یعنی قبلاً
+      #      کامل آپلود و پاک‌سازی شده) به progress.json اعتماد می‌شود.
+      #   ب) یک «قطع‌کننده‌ی مدار» (circuit breaker): اگر یک استراتژی با
+      #      دقیقاً همان مجموعه‌چانک‌های ناقص چند اجرای پیاپی تکرار شود بدون
+      #      این‌که چیزی روی دیسک عوض شود، به‌جای تکرار ابدی، آن استراتژی
+      #      برای این دور رد می‌شود، یک لاگ خطا برای بررسی دستی ثبت می‌شود، و
+      #      نوبت به استراتژی بعدی می‌رسد. این دقیقاً همان چیزی است که جلوی
+      #      «گیر کردن کل چرخه روی یک استراتژی» را می‌گیرد.
+      # ------------------------------------------------------------
+      - name: 7. انتخاب استراتژی بعدی (بررسی همه‌ی تایم‌فریم‌ها + قطع‌کننده‌ی مدار)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 جستجوی استراتژی دارای چانک باقی‌مانده..."
+
+          PROGRESS_FILE="progress.json"
+          [ -f "$PROGRESS_FILE" ] || echo "{}" > "$PROGRESS_FILE"
+
+          STUCK_FILE="stuck_tracker.json"
+          [ -f "$STUCK_FILE" ] || echo "{}" > "$STUCK_FILE"
+          STUCK_THRESHOLD=3
+
+          STRATEGIES=$(find strategies -maxdepth 1 -name "*.js" -exec basename {} \; | sort)
+          if [ -z "$STRATEGIES" ]; then
+            echo "❌ هیچ استراتژی‌ای در پوشه strategies یافت نشد. چرخه متوقف می‌شود."
+            exit 0
+          fi
+
+          # ⚠️ رفع باگ ریشه‌ای: قبلاً اینجا فایل‌ها بر اساس رشته‌ی کامل نام‌فایل
+          # (الفبایی) مرتب می‌شدند و TOTAL_CSV هم از یک find/wc -l جدا (شامل هر
+          # فایلی با پسوند csv.، حتی بدون الگوی تاریخ) محاسبه می‌شد. اما
+          # run-backtest.js («چانک N» واقعی که پردازش می‌شود) فقط بر اساس تاریخ
+          # مرتب می‌کند، نماد را نادیده می‌گیرد، و فایل‌های بدون الگوی تاریخ را
+          # اصلاً در نظر نمی‌گیرد. این یعنی «چانک ۳۰۰» طبق این اسکریپت با
+          # «چانک ۳۰۰»ی که واقعاً پردازش می‌شد یکی نبود — دقیقاً همان چیزی که
+          # باعث می‌شد یک چانک هدفمند دوباره و دوباره verify شود ولی گپ واقعی
+          # هرگز بسته نشود. حالا هم مرتب‌سازی (تاریخ، سپس نام‌فایل) و هم فیلترِ
+          # «فقط فایل‌های دارای الگوی تاریخ»، عیناً مطابق run-backtest.js اینجا
+          # تکرار می‌شود، و TOTAL_CSV/TOTAL_CHUNKS از طول همین آرایه (نه یک
+          # find جداگانه) محاسبه می‌شود تا «چانک N» همه‌جا دقیقاً یک معنی داشته
+          # باشد.
+          mapfile -t ALL_FILES < <(
+            find data/All_Coins_Combined -maxdepth 1 -name "*.csv" -printf '%f\n' |
+            awk 'match($0, /[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{4}-[0-9]{2}-[0-9]{2}\.csv$/) { print substr($0, RSTART, 10) "\t" $0 }' |
+            sort -k1,1 -k2,2 |
+            cut -f2
+          )
+          TOTAL_CSV="${#ALL_FILES[@]}"
+          if [ "$TOTAL_CSV" -eq 0 ]; then
+            echo "❌ داده‌ای (با الگوی نام‌فایل تاریخ‌دار) یافت نشد. چرخه متوقف می‌شود."
+            exit 0
+          fi
+          # ⚠️ تغییر برای سرعت: قبلاً ۱۰۰ بود که با اندازه‌ی فعلی دیتاست (~۱۳۰۰
+          # فایل) فقط ۱۳-۱۴ چانک در کل تولید می‌کرد، در حالی که max-parallel در
+          # backtest.yml از قبل روی ۲۰ تنظیم شده بود — یعنی ۶-۷ اسلات همیشه
+          # بلااستفاده می‌ماند. با CHUNK_SIZE=66، هر اجرا حدود ۲۰ چانک تولید
+          # می‌کند و از همان ظرفیت ۲۰-تاییِ موجود به‌طور کامل استفاده می‌شود.
+          # ⚠️ این عدد باید دقیقاً با SIZE در backtest.yml (استپ build_chunks)
+          # و --chunk-size در استپ اجرای بکتست یکی باشد؛ در غیر این صورت همان
+          # مشکل «چانک N یک‌جا دو معنی مختلف دارد» که قبلاً رفع شد دوباره پیش
+          # می‌آید. اگر بعداً خواستید این عدد را تغییر دهید، هر سه‌جا را با هم
+          # عوض کنید — و فقط وقتی progress.json/results خالی یا تازه‌ریست‌شده
+          # باشد (وگرنه چانک‌های قبلاً ثبت‌شده با اندازه‌ی جدید هم‌خوان نمی‌مانند).
+          CHUNK_SIZE=66
+          TOTAL_CHUNKS=$(( (TOTAL_CSV + CHUNK_SIZE - 1) / CHUNK_SIZE ))
+
+          SELECTED=""
+          TARGET_CHUNKS_JSON=""
+
+          for STRAT in $STRATEGIES; do
+            STRAT_BASE="${STRAT%.js}"
+
+            # همه‌ی پوشه‌های تایم‌فریمِ *موجود* برای این استراتژی (نه فقط _5m)
+            EXISTING_DIRS=()
+            for D in results/${STRAT_BASE}_*/; do
+              [ -d "$D" ] || continue
+              EXISTING_DIRS+=("$D")
+            done
+
+            if [ "${#EXISTING_DIRS[@]}" -eq 0 ]; then
+              # هیچ پوشه‌ای روی دیسک نیست: یا هنوز اصلاً شروع نشده، یا قبلاً
+              # کامل آپلود و پاک‌سازی شده. این تنها حالتی است که به
+              # progress.json اعتماد می‌کنیم.
+              DONE_COUNT=$(jq -r --arg s "$STRAT" '(.[$s] // []) | length' "$PROGRESS_FILE")
+              if [ "$DONE_COUNT" -ge "$TOTAL_CHUNKS" ]; then
+                echo "ℹ️ استراتژی $STRAT کامل شده و آپلود/پاک‌سازی شده است (progress: $DONE_COUNT/$TOTAL_CHUNKS، پوشه‌ای روی دیسک نمانده)."
+                continue
+              fi
+              echo "🆕 استراتژی $STRAT هنوز نتیجه‌ای روی دیسک ندارد؛ کل $TOTAL_CHUNKS چانک لازم است."
+            else
+              ALL_TF_COMPLETE=true
+              for D in "${EXISTING_DIRS[@]}"; do
+                ENC_COUNT=$(find "$D" -name "results.enc" -type f | wc -l)
+                if [ "$ENC_COUNT" -lt "$TOTAL_CSV" ]; then
+                  ALL_TF_COMPLETE=false
+                  break
+                fi
+              done
+              if [ "$ALL_TF_COMPLETE" = true ]; then
+                echo "ℹ️ استراتژی $STRAT در هر ${#EXISTING_DIRS[@]} پوشه‌ی تایم‌فریم موجودش کامل است."
+                continue
+              fi
+              echo "🔎 استراتژی $STRAT در دیسک ناقص است (${#EXISTING_DIRS[@]} پوشه‌ی تایم‌فریم بررسی شد). محاسبه‌ی دقیق چانک‌های ناقص..."
+            fi
+
+            # --- محاسبه‌ی دقیق چانک‌های ناقص روی دیسک، با در نظر گرفتن *همه‌ی*
+            # پوشه‌های تایم‌فریم موجود (نه فقط یکی). اگر هیچ پوشه‌ای نبود، کل
+            # محدوده ناقص است.
+            MISSING_CHUNKS="["
+            ADDED=0
+            for ((i=0; i<TOTAL_CHUNKS; i++)); do
+              s=$((i*CHUNK_SIZE))
+              e=$((s+CHUNK_SIZE))
+              [ $e -gt $TOTAL_CSV ] && e=$TOTAL_CSV
+              CHUNK_COMPLETE=true
+              if [ "${#EXISTING_DIRS[@]}" -eq 0 ]; then
+                CHUNK_COMPLETE=false
+              else
+                for D in "${EXISTING_DIRS[@]}"; do
+                  for ((j=s; j<e; j++)); do
+                    FN="${ALL_FILES[$j]}"
+                    if [ ! -f "${D}${FN}/results.enc" ]; then
+                      CHUNK_COMPLETE=false
+                      break 2
+                    fi
+                  done
+                done
+              fi
+              if [ "$CHUNK_COMPLETE" = false ]; then
+                [ $ADDED -gt 0 ] && MISSING_CHUNKS+=", "
+                MISSING_CHUNKS+="$s"
+                ADDED=$((ADDED+1))
+              fi
+            done
+            MISSING_CHUNKS+="]"
+
+            if [ "$ADDED" -eq 0 ]; then
+              echo "⚠️ هیچ چانک ناقصی برای $STRAT پیدا نشد (اختلاف فقط در شمارش کلی بود)؛ رد می‌شویم."
+              continue
+            fi
+
+            # --- قطع‌کننده‌ی مدار ---
+            SIG="${MISSING_CHUNKS}"
+            PREV_SIG=$(jq -r --arg s "$STRAT" '(.[$s] // {}) | .signature // ""' "$STUCK_FILE")
+            PREV_COUNT=$(jq -r --arg s "$STRAT" '(.[$s] // {}) | .count // 0' "$STUCK_FILE")
+
+            if [ "$PREV_SIG" = "$SIG" ]; then
+              NEW_COUNT=$((PREV_COUNT + 1))
+            else
+              NEW_COUNT=1
+            fi
+
+            if [ "$NEW_COUNT" -ge "$STUCK_THRESHOLD" ]; then
+              echo "🛑 استراتژی $STRAT دقیقاً با همین چانک‌های ناقص ($MISSING_CHUNKS) $NEW_COUNT بار پیاپی تکرار شده بدون پیشرفت روی دیسک. برای این دور رد می‌شود؛ برای بررسی دستی ثبت می‌شود."
+              mkdir -p errors
+              {
+                echo "strategy: $STRAT"
+                echo "missing_chunks: $MISSING_CHUNKS"
+                echo "attempts: $NEW_COUNT"
+                echo "detected_at: $(date -u +%FT%TZ)"
+                echo "note: این استراتژی با همین چانک‌های ناقص چند بار پیاپی از نو اجرا شده ولی فایل‌های results.enc مربوطه هرگز کامل روی دیسک ننشسته‌اند. منطق «قبلاً انجام‌شده» در run-backtest.js (چک در برابر now-test-repo) را برای همین چانک‌ها دستی بررسی کنید."
+              } > "errors/STUCK_${STRAT_BASE}_$(date -u +%Y%m%dT%H%M%SZ).txt"
+              continue
+            fi
+
+            SELECTED="$STRAT"
+            TARGET_CHUNKS_JSON="$MISSING_CHUNKS"
+            jq --arg s "$STRAT" --arg sig "$SIG" --argjson cnt "$NEW_COUNT" \
+              '.[$s] = {"signature": $sig, "count": $cnt}' "$STUCK_FILE" > /tmp/stuck_tmp.json && mv /tmp/stuck_tmp.json "$STUCK_FILE"
+            echo "✅ استراتژی $STRAT انتخاب شد. چانک‌های ناقص: $TARGET_CHUNKS_JSON (تلاش $NEW_COUNT از $STUCK_THRESHOLD قبل از رد‌شدن خودکار)"
+            break
+          done
+
+          # هر تغییری در stuck_tracker.json یا errors/ (چه استراتژی انتخاب
+          # شده باشد چه نه) را commit و push می‌کنیم تا دفعه‌ی بعد لحاظ شود.
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add "$STUCK_FILE" 2>/dev/null || true
+          [ -d errors ] && git add errors/
+          if ! git diff --cached --quiet 2>/dev/null; then
+            git commit -m "update stuck-strategy tracker" || true
+            RETRY=0; MAX=20
+            while [ $RETRY -lt $MAX ]; do
+              if git pull --rebase && git push; then
+                echo "✅ push وضعیت قطع‌کننده‌ی مدار موفق بود."
+                break
+              else
+                RETRY=$((RETRY+1))
+                sleep $(( (RANDOM % 5) + 1 ))
+              fi
+            done
+          fi
+
+          if [ -z "$SELECTED" ]; then
+            echo "🎉 همه‌ی استراتژی‌ها یا کامل‌اند یا فعلاً به‌خاطر قطع‌کننده‌ی مدار رد شده‌اند (نیازمند بررسی دستی). چرخه برای این دور متوقف می‌شود."
+            exit 0
+          fi
+
+          echo "🚀 راه‌اندازی backtest.yml برای $SELECTED با چانک‌های هدفمند: $TARGET_CHUNKS_JSON ..."
+          gh workflow run backtest.yml --ref main -f strategy_name="$SELECTED" -f target_chunks="$TARGET_CHUNKS_JSON"

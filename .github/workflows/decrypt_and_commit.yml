@@ -1,0 +1,96 @@
+name: Decrypt First 10 Results (Auto Find)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  decrypt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0   # برای اطمینان از دریافت کل تاریخچه
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: List directory structure for debugging
+        run: |
+          echo "🔍 ساختار دایرکتوری (برای اشکال‌زدایی):"
+          ls -la
+          echo "----"
+          find . -name "results.enc" -type f | head -5 || echo "هیچ results.enc یافت نشد"
+
+      - name: Find and decrypt first 10 results.enc
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD }}
+        run: |
+          OUT_BASE="decrypted_results"
+          mkdir -p "$OUT_BASE"
+
+          # جستجو از ریشه جاری (.)
+          mapfile -t FILES < <(find . -name "results.enc" -type f | head -10)
+
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "❌ هیچ فایل results.enc در کل مخزن یافت نشد."
+            echo "💡 لطفاً بررسی کنید که فایل‌های رمزگذاری شده واقعاً در مخزن وجود دارند."
+            exit 1
+          fi
+
+          echo "✅ ${#FILES[@]} فایل results.enc پیدا شد."
+
+          for ENC in "${FILES[@]}"; do
+            # حذف ./ از ابتدا (اگر وجود داشته باشد)
+            ENC="${ENC#./}"
+            # مسیر نسبی برای ذخیره خروجی (همان مسیر فایل اصلی ولی در OUT_BASE)
+            REL_DIR=$(dirname "$ENC")
+            TARGET="$OUT_BASE/$REL_DIR"
+            mkdir -p "$TARGET"
+
+            echo "🔓 پردازش: $ENC -> $TARGET"
+
+            node -e "
+              const crypto = require('crypto');
+              const fs = require('fs');
+              const path = require('path');
+              const { execSync } = require('child_process');
+              const pass = process.env.RESULTS_PASSWORD;
+              if (!pass) { console.error('رمز عبور تنظیم نشده'); process.exit(1); }
+              const encData = fs.readFileSync('$ENC');
+              const key = crypto.scryptSync(pass, 'salt', 32);
+              const iv = encData.subarray(0, 16);
+              const encrypted = encData.subarray(16);
+              const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+              let decrypted;
+              try {
+                decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+              } catch (e) {
+                console.error('خطا در رمزگشایی:', e.message);
+                process.exit(1);
+              }
+              const tarPath = path.join('$TARGET', 'temp.tar.gz');
+              fs.writeFileSync(tarPath, decrypted);
+              execSync('tar -xzf \"' + tarPath + '\" -C \"$TARGET\"');
+              fs.unlinkSync(tarPath);
+              console.log('✅ استخراج شد: $TARGET');
+            "
+          done
+
+      - name: Commit and push decrypted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add decrypted_results/
+          if git diff --cached --quiet; then
+            echo "ℹ️ هیچ تغییری برای commit وجود ندارد."
+          else
+            git commit -m "Decrypted first 10 results.enc files"
+            git pull --rebase
+            git push
+            echo "✅ تغییرات push شد."
+          fi

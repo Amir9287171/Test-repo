@@ -1,0 +1,65 @@
+name: KKK Data Preparation
+
+on:
+  workflow_dispatch:  # فقط دستی اجرا بشه، ولی می‌تونی schedule هم اضافه کنی اگه خواستی
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: 1. دریافت کد مخزن
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 2. راه‌اندازی پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 3. نصب کتابخانه‌های مورد نیاز
+        run: pip install pandas requests
+
+      - name: 4. اجرای prepare_data.py (داده‌های قدیمی تا 2024)
+        run: |
+          echo "🚀 شروع prepare_data.py"
+          python encrypted_data/prepare_data.py
+          echo "✅ prepare_data.py تمام شد"
+
+      - name: 5. اجرای prepare_2025_2026.py (داده‌های 2025-2026)
+        run: |
+          echo "🚀 شروع prepare_2025_2026.py"
+          python encrypted_data/prepare_2025_2026.py
+          echo "✅ prepare_2025_2026.py تمام شد"
+
+      - name: 6. ایجاد پرچم آماده‌سازی داده‌ها
+        run: |
+          touch encrypted_data/data_2025_2026_done.flag
+          echo "✅ فایل flag ایجاد شد"
+
+      - name: 7. ذخیره تغییرات در مخزن (commit & push)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add data/ encrypted_data/data_2025_2026_done.flag
+          git add encrypted_data/data.enc 2>/dev/null || true
+          git add zips/ 2>/dev/null || true
+          git stash --include-untracked --quiet || true
+          git fetch origin main
+          git checkout -B main origin/main
+          git stash pop --quiet || true
+          git commit -m "KKK: update market data (prepare_data.py + prepare_2025_2026.py)" || echo "هیچ تغییری برای commit وجود ندارد"
+          git pull --rebase --autostash
+          git push || echo "⚠️ push ناموفق بود بعداً انجام می‌شه"
+
+      - name: 8. گزارش نهایی
+        run: |
+          echo "======================================="
+          echo "✅ کار آماده‌سازی داده‌ها با موفقیت انجام شد"
+          echo "📂 تعداد CSVهای ساخته شده:"
+          ls -la data/All_Coins_Combined/ | wc -l
+          echo "======================================="

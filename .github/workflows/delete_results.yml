@@ -1,0 +1,39 @@
+name: Delete results folder
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Delete results folder
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # حذف پوشه
+          git rm -r results/
+          
+          # Commit
+          git commit -m "delete results folder (workflow)"
+          
+          # Push
+          git push origin main
+
+      - name: Cleanup empty folders
+        run: |
+          # حذف پوشه‌های خالی باقی‌مانده
+          find . -type d -empty -delete 2>/dev/null || true
+          git add -A
+          git commit -m "cleanup empty folders" || true
+          git push origin main || true

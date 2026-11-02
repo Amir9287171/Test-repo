@@ -1,0 +1,470 @@
+{
+  "generated_at_utc": "2026-11-01T12:15:03+00:00",
+  "start_date": "2017-10-01",
+  "targets": {
+    "DJI": {
+      "name": "DJI",
+      "description": "Dow Jones Industrial Average",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "^DJI",
+          "exact": true,
+          "seconds": 0.3,
+          "ok": true,
+          "rows": 2283,
+          "first": "2017-10-02",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "^DJI",
+      "exact": true,
+      "rows": 2283,
+      "first": "2017-10-02",
+      "last": "2026-10-30"
+    },
+    "SPX": {
+      "name": "SPX",
+      "description": "S&P 500",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "^GSPC",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2283,
+          "first": "2017-10-02",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "^GSPC",
+      "exact": true,
+      "rows": 2283,
+      "first": "2017-10-02",
+      "last": "2026-10-30"
+    },
+    "IXIC": {
+      "name": "IXIC",
+      "description": "Nasdaq Composite",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "^IXIC",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2283,
+          "first": "2017-10-02",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "^IXIC",
+      "exact": true,
+      "rows": 2283,
+      "first": "2017-10-02",
+      "last": "2026-10-30"
+    },
+    "NDX": {
+      "name": "NDX",
+      "description": "Nasdaq 100",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "^NDX",
+          "exact": true,
+          "seconds": 0.1,
+          "ok": true,
+          "rows": 2283,
+          "first": "2017-10-02",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "^NDX",
+      "exact": true,
+      "rows": 2283,
+      "first": "2017-10-02",
+      "last": "2026-10-30"
+    },
+    "RUT": {
+      "name": "RUT",
+      "description": "Russell 2000",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "^RUT",
+          "exact": true,
+          "seconds": 0.1,
+          "ok": true,
+          "rows": 2283,
+          "first": "2017-10-02",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "^RUT",
+      "exact": true,
+      "rows": 2283,
+      "first": "2017-10-02",
+      "last": "2026-10-30"
+    },
+    "VIX": {
+      "name": "VIX",
+      "description": "CBOE Volatility Index",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "^VIX",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2285,
+          "first": "2017-10-02",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "^VIX",
+      "exact": true,
+      "rows": 2285,
+      "first": "2017-10-02",
+      "last": "2026-10-30"
+    },
+    "DXY": {
+      "name": "DXY",
+      "description": "US Dollar Index",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "DX-Y.NYB",
+          "exact": true,
+          "seconds": 0.1,
+          "ok": true,
+          "rows": 2285,
+          "first": "2017-10-01",
+          "last": "2026-10-29",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "DX-Y.NYB",
+      "exact": true,
+      "rows": 2285,
+      "first": "2017-10-01",
+      "last": "2026-10-29"
+    },
+    "US10Y": {
+      "name": "US10Y",
+      "description": "US 10-year Treasury yield",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "^TNX",
+          "exact": true,
+          "seconds": 0.1,
+          "ok": true,
+          "rows": 2283,
+          "first": "2017-10-02",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "^TNX",
+      "exact": true,
+      "rows": 2283,
+      "first": "2017-10-02",
+      "last": "2026-10-30"
+    },
+    "US2Y": {
+      "name": "US2Y",
+      "description": "US 2-year Treasury yield",
+      "status": "missing",
+      "attempts": [
+        {
+          "source": "fred",
+          "id": "DGS2",
+          "exact": true,
+          "seconds": 99.2,
+          "ok": false,
+          "error": "ReadTimeout: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=30)"
+        },
+        {
+          "source": "stooq",
+          "id": "2usy.b",
+          "exact": true,
+          "seconds": 0.7,
+          "ok": false,
+          "error": "not CSV: <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"robots\" c"
+        }
+      ]
+    },
+    "US3M": {
+      "name": "US3M",
+      "description": "US 3-month Treasury yield",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "^IRX",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2283,
+          "first": "2017-10-02",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "^IRX",
+      "exact": true,
+      "rows": 2283,
+      "first": "2017-10-02",
+      "last": "2026-10-30"
+    },
+    "CURVE_10Y2Y": {
+      "name": "CURVE_10Y2Y",
+      "description": "10Y minus 2Y yield spread",
+      "status": "missing",
+      "attempts": [
+        {
+          "source": "fred",
+          "id": "T10Y2Y",
+          "exact": true,
+          "seconds": 99.8,
+          "ok": false,
+          "error": "ReadTimeout: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=30)"
+        }
+      ]
+    },
+    "HY_SPREAD": {
+      "name": "HY_SPREAD",
+      "description": "US high-yield credit spread (OAS)",
+      "status": "missing",
+      "attempts": [
+        {
+          "source": "fred",
+          "id": "BAMLH0A0HYM2",
+          "exact": true,
+          "seconds": 98.5,
+          "ok": false,
+          "error": "ReadTimeout: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=30)"
+        }
+      ]
+    },
+    "GOLD": {
+      "name": "GOLD",
+      "description": "Gold",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "GC=F",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2284,
+          "first": "2017-10-01",
+          "last": "2026-10-29",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "GC=F",
+      "exact": true,
+      "rows": 2284,
+      "first": "2017-10-01",
+      "last": "2026-10-29"
+    },
+    "SILVER": {
+      "name": "SILVER",
+      "description": "Silver",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "SI=F",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2283,
+          "first": "2017-10-01",
+          "last": "2026-10-29",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "SI=F",
+      "exact": true,
+      "rows": 2283,
+      "first": "2017-10-01",
+      "last": "2026-10-29"
+    },
+    "COPPER": {
+      "name": "COPPER",
+      "description": "Copper",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "HG=F",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2284,
+          "first": "2017-10-01",
+          "last": "2026-10-29",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "HG=F",
+      "exact": true,
+      "rows": 2284,
+      "first": "2017-10-01",
+      "last": "2026-10-29"
+    },
+    "WTI": {
+      "name": "WTI",
+      "description": "WTI crude oil",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "CL=F",
+          "exact": true,
+          "seconds": 0.1,
+          "ok": true,
+          "rows": 2284,
+          "first": "2017-10-01",
+          "last": "2026-10-29",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "CL=F",
+      "exact": true,
+      "rows": 2284,
+      "first": "2017-10-01",
+      "last": "2026-10-29"
+    },
+    "BRENT": {
+      "name": "BRENT",
+      "description": "Brent crude oil",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "BZ=F",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2285,
+          "first": "2017-10-01",
+          "last": "2026-10-29",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "BZ=F",
+      "exact": true,
+      "rows": 2285,
+      "first": "2017-10-01",
+      "last": "2026-10-29"
+    },
+    "EURUSD": {
+      "name": "EURUSD",
+      "description": "EUR/USD",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "EURUSD=X",
+          "exact": true,
+          "seconds": 0.1,
+          "ok": true,
+          "rows": 2363,
+          "first": "2017-10-01",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "EURUSD=X",
+      "exact": true,
+      "rows": 2363,
+      "first": "2017-10-01",
+      "last": "2026-10-30"
+    },
+    "USDJPY": {
+      "name": "USDJPY",
+      "description": "USD/JPY",
+      "status": "ok",
+      "attempts": [
+        {
+          "source": "yahoo",
+          "id": "JPY=X",
+          "exact": true,
+          "seconds": 0.2,
+          "ok": true,
+          "rows": 2363,
+          "first": "2017-10-01",
+          "last": "2026-10-30",
+          "full_coverage": true
+        }
+      ],
+      "source": "yahoo",
+      "id": "JPY=X",
+      "exact": true,
+      "rows": 2363,
+      "first": "2017-10-01",
+      "last": "2026-10-30"
+    }
+  },
+  "summary": {
+    "downloaded": [
+      "DJI",
+      "SPX",
+      "IXIC",
+      "NDX",
+      "RUT",
+      "VIX",
+      "DXY",
+      "US10Y",
+      "US3M",
+      "GOLD",
+      "SILVER",
+      "COPPER",
+      "WTI",
+      "BRENT",
+      "EURUSD",
+      "USDJPY"
+    ],
+    "partial": [],
+    "missing": [
+      "US2Y",
+      "CURVE_10Y2Y",
+      "HY_SPREAD"
+    ],
+    "proxy_used": []
+  }
+}

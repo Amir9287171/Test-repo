@@ -1,0 +1,962 @@
+name: Multi Strategy Coin Backtest Pipeline
+
+permissions:
+  contents: write
+  actions: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      only_coins:
+        description: 'کوین‌ها با فاصله (مثلاً BTCUSDT ETHUSDT SOLUSDT). خالی = همه'
+        required: false
+        default: ''
+      only_strategies:
+        description: 'استراتژی‌ها با فاصله. خالی = همه'
+        required: false
+        default: ''
+      max_jobs_per_run:
+        description: 'حداکثر تعداد اجرای strategy×coin×chunk در این run'
+        required: false
+        default: '10'
+      max_minutes:
+        description: 'حداکثر زمان مجاز اجرای این workflow'
+        required: false
+        default: '240'
+      strategy_name:
+        description: 'ورودی سازگاری قدیمی؛ در نسخه جدید ترجیحاً only_strategies استفاده شود'
+        required: false
+        default: ''
+      filter_start_date:
+        description: 'تاریخ شروع فایل‌ها (YYYY-MM-DD)'
+        required: false
+        default: ''
+      filter_end_date:
+        description: 'تاریخ پایان فایل‌ها (YYYY-MM-DD)'
+        required: false
+        default: ''
+      timeframes_filter:
+        description: 'فقط این تایم‌فریم‌ها اجرا شوند (مثلاً 4h,24h). خالی = همه تایم‌فریم‌ها'
+        required: false
+        default: ''
+      target_chunks:
+        description: 'آرایه‌ی JSON چانک‌های مشخص (مثلاً [200,300]). فقط توسط loop.yml در مسیر "تکمیل استراتژی ناقص" پر می‌شود. خالی = مسیر عادی (محاسبه‌ی خودکار چانک‌ها طبق progress.json)'
+        required: false
+        default: ''
+
+concurrency:
+  group: multi-backtest-main
+  cancel-in-progress: false
+
+jobs:
+  check-completion:
+    runs-on: ubuntu-latest
+    outputs:
+      all_completed: ${{ steps.check.outputs.all_completed }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: بررسی وجود نتایج قبلی
+        id: check
+        run: echo "all_completed=false" >> $GITHUB_OUTPUT
+
+  prepare:
+    needs: check-completion
+    if: needs.check-completion.outputs.all_completed != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      strategies: ${{ steps.list_strategies.outputs.files }}
+      chunks:   ${{ steps.build_chunks.outputs.chunks }}
+      coins:    ${{ steps.list_coins.outputs.coins }}
+      work_items: ${{ steps.build_work_items.outputs.work_items }}
+      pending_count: ${{ steps.build_work_items.outputs.pending_count }}
+      selected_count: ${{ steps.build_work_items.outputs.selected_count }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 2. کش فایل‌های ZIP
+        uses: actions/cache@v4
+        with:
+          path: zips
+          key: zips-${{ hashFiles('encrypted_data/multi_download.py') }}-${{ github.run_id }}
+          restore-keys: |
+            zips-${{ hashFiles('encrypted_data/multi_download.py') }}-
+
+      - name: 3. راه‌اندازی پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 4. نصب کتابخانه‌های پایتون
+        run: pip install pandas requests cryptography
+
+      - name: 0. ساختن پوشه src
+        run: mkdir -p encrypted_data/src
+
+      - name: 🔓 مدیریت باز کردن قفل
+        id: unlock
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          PENDING_COUNT: ${{ needs.prepare.outputs.pending_count }}
+          SELECTED_COUNT: ${{ needs.prepare.outputs.selected_count }}
+        run: |
+          echo "unlocked=false" >> $GITHUB_OUTPUT
+          UNLOCK_FILE="encrypted_data/src/unlock.txt"
+          FLAG_FILE="encrypted_data/src/.unlocked.flag"
+          if [ -f "$UNLOCK_FILE" ] && grep -q "^3$" "$UNLOCK_FILE"; then
+            echo "📊 وضعیت unlock=3"
+            if [ -d results ]; then
+              find results -name "results.enc" -type f | while read ENC; do
+                DIR=$(dirname "$ENC")
+                node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.RESULTS_PASSWORD;const data=fs.readFileSync('$ENC');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('$DIR/results.tar.gz',dec);"
+                tar -xzf "$DIR/results.tar.gz" -C "$DIR" && rm -f "$DIR/results.tar.gz"
+              done
+              git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+              git add results/
+              git commit -m "extract results (unlock 3)" || true
+              git pull --rebase && git push
+            fi
+            rm -f "$UNLOCK_FILE" "$FLAG_FILE"
+          elif [ -f "$UNLOCK_FILE" ] && grep -q "^1$" "$UNLOCK_FILE"; then
+            echo "🔓 وضعیت unlock=1"
+            echo "unlocked=true" >> $GITHUB_OUTPUT
+            if [ -f encrypted_data/src.enc ]; then
+              mkdir -p temp_src_restore
+              node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const data=fs.readFileSync('encrypted_data/src.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('src.tar.gz',dec);"
+              tar -xzf src.tar.gz -C temp_src_restore
+              mkdir -p encrypted_data/src
+              cp -r temp_src_restore/* encrypted_data/src/ && rm -rf temp_src_restore src.tar.gz
+            fi
+            git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+            git add encrypted_data/src/*.js encrypted_data/src/.unlocked.flag 2>/dev/null || true
+            git add "$UNLOCK_FILE" 2>/dev/null || true
+            if [ -f "$UNLOCK_FILE" ]; then
+              rm -f "$UNLOCK_FILE"
+              git rm --cached "$UNLOCK_FILE" 2>/dev/null || true
+              git add "$UNLOCK_FILE" 2>/dev/null || true
+            fi
+            git commit -m "unlock source files" || true
+            git stash --include-untracked 2>/dev/null || true
+            git pull --rebase
+            git stash pop 2>/dev/null || true
+            git push
+          else
+            echo "🧹 پاکسازی فایل‌های JSON نتایج"
+            if [ -d "results" ]; then
+              find results -type f ! -name "results.enc" \( -name "*.json" -o -name "*.tar.gz" \) -delete
+              if find results -type f ! -name "results.enc" | grep -q .; then
+                git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+                git add results/ && git commit -m "cleanup results" || true
+                git pull --rebase && git push
+              fi
+            else
+              echo "📁 پوشه results وجود ندارد، نیازی به پاکسازی نیست."
+            fi
+            echo "🔒 حالت عادی (بدون باز کردن قفل)"
+          fi
+
+      - name: 5. آماده‌سازی داده‌های ۲۰۲۵/۲۰۲۶ در صورت نیاز
+        id: prep_2025
+        run: |
+          FLAG="encrypted_data/data_2025_2026_done.flag"
+          if [ ! -f "$FLAG" ]; then
+            echo "🆕 در حال پردازش داده‌های ۲۰۲۵/۲۰۲۶..."
+            python encrypted_data/prepare_2025_2026.py
+            touch "$FLAG"
+            echo "flag_created=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ داده‌ها قبلاً پردازش شده‌اند."
+            echo "flag_created=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 6. ارسال پرچم به مخزن در صورت ایجاد
+        if: steps.prep_2025.outputs.flag_created == 'true'
+        run: |
+          git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+          git pull --rebase
+          git add encrypted_data/data_2025_2026_done.flag
+          git commit -m "mark 2025/2026 prepared" || true
+          git push
+
+      # ============================================================
+      # ⚠️ بخش تغییر یافته: data.enc دیگر در گیت/LFS نگهداری نمی‌شود.
+      # به‌جای آن با actions/cache ذخیره و بازیابی می‌شود:
+      # - اگر کش موجود باشد → مستقیم decrypt و استفاده می‌شود (سریع، بدون دانلود مجدد از Binance).
+      # - اگر کش موجود نباشد (اولین اجرا یا evict شدن) → All_pipeline.py از نو
+      #   داده را دانلود/بسازد/رمزنگاری می‌کند، سپس در پایان job همین اکشن به‌صورت
+      #   خودکار data.enc تازه را کش می‌کند.
+      # ============================================================
+      - name: 7. کش کردن data.enc
+        id: cache-data-enc
+        uses: actions/cache@v4
+        with:
+          path: encrypted_data/data.enc
+          key: multi-data-enc-v1
+
+      - name: 7.1 ساخت و رمزنگاری داده (فقط در صورت نبود کش)
+        if: steps.cache-data-enc.outputs.cache-hit != 'true'
+        env:
+          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
+        run: |
+          echo "⚠️ کش data.enc یافت نشد. در حال ساخت از نو با All_pipeline.py ..."
+          python encrypted_data/multi_download.py
+
+      - name: 7.2 رمزگشایی data.enc برای استفاده در بکتست
+        env:
+          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
+        run: |
+          if [ ! -f encrypted_data/data.enc ]; then
+            echo "❌ encrypted_data/data.enc پس از مرحله ساخت هم پیدا نشد!"
+            exit 1
+          fi
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.DATA_PASSWORD;const data=fs.readFileSync('encrypted_data/data.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('data.tar.gz',dec);"
+          mkdir -p data && tar -xzf data.tar.gz -C data && rm data.tar.gz
+          echo "✅ داده استخراج شد."
+      # ============================================================
+      # پایان بخش تغییر یافته
+      # ============================================================
+
+      - name: 10. تحلیل فایل‌های سورس
+        id: source_analysis
+        run: |
+          ALL_FULL=true; ONE_FULL=false
+          for f in encrypted_data/src/*.js encrypted_data/src/*.py; do
+            [ -f "$f" ] && [ -s "$f" ] && ONE_FULL=true
+            [ -f "$f" ] && [ ! -s "$f" ] && ALL_FULL=false
+          done
+          echo "all_full=$ALL_FULL" >> $GITHUB_OUTPUT
+          echo "one_full=$ONE_FULL" >> $GITHUB_OUTPUT
+
+      - name: 11. رمزنگاری فایل‌های سورس (ادغام هوشمند)
+        if: steps.source_analysis.outputs.one_full == 'true' && steps.unlock.outputs.unlocked != 'true'
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          if [ "${{ steps.source_analysis.outputs.all_full }}" = "true" ]; then
+            tar -czf src.tar.gz -C encrypted_data/src .
+          else
+            mkdir -p temp_merge
+            if [ -f encrypted_data/src.enc ]; then
+              node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const data=fs.readFileSync('encrypted_data/src.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('src_old.tar.gz',dec);"
+              tar -xzf src_old.tar.gz -C temp_merge && rm src_old.tar.gz
+            fi
+            for f in encrypted_data/src/*.js encrypted_data/src/*.py; do
+              [ -f "$f" ] && [ -s "$f" ] && cp "$f" temp_merge/
+            done
+            tar -czf src.tar.gz -C temp_merge .
+            rm -rf temp_merge
+          fi
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const key=crypto.scryptSync(pass,'salt',32);const iv=crypto.randomBytes(16);const cipher=crypto.createCipheriv('aes-256-cbc',key,iv);const input=fs.readFileSync('src.tar.gz');const enc=Buffer.concat([cipher.update(input),cipher.final()]);fs.writeFileSync('encrypted_data/src.enc',Buffer.concat([iv,enc]));"
+          rm src.tar.gz
+
+      - name: 12. پاک کردن محتوای فایل‌های سورس (نگه داشتن فایل‌ها)
+        if: steps.source_analysis.outputs.one_full == 'true' && steps.unlock.outputs.unlocked != 'true'
+        run: |
+          git config user.name "github-actions[bot]" && git config user.email "actions@github.com"
+          for f in encrypted_data/src/*.js encrypted_data/src/*.py; do [ -f "$f" ] && echo -n "" > "$f"; done
+          rm -f encrypted_data/src/.unlocked.flag
+          git add encrypted_data/src/ encrypted_data/src.enc
+          git commit -m "wipe source files and update src.enc" || true
+          # 🆕 stash کردن تغییرات unstaged قبل از pull --rebase
+          git stash --include-untracked --quiet || true
+          if git pull --rebase && git push; then
+            git stash drop --quiet || true
+          else
+            git stash drop --quiet || true
+            exit 1
+          fi
+
+      - name: 13. رمزگشایی src.enc برای بکتست
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const data=fs.readFileSync('encrypted_data/src.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('src.tar.gz',dec);"
+          tar -xzf src.tar.gz -C encrypted_data/src
+          rm src.tar.gz
+
+      - name: بررسی کامل بودن فایل‌های سورس پس از بازیابی
+        run: |
+          echo "===== بررسی فایل‌های بازیابی‌شده ====="
+          for f in encrypted_data/src/backtest-core.js encrypted_data/src/divergence-detector.js; do
+            if [ ! -f "$f" ]; then
+              echo "❌ $f وجود ندارد!"
+              exit 1
+            fi
+            SIZE=$(stat -c%s "$f")
+            if [ "$SIZE" -eq 0 ]; then
+              echo "❌ $f خالی است (بازیابی ناموفق)!"
+              exit 1
+            fi
+            echo "✅ $f ($SIZE بایت)"
+          done
+
+      - name: 15. راه‌اندازی Node.js و نصب papaparse
+        uses: actions/setup-node@v4
+        with: { node-version: '18' }
+      - run: npm install papaparse
+
+      - name: 16. لیست کردن استراتژی‌ها
+        id: list_strategies
+        run: |
+          STRAT_INPUT="${{ github.event.inputs.only_strategies }}"
+          [ -z "$STRAT_INPUT" ] && STRAT_INPUT="${{ github.event.inputs.strategy_name }}"
+          if [ -n "$STRAT_INPUT" ]; then
+            files=$(printf '%s\n' $STRAT_INPUT | while read -r x; do [ -f "strategies/$x" ] || { echo "❌ فایل strategies/$x یافت نشد."; exit 1; }; echo "$x"; done | jq -R -s -c 'split("\n")[:-1]')
+          else
+            files=$(find strategies -maxdepth 1 -name "*.js" -exec basename {} \; | jq -R -s -c 'split("\n")[:-1]')
+          fi
+          echo "files=$files" >> $GITHUB_OUTPUT
+
+      - name: 16.1 لیست کردن کوین‌ها
+        id: list_coins
+        run: |
+          INPUT="${{ github.event.inputs.only_coins }}"
+          if [ -n "$INPUT" ]; then
+            coins=$(printf '%s\n' $INPUT | jq -R -s -c 'split("\n")[:-1]')
+          elif [ -f data_config.json ]; then
+            coins=$(jq -c '.coins // .symbols // ["BTCUSDT","ETHUSDT","SOLUSDT","XRPUSDT","PAXGUSDT"]' data_config.json)
+          else
+            coins='["BTCUSDT","ETHUSDT","SOLUSDT","XRPUSDT","PAXGUSDT"]'
+          fi
+          echo "coins=$coins" >> $GITHUB_OUTPUT
+          echo "🪙 coins=$coins"
+
+      - name: 17. فیلتر و ساختن چانک‌های پویا (با هوشمندی progress.json)
+        id: build_chunks
+        run: |
+          # ============================================================
+          # 🎯 مسیر هدفمند: وقتی loop.yml در حالت «تکمیل استراتژی ناقص»
+          # این workflow را صدا می‌زند، خودش دقیقاً روی دیسک چک کرده که
+          # کدام چانک‌ها برای این استراتژی ناقص‌اند و آن‌ها را مستقیماً در
+          # target_chunks می‌فرستد. در این حالت هیچ محاسبه‌ی دیگری
+          # (progress.json، DONE_CHUNKS، ALL_TF_COMPLETE) انجام نمی‌شود —
+          # چون همان محاسبه از قبل و با اطلاعات دقیق‌تر (سطح فایل، نه فقط
+          # سطح استراتژی) توسط loop.yml انجام شده. مسیر عادی (زیر همین
+          # if) کاملاً دست‌نخورده باقی می‌ماند.
+          # ============================================================
+          TARGET_CHUNKS='${{ github.event.inputs.target_chunks }}'
+          if [ -n "$TARGET_CHUNKS" ] && [ "$TARGET_CHUNKS" != "[]" ] && echo "$TARGET_CHUNKS" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1; then
+            echo "🎯 حالت هدفمند فعال است: چانک‌های داده‌شده توسط loop.yml مستقیماً استفاده می‌شوند."
+            echo "   چانک‌ها: $TARGET_CHUNKS"
+            echo "   (بدون بررسی progress.json — چون این لیست از قبل روی وضعیت واقعی دیسک محاسبه شده است)"
+            echo "chunks=$TARGET_CHUNKS" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          START_DATE="${{ github.event.inputs.filter_start_date }}"
+          END_DATE="${{ github.event.inputs.filter_end_date }}"
+          DATA_DIR="data/All_Coins_Combined"
+          PROGRESS_FILE="progress.json"
+          STRAT_DIR_SUFFIX="5m"
+
+          mapfile -t ALL_FILES < <(find "$DATA_DIR" -maxdepth 1 -name "*.csv" -printf '%f\n' | sort)
+
+          declare -A DONE_CHUNKS
+          if [ -f "$PROGRESS_FILE" ]; then
+            STRAT_NAME="${{ github.event.inputs.strategy_name }}"
+            if [ -z "$STRAT_NAME" ]; then
+              STRAT_NAME=$(find strategies -maxdepth 1 -name "*.js" -exec basename {} \; | head -1)
+            fi
+            if [ -n "$STRAT_NAME" ]; then
+              DONE_LIST=$(jq -r --arg s "$STRAT_NAME" '.[$s] // [] | join(" ")' "$PROGRESS_FILE" 2>/dev/null)
+              for chunk in $DONE_LIST; do
+                DONE_CHUNKS[$chunk]=1
+              done
+              echo "📊 چانک‌های انجام‌شده برای $STRAT_NAME (طبق $PROGRESS_FILE): ${!DONE_CHUNKS[*]}"
+            fi
+          fi
+
+          FILTERED=()
+          for f in "${ALL_FILES[@]}"; do
+            if [[ $f =~ ([0-9]{4}-[0-9]{2}-[0-9]{2})_ ]]; then
+              FILE_START="${BASH_REMATCH[1]}"
+              if [ -n "$START_DATE" ]; then
+                [[ "$FILE_START" < "$START_DATE" ]] && continue
+              fi
+              if [ -n "$END_DATE" ]; then
+                [[ "$FILE_START" > "$END_DATE" ]] && continue
+              fi
+            fi
+            FILTERED+=("$f")
+          done
+
+          cnt=${#FILTERED[@]}
+          # ⚠️ باید دقیقاً با CHUNK_SIZE در loop.yml (استپ ۷) و --chunk-size
+          # پایین‌تر در همین فایل یکی باشد — نگاه کنید به توضیح در loop.yml.
+          SIZE=66
+
+          n=$(( (cnt + SIZE - 1) / SIZE ))
+          chunks="["
+          CHUNKS_ADDED=0
+          for ((i=0; i<n; i++)); do
+            s=$((i*SIZE))
+            if [ -n "${DONE_CHUNKS[$s]}" ]; then
+              echo "⏩ چانک $s قبلاً در $PROGRESS_FILE ثبت شده. نادیده گرفته می‌شود."
+              continue
+            fi
+            # ⚠️ رفع باگ: قبلاً این چک فقط پوشهٔ ${STRAT_NAME}_5m را می‌دید و به
+            # محض کامل بودنِ همان یک تایم‌فریم، کل حلقه break می‌شد — یعنی اگر
+            # تایم‌فریم‌های دیگر (1h/4h/24h و ...) هنوز ناقص بودند، چانک لازم
+            # برای تکمیل‌شان هرگز اضافه نمی‌شد. حالا همهٔ پوشه‌های
+            # results/${STRAT_NAME}_* (همهٔ تایم‌فریم‌های موجود) بررسی می‌شوند و
+            # فقط زمانی «کامل» در نظر گرفته می‌شود که همهٔ آن‌ها پر باشند.
+            ALL_TF_COMPLETE=true
+            FOUND_ANY_DIR=false
+            for STRAT_DIR in results/${STRAT_NAME}_*/; do
+              [ -d "$STRAT_DIR" ] || continue
+              FOUND_ANY_DIR=true
+              ENC_COUNT=$(find "$STRAT_DIR" -name "results.enc" -type f | wc -l)
+              if [ "$ENC_COUNT" -lt "$cnt" ]; then
+                ALL_TF_COMPLETE=false
+                break
+              fi
+            done
+            if [ "$FOUND_ANY_DIR" = true ] && [ "$ALL_TF_COMPLETE" = true ]; then
+              echo "⏩ استراتژی $STRAT_NAME در همهٔ تایم‌فریم‌های موجود کامل است. هیچ چانکی اضافه نمی‌شود."
+              break
+            fi
+            [ $CHUNKS_ADDED -gt 0 ] && chunks+=", "
+            chunks+="$s"
+            CHUNKS_ADDED=$((CHUNKS_ADDED + 1))
+          done
+          chunks+="]"
+          echo "chunks=$chunks" >> $GITHUB_OUTPUT
+          echo "تعداد کل فایل‌های فیلتر شده: $cnt, اندازه چانک: $SIZE, تعداد چانک‌های جدید: $CHUNKS_ADDED از $n"
+
+      - name: 17.1 ساخت work-list strategy×coin×chunk با حذف موارد تکمیل‌شده
+        id: build_work_items
+        env:
+          STRATEGIES_JSON: ${{ steps.list_strategies.outputs.files }}
+          COINS_JSON: ${{ steps.list_coins.outputs.coins }}
+          CHUNKS_JSON: ${{ steps.build_chunks.outputs.chunks }}
+          MAX_JOBS: ${{ github.event.inputs.max_jobs_per_run }}
+        run: |
+          python - <<'PY2'
+          import json, os
+          ss=json.loads(os.environ.get('STRATEGIES_JSON') or '[]')
+          cs=json.loads(os.environ.get('COINS_JSON') or '[]')
+          ks=json.loads(os.environ.get('CHUNKS_JSON') or '[]')
+          cap=max(1,int(os.environ.get('MAX_JOBS','10')))
+          progress={}
+          try:
+              with open('progress.json') as f: progress=json.load(f)
+          except Exception: pass
+          work=[]; possible=0
+          for s in ss:
+            for c in cs:
+              done=set(progress.get(c,{}).get(s,[]))
+              for k in ks:
+                possible += 1
+                if int(k) in {int(x) for x in done}: continue
+                work.append({'strategy_file':s,'coin':c,'chunk':int(k)})
+                if len(work)>=cap: break
+              if len(work)>=cap: break
+            if len(work)>=cap: break
+          out=json.dumps(work,separators=(',',':'))
+          all_count=0
+          for s in ss:
+            for c in cs:
+              done={int(x) for x in progress.get(c,{}).get(s,[])}
+              all_count += sum(1 for k in ks if int(k) not in done)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('work_items='+out+'\n')
+              f.write('pending_count='+str(all_count)+'\n')
+              f.write('selected_count='+str(len(work))+'\n')
+          print(f'🎯 selected {len(work)} work item(s); total pending={all_count}')
+          PY2
+
+      - name: تأیید فایل‌های سورس قبل از بارگذاری
+        run: |
+          echo "===== بررسی فایل‌های encrypted_data/src ====="
+          ls -l encrypted_data/src/
+          for f in encrypted_data/src/backtest-core.js encrypted_data/src/divergence-detector.js; do
+            if [ ! -f "$f" ]; then
+              echo "❌ $f وجود ندارد!"
+              exit 1
+            fi
+            SIZE=$(stat -c%s "$f")
+            if [ "$SIZE" -eq 0 ]; then
+              echo "❌ $f خالی است!"
+              exit 1
+            fi
+            echo "✅ $f ($SIZE بایت) آماده‌ی بارگذاری"
+          done
+
+      - name: 18. بارگذاری محیط آماده شده
+        uses: actions/upload-artifact@v4
+        with:
+          name: prep
+          # ⚠️ رفع باگ امنیتی: قبلاً /tmp/artifact_src/ (نسخه‌ی رمزگشایی‌شده‌ی
+          # backtest-core.js و divergence-detector.js) هم اینجا آپلود می‌شد. چون
+          # این artifact برای هر کسی با دسترسی خواندن به تب Actions قابل دانلوده،
+          # این کار عملاً رمزنگاری AES-256-CBC روی src.enc را بی‌اثر می‌کرد. الان
+          # سورس رمزگشایی‌شده اصلاً وارد artifact نمی‌شود؛ جاب backtest به‌جایش
+          # خودش encrypted_data/src.enc را مستقیماً decrypt می‌کند (پایین همین فایل).
+          path: |
+            data/
+            strategies/
+            node_modules/
+            package.json
+
+  backtest:
+    needs: [check-completion, prepare]
+    if: needs.prepare.outputs.work_items != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(github.event.inputs.max_minutes) }}
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include: ${{ fromJson(needs.prepare.outputs.work_items) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+      - name: چک‌اوت now-test-repo (برای aggregated/)
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ github.repository_owner }}/now-test-repo
+          path: now-test-repo
+
+      - name: 2. دریافت محیط آماده شده
+        uses: actions/download-artifact@v4
+        with:
+          name: prep
+
+      - name: 3. راه‌اندازی Node.js
+        uses: actions/setup-node@v4
+        with: { node-version: '18' }
+
+      - name: بازیابی فایل‌های سورس (رمزگشایی مستقیم src.enc)
+        # ⚠️ رفع باگ امنیتی: قبلاً این استپ با find . در کل workspace دنبال کپی‌های
+        # پراکنده‌ی backtest-core.js/divergence-detector.js/run-backtest.js می‌گشت —
+        # کپی‌هایی که از artifact prep (شامل /tmp/artifact_src رمزگشایی‌شده) می‌اومدن.
+        # الان به‌جای اتکا به artifact، دقیقاً مثل استپ ۱۳ جاب prepare، خودِ این جاب
+        # مستقیماً encrypted_data/src.enc (که با checkout همین جاب از main میاد) را
+        # با CODE_PASSWORD رمزگشایی می‌کند — بدون نیاز به منتقل کردن سورس رمزگشایی‌شده
+        # از جاب دیگر یا از artifact.
+        env:
+          CODE_PASSWORD: ${{ secrets.CODE_PASSWORD }}
+        run: |
+          mkdir -p encrypted_data/src
+          node -e "const crypto=require('crypto'),fs=require('fs');const pass=process.env.CODE_PASSWORD;const data=fs.readFileSync('encrypted_data/src.enc');const key=crypto.scryptSync(pass,'salt',32);const iv=data.slice(0,16),enc=data.slice(16);const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);const dec=Buffer.concat([decipher.update(enc),decipher.final()]);fs.writeFileSync('src.tar.gz',dec);"
+          tar -xzf src.tar.gz -C encrypted_data/src
+          rm src.tar.gz
+          echo "===== بررسی فایل‌های بازیابی‌شده ====="
+          for f in backtest-core.js divergence-detector.js run-backtest.js; do
+            TARGET="encrypted_data/src/$f"
+            if [ ! -f "$TARGET" ] || [ ! -s "$TARGET" ]; then
+              echo "❌ $f پس از رمزگشایی وجود ندارد یا خالی است!"
+              exit 1
+            fi
+            echo "✅ $f ($(stat -c%s "$TARGET") بایت)"
+          done
+
+      - name: رمزگشایی و نصب Wickra (آفلاین)
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          PENDING_COUNT: ${{ needs.prepare.outputs.pending_count }}
+          SELECTED_COUNT: ${{ needs.prepare.outputs.selected_count }}
+        run: |
+          if [ -f "vendor/wickra.enc" ]; then
+            echo "🔓 در حال رمزگشایی vendor/wickra.enc ..."
+            node -e "
+              const crypto=require('crypto'),fs=require('fs');
+              const pass=process.env.RESULTS_PASSWORD;
+              const data=fs.readFileSync('vendor/wickra.enc');
+              const key=crypto.scryptSync(pass,'salt',32);
+              const iv=data.slice(0,16), enc=data.slice(16);
+              const decipher=crypto.createDecipheriv('aes-256-cbc',key,iv);
+              const dec=Buffer.concat([decipher.update(enc),decipher.final()]);
+              fs.writeFileSync('wickra.tgz',dec);
+            "
+            echo "📦 نصب wickra از فایل محلی ..."
+            cd encrypted_data/src
+            npm install ../../wickra.tgz --silent
+            cd ../..
+            rm -f wickra.tgz
+            echo "✅ Wickra با موفقیت نصب شد."
+          else
+            echo "⚠️ فایل vendor/wickra.enc یافت نشد. نصب Wickra رد شد."
+          fi
+
+      - name: نصب papaparse
+        run: |
+          cd encrypted_data/src
+          if [ ! -d node_modules/papaparse ]; then
+            npm init -y --silent 2>/dev/null || true
+            npm install papaparse --silent
+          fi
+
+      - name: ساختن پوشه‌های results و logs
+        run: mkdir -p results logs
+
+      - name: 🩺 4. بررسی سلامت قبل از اجرا
+        run: |
+          DATA_DIR="data/All_Coins_Combined"
+          [ ! -d "$DATA_DIR" ] && { echo "❌ پوشه داده وجود ندارد."; exit 1; }
+          echo "✅ پوشه داده: $DATA_DIR"
+
+      - name: 5. اجرای بکتست
+        id: backtest_run
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          PENDING_COUNT: ${{ needs.prepare.outputs.pending_count }}
+          SELECTED_COUNT: ${{ needs.prepare.outputs.selected_count }}
+          TF_FILTER: ${{ github.event.inputs.timeframes_filter }}
+        run: |
+          set -e
+          echo "شروع بکتست: ${{ matrix.strategy_file }} - ${matrix.coin} - چانک ${{ matrix.chunk }}"
+          TF_ARGS=()
+          if [ -n "$TF_FILTER" ]; then
+            echo "🧪 حالت استثنا: فقط تایم‌فریم‌های $TF_FILTER اجرا می‌شوند."
+            TF_ARGS=(--timeframes-only "$TF_FILTER")
+          fi
+          node encrypted_data/src/run-backtest.js \
+            --strategy-file "strategies/${{ matrix.strategy_file }}" \
+            --start-index ${{ matrix.chunk }} \
+            --chunk-size 66 \
+            --data-dir "data/${{ matrix.coin }}" \
+            --aggregated-repo-dir "${{ github.workspace }}/now-test-repo" \
+            "${TF_ARGS[@]}" \
+            2>&1 | tee logs/backtest-output-${{ matrix.chunk }}.log
+
+      - name: کپی نتایج به ریشه
+        if: always()
+        run: |
+          if [ -d encrypted_data/src/results ]; then
+            cp -r encrypted_data/src/results/. results/ 2>/dev/null || true
+          fi
+
+      - name: 6. ذخیره لاگ خطا با اثر انگشت (فقط در صورت شکست، بدون push مستقیم)
+        # ⚠️ بازطراحی: قبلاً این استپ مستقیماً errors/ را commit/push می‌کرد که یعنی
+        # تا ۲۰ جاب موازی هم‌زمان روی یک مخزن می‌نوشتند. حالا فقط فایل رمزنگاری‌شده
+        # را در errors/ محلی می‌سازد؛ push واقعی در استپ بعدی (آپلود artifact) و
+        # نهایتاً در جاب collect (تک‌نویسنده) انجام می‌شود.
+        if: failure()
+        env:
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          PENDING_COUNT: ${{ needs.prepare.outputs.pending_count }}
+          SELECTED_COUNT: ${{ needs.prepare.outputs.selected_count }}
+        run: |
+          SAFE_STRAT=$(echo "${{ matrix.strategy_file }}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+          ERROR_FILE="error_${SAFE_STRAT}_chunk_${{ matrix.chunk }}_run.enc"
+          LOG_FILE="logs/backtest-output-${{ matrix.coin }}-${{ matrix.chunk }}.log"
+          if [ -f "$LOG_FILE" ]; then
+            SIZE=$(stat -c%s "$LOG_FILE" 2>/dev/null || stat -f%z "$LOG_FILE")
+            if [ "$SIZE" -gt 20000000 ]; then
+              tail -c 20000000 "$LOG_FILE" > "${LOG_FILE}.trimmed" && mv "${LOG_FILE}.trimmed" "$LOG_FILE"
+            fi
+            node -e "
+              const crypto=require('crypto'),fs=require('fs');
+              const pass=process.env.RESULTS_PASSWORD;
+              const data=fs.readFileSync('$LOG_FILE');
+              const key=crypto.scryptSync(pass,'salt',32);
+              const iv=crypto.randomBytes(16);
+              const cipher=crypto.createCipheriv('aes-256-cbc',key,iv);
+              const enc=Buffer.concat([cipher.update(data),cipher.final()]);
+              fs.writeFileSync('$ERROR_FILE', Buffer.concat([iv,enc]));
+            "
+            mkdir -p errors && cp "$ERROR_FILE" errors/
+          else
+            echo "⚠️ فایل لاگ وجود ندارد، از ذخیره خطا صرف نظر می‌شود."
+          fi
+
+      - name: 7. بارگذاری نتایج این چانک به‌صورت artifact (بدون push مستقیم به مخزن)
+        # ⚠️ بازطراحی اصلی: به‌جای این‌که هر یک از ۱۴-۲۰ جاب موازی مستقیماً به
+        # results/ و progress.json روی مخزن push کند (که باعث race condition و
+        # گم‌شدن آپدیت‌های progress.json می‌شد — چون هر retry با یک بک‌آپ محلیِ
+        # کهنه رونویسی می‌کرد)، این جاب فقط نتایج و منیفست خودش را به‌صورت یک
+        # artifact جداگانه بارگذاری می‌کند. هیچ commit/push‌ای در این جاب انجام
+        # نمی‌شود. جاب collect در پایان همه‌ی artifact‌ها را دانلود می‌کند، برای
+        # هر چانک دوباره منیفست را در برابر فایل‌های واقعیِ artifact تأیید می‌کند
+        # (دقیقاً همان راستی‌آزمایی قبلی، فقط منبعش artifact است نه origin/main)
+        # و فقط چانک‌های کاملاً تأییدشده را — یکی‌یکی — به results/ و progress.json
+        # اضافه می‌کند. اگر یک چانک ناقص باشد، نه فایل‌هایش کپی می‌شود و نه در
+        # progress.json ثبت می‌شود؛ یعنی همان دقتِ فعلی («یک نتیجه ذخیره نشه، آن
+        # ورودی اصلاً آپدیت نمی‌شود») کاملاً حفظ می‌شود، فقط در یک نقطهٔ واحد اجرا
+        # می‌شود، پس تداخل نوشتاری صفر می‌شود.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chunk-output-${{ matrix.strategy_file }}-${{ matrix.coin }}-${{ matrix.chunk }}
+          path: |
+            results/
+            errors/
+          if-no-files-found: warn
+          retention-days: 3
+          # ⚠️ رفع باگ: منیفست با نقطه شروع می‌شود (.manifest_*.json) و
+          # actions/upload-artifact@v4 به‌طور پیش‌فرض include-hidden-files را
+          # false در نظر می‌گیرد، یعنی این فایل هرگز وارد artifact نمی‌شد.
+          # نتیجه: جاب collect همیشه «منیفست یافت نشد» می‌داد، هر ۴ چانک را
+          # skip می‌کرد و هیچ‌چیز commit نمی‌شد — بدون اینکه هیچ خطای واضحی
+          # نشان داده شود.
+          include-hidden-files: true
+
+  # ============================================================
+  # Job 3: جمع‌آوری و ثبت نهایی — تک‌نویسنده، تداخل صفر
+  # ============================================================
+  collect:
+    needs: [prepare, backtest]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+
+      - name: 1. دانلود artifact نتایج همه‌ی چانک‌ها
+        uses: actions/download-artifact@v4
+        with:
+          pattern: chunk-output-*
+          path: /tmp/chunk_out
+        continue-on-error: true
+        # اگر هیچ چانکی artifact تولید نکرده باشد (مثلاً prepare چانکی نساخته
+        # یا همه‌ی جاب‌های backtest قبل از استپ آپلود کرش کرده‌اند)، این استپ
+        # نباید کل جاب را fail کند؛ استپ بعدی با پوشه‌ی خالی بی‌ضرر ادامه می‌دهد.
+
+      - name: 2. راستی‌آزمایی هر چانک طبق منیفست و اعمال تک‌نویسنده روی مخزن
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          mkdir -p results
+          if [ ! -f progress.json ]; then echo '{}' > progress.json; fi
+
+          TOTAL=0; VERIFIED=0; SKIPPED=0
+
+          if [ -d /tmp/chunk_out ]; then
+            for ARTIFACT_DIR in /tmp/chunk_out/*/; do
+              [ -d "$ARTIFACT_DIR" ] || continue
+              TOTAL=$((TOTAL+1))
+
+              # ── همان راستی‌آزمایی سخت‌گیرانهٔ قبلی: فقط منیفست همین چانک
+              # منبع معتبر تعداد خروجی‌های مورد انتظار است. اگر منیفست نباشد
+              # یا حتی یک results.enc کم باشد، کل این چانک نادیده گرفته
+              # می‌شود — نه فایل‌هایش کپی می‌شود، نه progress.json تغییر می‌کند.
+              MANIFEST_FILE=$(find "$ARTIFACT_DIR/results" -maxdepth 1 -name ".manifest_*.json" 2>/dev/null | head -1)
+              if [ -z "$MANIFEST_FILE" ]; then
+                echo "❌ [$ARTIFACT_DIR] منیفست یافت نشد. این چانک به‌طور کامل نادیده گرفته می‌شود."
+                SKIPPED=$((SKIPPED+1))
+                continue
+              fi
+
+              MANIFEST_BASENAME=$(basename "$MANIFEST_FILE" .json)
+              REST="${MANIFEST_BASENAME#.manifest_}"
+              CHUNK="${REST##*_}"
+              STRAT_NAME_NO_EXT="${REST%_*}"
+              STRAT_NAME="${STRAT_NAME_NO_EXT}.js"
+
+              ART_NAME=$(basename "$ARTIFACT_DIR")
+              COIN=$(echo "$ART_NAME" | sed -E 's/^chunk-output-.*-([A-Z0-9]+)-[0-9]+$/\1/')
+              [ -n "$COIN" ] || COIN="UNKNOWN"
+              mkdir -p "results/$COIN"
+
+              mapfile -t MANIFEST_FILENAMES < <(jq -r '.fileNames[]' "$MANIFEST_FILE")
+              mapfile -t MANIFEST_TF_LABELS < <(jq -r '.tfLabels[]' "$MANIFEST_FILE")
+
+              if [ "${#MANIFEST_FILENAMES[@]}" -eq 0 ] || [ "${#MANIFEST_TF_LABELS[@]}" -eq 0 ]; then
+                echo "❌ [$STRAT_NAME چانک $CHUNK] منیفست خالی/نامعتبر است. نادیده گرفته می‌شود."
+                SKIPPED=$((SKIPPED+1))
+                continue
+              fi
+
+              EXPECTED=$(( ${#MANIFEST_FILENAMES[@]} * ${#MANIFEST_TF_LABELS[@]} ))
+              MISSING=0
+              for FN in "${MANIFEST_FILENAMES[@]}"; do
+                for TF in "${MANIFEST_TF_LABELS[@]}"; do
+                  SRC_PATH="$ARTIFACT_DIR/results/${STRAT_NAME_NO_EXT}_${TF}/${FN}/results.enc"
+                  if [ ! -f "$SRC_PATH" ]; then
+                    echo "❌ خروجی غایب در artifact: $SRC_PATH"
+                    MISSING=$((MISSING+1))
+                  fi
+                done
+              done
+
+              if [ "$MISSING" -gt 0 ]; then
+                echo "❌ [$STRAT_NAME چانک $CHUNK] $MISSING از $EXPECTED خروجی غایب است. کل این چانک نادیده گرفته می‌شود — progress.json برایش آپدیت نمی‌شود تا در اجرای بعدی دوباره تلاش شود."
+                SKIPPED=$((SKIPPED+1))
+                continue
+              fi
+
+              echo "✅ [$STRAT_NAME چانک $CHUNK] همه‌ی $EXPECTED خروجی تأیید شد. اعمال می‌شود."
+              cp -r "$ARTIFACT_DIR/results/." "results/$COIN/" 2>/dev/null || true
+
+              if [ -d "$ARTIFACT_DIR/errors" ] && [ -n "$(ls -A "$ARTIFACT_DIR/errors" 2>/dev/null)" ]; then
+                mkdir -p errors
+                cp -r "$ARTIFACT_DIR/errors/." errors/ 2>/dev/null || true
+              fi
+
+              # append فقط اگر قبلاً ثبت نشده (idempotent، در برابر artifact تکراری هم امن است)
+              cat progress.json | jq --arg coin "$COIN" --arg strat "$STRAT_NAME" --arg chunk "$CHUNK" \
+                'if ((.[$coin][$strat] // []) | index($chunk | tonumber)) then . else (.[$coin][$strat] = ((.[$coin][$strat] // []) + [$chunk | tonumber])) end' \
+                > /tmp/progress_tmp.json && mv /tmp/progress_tmp.json progress.json
+
+              VERIFIED=$((VERIFIED+1))
+            done
+          fi
+
+          # منیفست‌های اعمال‌شده دیگر نقشی ندارند و نباید commit شوند
+          find results -maxdepth 1 -name ".manifest_*.json" -delete 2>/dev/null || true
+
+          echo "📊 جمع‌بندی collect: $TOTAL چانک دریافت‌شده، $VERIFIED چانک تأیید و ثبت شد، $SKIPPED چانک ناقص/نادیده گرفته شد."
+
+          if [ "$VERIFIED" -eq 0 ]; then
+            echo "ℹ️ هیچ چانک تأییدشده‌ای وجود نداشت؛ چیزی commit نمی‌شود."
+            exit 0
+          fi
+
+          if ! grep -qxF 'logs/' .gitignore 2>/dev/null; then
+            echo 'logs/' >> .gitignore
+          fi
+
+          git add results/ progress.json .gitignore
+          [ -d errors ] && git add errors/
+          git commit -m "collect: apply $VERIFIED verified chunk(s), skip $SKIPPED incomplete chunk(s)" || true
+
+          # ── تک‌نویسنده: چون این جاب به‌تنهایی (بدون هیچ جاب موازی دیگری) در
+          # حال push به این مخزن است، تداخل تقریباً غیرممکن است؛ این retry فقط
+          # محافظ در برابر یک push خارجی نادر (مثلاً از یک اجرای دستی دیگر) است.
+          RETRY=0; MAX=30
+          while [ $RETRY -lt $MAX ]; do
+            if git pull --rebase && git push; then
+              echo "✅ push نهایی collect موفق (تلاش $RETRY)"
+              break
+            else
+              RETRY=$((RETRY+1))
+              sleep $(( (RANDOM % 5) + 1 ))
+            fi
+          done
+          if [ $RETRY -ge $MAX ]; then
+            echo "❌ push نهایی collect ناموفق پس از $MAX تلاش"
+            exit 1
+          fi
+
+  publish-third-repo:
+    needs: [prepare, backtest, collect]
+    if: always() && needs.prepare.result == 'success' && needs.backtest.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          fetch-depth: 1
+
+      - name: دریافت artifactهای این اجرا
+        uses: actions/download-artifact@v4
+        with:
+          pattern: chunk-output-*
+          path: /tmp/chunk_out
+        continue-on-error: true
+
+      - name: بسته‌بندی و ثبت اتمیک در مخزن سوم
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+          RESULTS_PASSWORD: ${{ secrets.RESULTS_PASSWORD || secrets.DATA_PASSWORD }}
+          PENDING_COUNT: ${{ needs.prepare.outputs.pending_count }}
+          SELECTED_COUNT: ${{ needs.prepare.outputs.selected_count }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ] || [ -z "${THIRD_REPO:-}" ]; then
+            echo "❌ CROSS_REPO_TOKEN یا THIRD_REPO تنظیم نشده است."
+            exit 1
+          fi
+          rm -rf /tmp/third_repo_publish
+          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git" /tmp/third_repo_publish
+          cd /tmp/third_repo_publish
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+
+          PUBLISHED=0
+          for A in /tmp/chunk_out/chunk-output-*; do
+            [ -d "$A" ] || continue
+            MANIFEST=$(find "$A/results" -maxdepth 1 -name '.manifest_*.json' -type f | head -1)
+            [ -f "$MANIFEST" ] || { echo "⚠️ manifest ندارد: $A"; continue; }
+            BASE=$(basename "$MANIFEST" .json)
+            REST=${BASE#.manifest_}
+            CHUNK=${REST##*_}
+            STRAT_BASE=${REST%_*}
+            STRAT=${STRAT_BASE}.js
+            ART=$(basename "$A")
+            COIN=$(echo "$ART" | sed -E 's/^chunk-output-.*-([A-Z0-9]+)-[0-9]+$/\1/')
+            [ -n "$COIN" ] || { echo "⚠️ coin قابل تشخیص نیست: $ART"; continue; }
+
+            EXPECTED=0
+            while IFS= read -r -d '' f; do EXPECTED=$((EXPECTED+1)); done < <(find "$A/results" -type f -name 'results.enc' -print0)
+            [ "$EXPECTED" -gt 0 ] || { echo "⚠️ خروجی خالی: $A"; continue; }
+
+            WORK=/tmp/bundle_${PUBLISHED}
+            rm -rf "$WORK"; mkdir -p "$WORK"
+            cp -a "$A/results" "$WORK/results"
+            cp "$MANIFEST" "$WORK/manifest.json"
+            tar -czf "$WORK/results.tar.gz" -C "$WORK" results manifest.json
+            node -e "const fs=require('fs'),crypto=require('crypto');const src=process.argv[1],dst=process.argv[2],pass=process.env.RESULTS_PASSWORD;if(!pass)throw new Error('RESULTS_PASSWORD missing');const data=fs.readFileSync(src),key=crypto.scryptSync(pass,'salt',32),iv=crypto.randomBytes(16),c=crypto.createCipheriv('aes-256-cbc',key,iv),enc=Buffer.concat([c.update(data),c.final()]);fs.writeFileSync(dst,Buffer.concat([iv,enc]));" "$WORK/results.tar.gz" "$WORK/results.enc"
+            DEST="results/$STRAT/$COIN/$CHUNK/results.enc"
+            mkdir -p "$(dirname "$DEST")"
+            cp "$WORK/results.enc" "$DEST"
+            printf '%s\n' '{"strategy":"'"$STRAT"'","coin":"'"$COIN"'","chunk":'"$CHUNK"',"result_files":'"$EXPECTED"',"run_id":"'"${{ github.run_id }}"'"}' > "$(dirname "$DEST")/manifest.json"
+            PUBLISHED=$((PUBLISHED+1))
+          done
+
+          if [ "$PUBLISHED" -eq 0 ]; then
+            echo "ℹ️ هیچ artifact کامل قابل انتشار نبود."
+            exit 0
+          fi
+
+          # _done فقط وقتی ساخته می‌شود که این run همه‌ی کارهای pending را انتخاب کرده
+          # و همه‌ی artifactهای آن‌ها را با موفقیت publish کرده باشد.
+          if [ "${PENDING_COUNT:-0}" -gt 0 ] && [ "${SELECTED_COUNT:-0}" = "${PENDING_COUNT:-0}" ] && [ "$PUBLISHED" -eq "$SELECTED_COUNT" ]; then
+            for A in /tmp/chunk_out/chunk-output-*; do
+              [ -d "$A" ] || continue
+              MANIFEST=$(find "$A/results" -maxdepth 1 -name '.manifest_*.json' -type f | head -1)
+              [ -f "$MANIFEST" ] || continue
+              BASE=$(basename "$MANIFEST" .json); REST=${BASE#.manifest_}; CHUNK=${REST##*_}; STRAT_BASE=${REST%_*}; STRAT=${STRAT_BASE}.js
+              ART=$(basename "$A"); COIN=$(echo "$ART" | sed -E 's/^chunk-output-.*-([A-Z0-9]+)-[0-9]+$/\1/')
+              [ -n "$COIN" ] || continue
+              mkdir -p "_done/$STRAT"
+              printf '%s\n' '{"strategy":"'"$STRAT"'","coin":"'"$COIN"'","status":"complete","completed_at":"'"$(date -u +%FT%TZ)"'","run_id":"'"${{ github.run_id }}"'"}' > "_done/$STRAT/$COIN.json"
+            done
+            echo "✅ همه‌ی pendingهای این plan در همین run تکمیل و _done ثبت شد."
+          else
+            echo "ℹ️ _done ساخته نشد: pending=$PENDING_COUNT selected=$SELECTED_COUNT published=$PUBLISHED"
+          fi
+
+          git add results/ _done/ 2>/dev/null || git add results/
+
+          git commit -m "publish verified multi backtest chunks (run ${{ github.run_id }})" || true
+          for i in $(seq 1 20); do
+            if git pull --rebase && git push; then echo "✅ publish به مخزن سوم موفق شد."; exit 0; fi
+            sleep $(( (RANDOM % 5) + 2 ))
+          done
+          echo "❌ push مخزن سوم پس از retryها ناموفق بود."
+          exit 1
+
+  trigger-loop:
+    needs: [collect]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: فراخوانی Loop Workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🚀 راه‌اندازی loop.yml روی شاخه main ..."
+          if gh workflow run multi_loop.yml --repo "${{ github.repository }}" --ref main; then
+            echo "✅ فراخوانی موفق بود."
+          else
+            echo "⚠️ فراخوانی اول ناموفق بود؛ ۵ ثانیه صبر و یک تلاش دوم..."
+            sleep 5
+            gh workflow run multi_loop.yml --repo "${{ github.repository }}" --ref main || echo "❌ فراخوانی دوم هم ناموفق بود."
+          fi

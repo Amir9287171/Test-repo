@@ -1,0 +1,87 @@
+name: Macro Data Pipeline (DJI / SPX / VIX / DXY / Gold ...)
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'تاریخ شروع داده (YYYY-MM-DD)'
+        required: false
+        default: '2017-10-01'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macro-data-pipeline
+  cancel-in-progress: false
+
+jobs:
+  download-macro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 1. دریافت کد مخزن
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 2. راه‌اندازی پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 3. نصب کتابخانه‌ها
+        run: |
+          pip install --upgrade pip
+          pip install pandas requests
+
+      - name: 4. دانلود داده‌ها (چند منبع رایگان، بدون کلید و Secret)
+        env:
+          START_DATE: ${{ github.event.inputs.start_date }}
+        run: |
+          echo "🚀 شروع دانلود داده‌های بازار سهام و کلان"
+          python download_macro.py
+          echo "✅ دانلود تمام شد"
+
+      - name: 5. گزارش دانلود
+        if: always()
+        run: |
+          ls -lh macro_data/ || true
+          python - <<'PY'
+          import json, os
+          p = "macro_data/latest_report.json"
+          if os.path.exists(p):
+              s = json.load(open(p, encoding="utf-8"))["summary"]
+              print("دانلود شد :", len(s["downloaded"]), "نماد:", ", ".join(s["downloaded"]))
+              print("ناقص (partial):", s["partial"] or "-")
+              print("دانلود نشد :", s["missing"] or "-")
+              print("جایگزین (proxy):", s["proxy_used"] or "-")
+          PY
+
+      - name: 6. ذخیره فایل زیپ به‌عنوان Artifact (پشتیبان)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macro-data
+          path: macro_data/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: 7. ذخیره در مخزن (یک فایل زیپ + گزارش)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add -f macro_data/macro_data.zip macro_data/latest_report.json
+          if git diff --staged --quiet; then
+            echo "ℹ️ تغییری برای ذخیره وجود ندارد."
+          else
+            git commit -m "Macro data: update zip ($(date -u +%Y-%m-%d))"
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin ${{ github.ref_name }} && \
+              git push origin HEAD:${{ github.ref_name }} && break
+              echo "⚠️ تلاش $i برای push ناموفق بود؛ دوباره..."
+              sleep 5
+            done
+            echo "✅ فایل macro_data/macro_data.zip در مخزن ذخیره شد."
+          fi

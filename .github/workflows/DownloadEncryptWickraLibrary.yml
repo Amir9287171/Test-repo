@@ -1,0 +1,67 @@
+name: Encrypt and Store Wickra Library (Offline)
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_name:
+        description: 'نام پکیج (پیش‌فرض: wickra)'
+        required: false
+        default: 'wickra'
+      package_version:
+        description: 'نسخه (پیش‌فرض: latest)'
+        required: false
+        default: 'latest'
+
+permissions:
+  contents: write
+
+jobs:
+  encrypt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Download package
+        run: |
+          PKG="${{ github.event.inputs.package_name }}"
+          VER="${{ github.event.inputs.package_version }}"
+          if [ "$VER" = "latest" ]; then
+            npm pack "$PKG@latest"
+          else
+            npm pack "$PKG@$VER"
+          fi
+          echo "TGZ_FILE=$(ls *.tgz)" >> $GITHUB_ENV
+
+      - name: Encrypt with RESULTS_PASSWORD
+        env:
+          PASS: ${{ secrets.RESULTS_PASSWORD }}
+        run: |
+          if [ -z "$PASS" ]; then
+            echo "❌ RESULTS_PASSWORD تنظیم نشده"
+            exit 1
+          fi
+          mkdir -p vendor
+          node -e "
+            const c=require('crypto'),f=require('fs'),p=process.env.PASS;
+            const tgz=process.env.TGZ_FILE;
+            const data=f.readFileSync(tgz);
+            const key=c.scryptSync(p,'salt',32);
+            const iv=c.randomBytes(16);
+            const cipher=c.createCipheriv('aes-256-cbc',key,iv);
+            const enc=Buffer.concat([cipher.update(data),cipher.final()]);
+            f.writeFileSync('vendor/wickra.enc',Buffer.concat([iv,enc]));
+          "
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add vendor/wickra.enc
+          git commit -m "Add encrypted wickra (using RESULTS_PASSWORD)" || true
+          git push
