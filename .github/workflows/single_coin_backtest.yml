@@ -13,6 +13,17 @@ name: Single Coin Backtest (strategies x coins)
 # پیشرفت هر چانک در مخزن سوم ثبت می‌شود (_chunks/)، و فقط وقتی همه‌ی چانک‌های
 # یک job کامل شد، نشانه‌ی _done/<COIN>/<strategy>.json در همان commit می‌نشیند.
 # هیچ داده یا نتیجه‌ای در مخزن اصلی commit نمی‌شود.
+#
+# دو حالت (ورودی mode):
+#   normal : بکتست عادی با single_coin_config.json (بدون هیچ تغییری نسبت به قبل)
+#   replay : بازپخش ورودی‌های ثابت با single_coin_replay_config.json
+#            - همان نقاط ورودِ فایل یکپارچه‌ی استراتژی پایه، با حد ضرر/پلکان‌های متفاوت
+#            - و/یا ورود با تأخیر: صبر تا قیمت x٪ از نقطه‌ی ورود جابه‌جا شود
+#            هر واریانت یک «واحد» جداست با نام مجازی <BASE>__<tag> (فایل واقعی ندارد؛ فقط در manifest
+#            موقتِ ساخته‌شده توسط .github/scripts/replay_expand.py وجود دارد و commit نمی‌شود).
+#            نتایج replay در پوشه‌ی جدا (single_coin_replay_results) ذخیره می‌شود و به نتایج حالت عادی دست نمی‌زند.
+#   با push روی single_coin_replay_config.json هم حالت replay اجرا می‌شود
+#   (اگر در همان commit، single_coin_config.json هم عوض شده باشد حالت عادی اجرا می‌شود؛ replay را دستی بزن).
 
 on:
   workflow_dispatch:
@@ -37,9 +48,17 @@ on:
         description: 'بودجه‌ی زمانی کل اجرا به دقیقه (حداکثر ۳۴۰)'
         required: false
         default: '330'
+      mode:
+        description: 'حالت: normal = بکتست عادی (single_coin_config.json) | replay = بازپخش ورودی‌های ثابت (single_coin_replay_config.json)'
+        required: false
+        type: choice
+        default: 'normal'
+        options:
+          - normal
+          - replay
   push:
     branches: [main]
-    paths: ['single_coin_config.json']
+    paths: ['single_coin_config.json', 'single_coin_replay_config.json']
 
 permissions:
   contents: read
@@ -55,7 +74,12 @@ env:
   # ارزی که بیش از این تعداد فایل دارد، چانک‌های کوچک‌تر می‌گیرد تا جاب‌های موازی بیشتر شود
   BIG_COIN_FILES: "1000"
   BIG_COIN_CHUNK_SIZE: "33"
-  RESULTS_DIR_NAME: "single_coin_backtest_results"
+  # حالت اجرا (normal/replay) — از ورودی mode، یا برای push از روی فایلِ تغییرکرده
+  REPLAY_MODE: ${{ (github.event.inputs.mode == 'replay' || (github.event_name == 'push' && (contains(github.event.head_commit.added, 'single_coin_replay_config.json') || contains(github.event.head_commit.modified, 'single_coin_replay_config.json')) && !contains(github.event.head_commit.added, 'single_coin_config.json') && !contains(github.event.head_commit.modified, 'single_coin_config.json'))) && 'yes' || 'no' }}
+  # پوشه‌ی نتایج در مخزن سوم؛ replay جدا از حالت عادی است
+  RESULTS_DIR_NAME: ${{ (github.event.inputs.mode == 'replay' || (github.event_name == 'push' && (contains(github.event.head_commit.added, 'single_coin_replay_config.json') || contains(github.event.head_commit.modified, 'single_coin_replay_config.json')) && !contains(github.event.head_commit.added, 'single_coin_config.json') && !contains(github.event.head_commit.modified, 'single_coin_config.json'))) && 'single_coin_replay_results' || 'single_coin_backtest_results' }}
+  # config که single_coin_tools.py می‌خواند؛ در replay یک فایل موقتِ ساخته‌شده از single_coin_replay_config.json
+  CONFIG: ${{ (github.event.inputs.mode == 'replay' || (github.event_name == 'push' && (contains(github.event.head_commit.added, 'single_coin_replay_config.json') || contains(github.event.head_commit.modified, 'single_coin_replay_config.json')) && !contains(github.event.head_commit.added, 'single_coin_config.json') && !contains(github.event.head_commit.modified, 'single_coin_config.json'))) && '/tmp/replay_tools_config.json' || 'single_coin_config.json' }}
   # دقیقه‌ی رزرو برای راستی‌آزمایی و آپلود پایانی
   FINALIZE_RESERVE_MIN: "20"
 
@@ -86,8 +110,23 @@ jobs:
         run: |
           set -e
           START_EPOCH=$(date +%s)
-          CFG="single_coin_config.json"
-          [ -f "$CFG" ] || { echo "❌ فایل $CFG وجود ندارد."; exit 1; }
+          if [ "$REPLAY_MODE" = "yes" ]; then
+            RC="single_coin_replay_config.json"
+            [ -f "$RC" ] || { echo "❌ فایل $RC وجود ندارد."; exit 1; }
+            echo "🔁 حالت replay: ساخت واریانت‌ها از $RC"
+            REPLAY_ONLY_STRATEGIES="$ONLY_STRATEGIES" python3 .github/scripts/replay_expand.py \
+              --config "$RC" --out-tools-config "$CONFIG" --manifest /tmp/replay_variants.json \
+              --bases-file /tmp/replay_bases.txt --env-file /tmp/replay.env
+            . /tmp/replay.env
+            # فیلتر only_strategies در replay توسط expand اعمال شد (روی نام پایه، شماره یا نام واریانت)
+            unset ONLY_STRATEGIES
+            # نام واریانت‌ها مجازی است و فایلی در strategies/ ندارد
+            export SKIP_STRATEGY_FILE_CHECK=1
+            CFG="$CONFIG"
+          else
+            CFG="single_coin_config.json"
+            [ -f "$CFG" ] || { echo "❌ فایل $CFG وجود ندارد."; exit 1; }
+          fi
           [ -n "$GH_TOKEN" ] && [ -n "$THIRD_REPO" ] || { echo "❌ CROSS_REPO_TOKEN یا THIRD_REPO تنظیم نشده."; exit 1; }
 
           # ---------- پارامترهای عددی ----------
@@ -104,6 +143,16 @@ jobs:
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git" /tmp/third 2>&1 | tail -2
           [ -d /tmp/third/.git ] || { echo "❌ clone مخزن سوم ناموفق بود."; exit 1; }
           ROOT="/tmp/third/${RESULTS_DIR_NAME}"
+
+          # replay: هشدار اگر برای استراتژی پایه هنوز فایل یکپارچه‌ی ورودی‌ها وجود ندارد
+          if [ "$REPLAY_MODE" = "yes" ] && [ "${REPLAY_ENTRIES_SOURCE:-}" != "now-test-repo" ]; then
+            while IFS= read -r B; do
+              [ -z "$B" ] && continue
+              if ! ls -d /tmp/third/${REPLAY_ENTRIES_SOURCE}/${B}_* >/dev/null 2>&1; then
+                echo "::warning::برای استراتژی پایه $B هیچ فایل یکپارچه‌ای در ${REPLAY_ENTRIES_SOURCE}/ مخزن سوم نیست؛ ابتدا بکتست عادی آن باید کامل و یکپارچه شود."
+              fi
+            done < /tmp/replay_bases.txt
+          fi
 
           # ---------- انتخاب jobها (config، فیلترها، _done، نیمه‌کاره‌ها اول) ----------
           ROOT="$ROOT" MAX_JOBS="$MAX" python3 .github/scripts/single_coin_tools.py plan
@@ -394,6 +443,42 @@ jobs:
           repository: ${{ github.repository_owner }}/now-test-repo
           path: now-test-repo
 
+      # replay: manifest واریانت‌ها را (بدون ساختن فایل استراتژی) می‌سازد و REPLAY_ENTRIES_SOURCE را در env می‌گذارد
+      - name: ساخت manifest واریانت‌های replay
+        if: steps.gate.outputs.run == 'true' && env.REPLAY_MODE == 'yes'
+        run: python3 .github/scripts/replay_expand.py --config single_coin_replay_config.json --manifest /tmp/replay_variants.json --env-file "$GITHUB_ENV"
+
+      # replay: پوشه‌ای با ساختار <dir>/aggregated/<unit>/<unit>_trades.enc برای --aggregated-repo-dir
+      - name: آماده‌سازی منبع نقاط ورود (replay)
+        if: steps.gate.outputs.run == 'true' && env.REPLAY_MODE == 'yes'
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          THIRD_REPO: ${{ secrets.THIRD_REPO }}
+          STRATEGY: ${{ matrix.strategy }}
+        run: |
+          set -e
+          if [ "$REPLAY_ENTRIES_SOURCE" != "now-test-repo" ]; then
+            # منبع در مخزن سوم: aggregated (پیش‌فرض؛ یکپارچه‌ی loop_analysis) یا single_coin_aggregated
+            SRC_DIR="$REPLAY_ENTRIES_SOURCE"
+            [ -n "$GH_TOKEN" ] && [ -n "$THIRD_REPO" ] || { echo "❌ CROSS_REPO_TOKEN یا THIRD_REPO تنظیم نشده."; exit 1; }
+            BASE=$(jq -r --arg k "${STRATEGY%.js}" '.variants[$k].baseKey // empty' /tmp/replay_variants.json)
+            rm -rf /tmp/entries_third /tmp/entries
+            git clone --depth 1 --filter=blob:none --sparse "https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git" /tmp/entries_third 2>&1 | tail -2
+            if [ -n "$BASE" ]; then
+              git -C /tmp/entries_third sparse-checkout set --no-cone "/${SRC_DIR}/${BASE}_*/"
+            else
+              git -C /tmp/entries_third sparse-checkout set --no-cone "/${SRC_DIR}/"
+            fi
+            [ -d "/tmp/entries_third/${SRC_DIR}" ] || { echo "❌ پوشه‌ی ${SRC_DIR} در مخزن سوم نیست؛ ابتدا بکتست عادی استراتژی پایه را کامل و یکپارچه کن."; exit 1; }
+            mkdir -p /tmp/entries
+            ln -sfn "/tmp/entries_third/${SRC_DIR}" /tmp/entries/aggregated
+            echo "ENTRIES_DIR=/tmp/entries" >> "$GITHUB_ENV"
+            echo "✅ منبع ورودی‌ها: ${SRC_DIR} (پایه: ${BASE:-همه})"
+          else
+            echo "ENTRIES_DIR=${{ github.workspace }}/now-test-repo" >> "$GITHUB_ENV"
+            echo "✅ منبع ورودی‌ها: now-test-repo/aggregated"
+          fi
+
       - name: دریافت داده‌ی موقت ${{ matrix.coin }}
         if: steps.gate.outputs.run == 'true'
         uses: actions/download-artifact@v4
@@ -483,14 +568,23 @@ jobs:
           # فقط تایم‌فریم‌های خواسته‌شده‌ی این استراتژی (خالی = همه) تا منبع هدر نرود
           EXTRA=()
           if [ -n "$TFS" ]; then EXTRA+=(--timeframes-only "$TFS"); fi
+          STRATEGY_FILE="strategies/$STRATEGY"
+          if [ "$REPLAY_MODE" = "yes" ]; then
+            # واحد مجازی: فایل استراتژی پایه + نام واریانت از manifest؛ نتایج با نام واریانت ذخیره می‌شوند
+            KEY="${STRATEGY%.js}"
+            BASE_FILE=$(jq -r --arg k "$KEY" '.variants[$k].baseFile // empty' /tmp/replay_variants.json)
+            [ -n "$BASE_FILE" ] || { echo "❌ واریانت $KEY در manifest نیست."; exit 1; }
+            STRATEGY_FILE="strategies/$BASE_FILE"
+            EXTRA+=(--replay-manifest /tmp/replay_variants.json --replay-variant "$KEY")
+          fi
           echo "شروع بکتست: $STRATEGY | $COIN | چانک $CHUNK (اندازه $SIZE) | تایم‌فریم: ${TFS:-همه} | بودجه ${BUDGET}s"
           timeout --kill-after=60 "${BUDGET}s" node encrypted_data/src/run-backtest.js \
             "${EXTRA[@]}" \
-            --strategy-file "strategies/$STRATEGY" \
+            --strategy-file "$STRATEGY_FILE" \
             --start-index "$CHUNK" \
             --chunk-size "$SIZE" \
             --data-dir "data/$COIN" \
-            --aggregated-repo-dir "${{ github.workspace }}/now-test-repo" \
+            --aggregated-repo-dir "${ENTRIES_DIR:-${{ github.workspace }}/now-test-repo}" \
             2>&1 | tee "logs/backtest-output-${JOB_ID}.log"
           # نشانه‌ی پایان سالم؛ بدون آن finalize چانک را قبول نمی‌کند
           echo "ok" > results/.chunk_ok
@@ -701,11 +795,13 @@ jobs:
           N_DONE=$(grep '^n_done=' "$GITHUB_OUTPUT" | cut -d= -f2)
           N_PART=$(grep '^n_part=' "$GITHUB_OUTPUT" | cut -d= -f2)
 
+          MODE_TAG=""
+          [ "$REPLAY_MODE" = "yes" ] && MODE_TAG="replay "
           git add -A
           if git diff --cached --quiet; then
             echo "ℹ️ چیز جدیدی برای commit نبود."; exit 0
           fi
-          git commit -m "single-coin backtest: ${N_DONE:-0} job(s) done, ${N_PART:-0} partial (run ${{ github.run_id }})"
+          git commit -m "single-coin ${MODE_TAG}backtest: ${N_DONE:-0} job(s) done, ${N_PART:-0} partial (run ${{ github.run_id }})"
 
           RETRY=0; MAX=20; PUSHED=false
           while [ $RETRY -lt $MAX ]; do
@@ -718,7 +814,7 @@ jobs:
           [ "$PUSHED" = true ] || { echo "❌ push پس از $MAX تلاش ناموفق ماند"; exit 1; }
 
           {
-            echo "### Single Coin Backtest"
+            echo "### Single Coin Backtest ${MODE_TAG}"
             echo "- job کامل‌شده: **${N_DONE:-0}**"
             echo "- job نیمه‌کاره (اجرای بعد ادامه می‌دهد): **${N_PART:-0}**"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -759,6 +855,7 @@ jobs:
           echo "📈 پیشرفت این اجرا: $PROGRESS (finalize=$FINALIZE_RESULT، چانک تأییدشده=${VERIFIED:-0}، job کامل=${DONE_COUNT:-0}، ارز بدون دیتا=${NODATA_COUNT:-0})"
 
           ARGS=(-f "made_progress=$PROGRESS")
+          if [ "$REPLAY_MODE" = "yes" ]; then ARGS+=(-f "mode=replay"); fi
           if [ -n "$ONLY_COINS" ]; then ARGS+=(-f "only_coins=$ONLY_COINS"); fi
           if [ -n "$ONLY_STRATEGIES" ]; then ARGS+=(-f "only_strategies=$ONLY_STRATEGIES"); fi
           if [ -n "$MAX_JOBS" ]; then ARGS+=(-f "max_jobs_per_run=$MAX_JOBS"); fi

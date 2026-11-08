@@ -7,6 +7,9 @@ name: Single Coin Loop
 # قبل از این منطق، نتایج خام مخزن سوم (single_coin_backtest_results) یکپارچه می‌شود (aggregate-*)
 # و در پوشه‌ی جدید single_coin_aggregated نوشته می‌شود.
 # محافظ حلقه‌ی بی‌پایان: اگر اجرای قبلی هیچ پیشرفتی نداشته (made_progress=false) زنجیره می‌ایستد.
+#
+# ورودی mode: normal (پیش‌فرض، رفتار قبلی) یا replay (نتایج بازپخش در single_coin_replay_results →
+# single_coin_replay_aggregated؛ جدا از حالت عادی). mode توسط single_coin_backtest.yml پاس داده می‌شود.
 
 permissions:
   contents: read
@@ -35,6 +38,14 @@ on:
         description: 'بودجه‌ی زمانی (به backtest پاس داده می‌شود)'
         required: false
         default: ''
+      mode:
+        description: 'حالت (همان ورودی backtest): normal | replay'
+        required: false
+        type: choice
+        default: 'normal'
+        options:
+          - normal
+          - replay
 
 # هماهنگ با single_coin_backtest.yml: هر دو یک گروه دارند و هیچ‌وقت همزمان اجرا نمی‌شوند
 concurrency:
@@ -42,9 +53,12 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RESULTS_DIR_NAME: "single_coin_backtest_results"
+  REPLAY_MODE: ${{ (github.event.inputs.mode == 'replay') && 'yes' || 'no' }}
+  RESULTS_DIR_NAME: ${{ (github.event.inputs.mode == 'replay') && 'single_coin_replay_results' || 'single_coin_backtest_results' }}
+  # config که single_coin_tools.py می‌خواند؛ در replay فایل موقتِ ساخته‌شده از single_coin_replay_config.json
+  CONFIG: ${{ (github.event.inputs.mode == 'replay') && '/tmp/replay_tools_config.json' || 'single_coin_config.json' }}
   # پوشه‌ی جدید خروجی یکپارچه‌سازی (در همان مخزن سوم، کنار RESULTS_DIR_NAME)
-  AGG_DIR_NAME: "single_coin_aggregated"
+  AGG_DIR_NAME: ${{ (github.event.inputs.mode == 'replay') && 'single_coin_replay_aggregated' || 'single_coin_aggregated' }}
 
 jobs:
   # ============================================================
@@ -189,12 +203,18 @@ jobs:
       matrix:
         chunk_index: ${{ fromJSON(needs.aggregate-prepare.outputs.chunk_indices) }}
     steps:
-      - name: Checkout مخزن اصلی (فقط strategies/ برای استخراج متادیتا)
+      # حالت عادی: فقط strategies/ | حالت replay: چک‌اوت کامل (برای replay_generate.py و config)
+      - name: Checkout مخزن اصلی (strategies/ برای استخراج متادیتا)
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: main
-          sparse-checkout: strategies
+          sparse-checkout: ${{ github.event.inputs.mode != 'replay' && 'strategies' || '' }}
+
+      # replay: manifest واریانت‌ها برای ساخت متادیتا (پلکان از manifest، یا از .js پایه برای ورود-فقط)
+      - name: ساخت manifest واریانت‌های replay (برای متادیتا)
+        if: env.REPLAY_MODE == 'yes'
+        run: python3 .github/scripts/replay_expand.py --config single_coin_replay_config.json --manifest /tmp/replay_variants.json
 
       - name: 0. نصب jq
         run: |
@@ -302,6 +322,27 @@ jobs:
               JS_FILE="${GITHUB_WORKSPACE}/strategies/${BASE_STRAT}.js"
               STRAT_DIR="/tmp/third_repo/${AGG_DIR_NAME}/_metadata/${BASE_STRAT}/"
               mkdir -p "$STRAT_DIR"
+
+              # ========== replay: واحد مجازی است و .js ندارد؛ متادیتا از manifest واریانت‌ها ==========
+              if [ "$REPLAY_MODE" = "yes" ]; then
+                RV=$(jq -c --arg k "$BASE_STRAT" '.variants[$k] // empty' /tmp/replay_variants.json 2>/dev/null || true)
+                if [ -z "$RV" ]; then
+                  echo "   ❌ واریانت $BASE_STRAT در manifest نیست (config عوض شده؟). رد می‌شود (بدون پرچم دائمی)."
+                  rm -rf "/tmp/agg_${K}"
+                  continue
+                fi
+                if [ "$(echo "$RV" | jq '.ladder != null')" = "true" ]; then
+                  # واریانت با پلکان جدید: متادیتا مستقیم از همان پلکان
+                  echo "$RV" | jq '{move_percents: [.ladder.stages[].movePercent], stop_loss_initial: .ladder.stopLossInitial, max_move_percent: (if (.ladder.stages | length) > 0 then .ladder.stages[-1].movePercent else null end)}' > "$META_FILE"
+                  cp "$META_FILE" "/tmp/agg_${K}/1.json"
+                  METADATA_SUCCESS=true
+                  META_SOURCE="replay-manifest"
+                  touch "$META_DONE_FLAG"
+                else
+                  # ورود-فقط: پلکان همان استراتژی پایه؛ استخراج از .js پایه با همان منطق عادی
+                  JS_FILE="${GITHUB_WORKSPACE}/strategies/$(echo "$RV" | jq -r '.baseFile')"
+                fi
+              fi
 
               if [ -f "$JS_FILE" ]; then
                 echo "   🔧 [اولویت ۱] فایل ${JS_FILE} یافت شد → استخراج متادیتا از .js..."
@@ -492,6 +533,10 @@ jobs:
                   if [ -f "$TRADE_FILE" ]; then
                     if jq -c --arg sym "$COIN" '[(.trades // [])[] | . + {symbol: $sym}]' "$TRADE_FILE" > "/tmp/agg_${K}/current.json" 2>/dev/null && [ -s "/tmp/agg_${K}/current.json" ]; then
                       jq -s '.[0] + .[1]' "$COIN_TRADES" "/tmp/agg_${K}/current.json" > "/tmp/agg_${K}/merged_tmp.json" && mv "/tmp/agg_${K}/merged_tmp.json" "$COIN_TRADES"
+                      # replay: آمار ورود (requested/filled/unfilled/...) این فایل برای گزارش یکپارچه نگه داشته می‌شود
+                      if [ "$REPLAY_MODE" = "yes" ]; then
+                        jq -c '.replay.stats // empty' "$TRADE_FILE" >> "/tmp/agg_${K}/coins/${COIN}.stats.jsonl" 2>/dev/null || true
+                      fi
                     else
                       COIN_FAIL=$((COIN_FAIL + 1))
                     fi
@@ -537,12 +582,37 @@ jobs:
               ' "$BASE_TRADES_FILE" "${COIN_FILES[@]}" > "/tmp/agg_${K}/combined_trades.json"
               echo "   ✅ ادغام کامل شد: $(jq 'length' "/tmp/agg_${K}/combined_trades.json") معامله در کل ($(jq '[.[].symbol] | unique | length' "/tmp/agg_${K}/combined_trades.json") کوین)."
 
+              # ---- replay: توصیف واریانت + آمار ورود (هر کوین و مجموع) داخل metadata فایل یکپارچه ----
+              REPLAY_META='null'
+              if [ "$REPLAY_MODE" = "yes" ]; then
+                NEW_STATS='{}'
+                for C in "${OK_COINS[@]}"; do
+                  SF="/tmp/agg_${K}/coins/${C}.stats.jsonl"
+                  if [ -s "$SF" ]; then
+                    CS=$(jq -s -c 'reduce .[] as $s ({}; reduce ($s | keys[]) as $k (.; .[$k] = ((.[$k] // 0) + ($s[$k] // 0))))' "$SF" 2>/dev/null || echo '{}')
+                  else
+                    CS='{}'
+                  fi
+                  NEW_STATS=$(jq -c --arg c "$C" --argjson s "$CS" '. + {($c): $s}' <<< "$NEW_STATS")
+                done
+                OLD_STATS=$(jq -c '(.metadata.replay.coin_stats // {})' "/tmp/agg_${K}/existing.json" 2>/dev/null || echo '{}')
+                [ -n "$OLD_STATS" ] || OLD_STATS='{}'
+                REPLAY_META=$(jq -n -c --argjson rv "$RV" --argjson old "$OLD_STATS" --argjson new "$NEW_STATS" '
+                  ($old + $new) as $cs
+                  | { variant: $rv.key, base_strategy: $rv.baseKey, ladder: ($rv.ladder // "خود استراتژی"),
+                      entry_offset_percent: $rv.offsetPercent, max_wait_minutes: $rv.maxWaitMinutes,
+                      coin_stats: $cs,
+                      total_stats: ($cs | to_entries | map(.value) | reduce .[] as $s ({}; reduce ($s | keys[]) as $k (.; .[$k] = ((.[$k] // 0) + ($s[$k] // 0))))) }' 2>/dev/null || echo 'null')
+                [ -n "$REPLAY_META" ] || REPLAY_META='null'
+              fi
+
               jq -n \
                 --argjson move_percents "$MOVE_PERCENTS" \
                 --argjson stop_loss "$STOP_LOSS" \
                 --argjson max_move "$MAX_MOVE" \
+                --argjson replay "$REPLAY_META" \
                 --slurpfile trades "/tmp/agg_${K}/combined_trades.json" \
-                '{trades: $trades[0], metadata: {move_percents: $move_percents, stop_loss_initial: $stop_loss, max_move_percent: $max_move}}' \
+                '{trades: $trades[0], metadata: ({move_percents: $move_percents, stop_loss_initial: $stop_loss, max_move_percent: $max_move} + (if $replay == null then {} else {replay: $replay} end))}' \
                 > "/tmp/agg_${K}/final_package.json"
 
               echo "3- رمزنگاری فایل یکپارچه‌ی جدید (شامل متادیتا)..."
@@ -554,6 +624,33 @@ jobs:
               mkdir -p "/tmp/third_repo/${AGG_DIR_NAME}/${STRAT}"
               cp "/tmp/agg_${K}/final.enc" "/tmp/third_repo/$AGG_FILE"
               echo "   ✅ فایل یکپارچه ذخیره شد: $AGG_FILE"
+
+              # ---- replay: توصیف خوانا کنار فایل رمزشده + راهنمای پوشه (بدون هیچ عدد عملکردی) ----
+              if [ "$REPLAY_MODE" = "yes" ]; then
+                jq -n --argjson rv "$RV" --arg tf "${STRAT##*_}" --slurpfile trades "/tmp/agg_${K}/combined_trades.json" '
+                  { "واحد": ($rv.key + "_" + $tf),
+                    "توضیح": "نتیجه‌ی یکپارچه‌ی بازپخش (replay) همه‌ی کوین‌ها برای یک واریانت؛ نقاط ورود از فایل یکپارچه‌ی استراتژی پایه",
+                    "استراتژی_پایه": $rv.baseKey,
+                    "تایم_فریم": $tf,
+                    "پلکان": ($rv.ladder // "خود استراتژی"),
+                    "آفست_ورود_درصد": $rv.offsetPercent,
+                    "حداکثر_انتظار_کندل_۱دقیقه": $rv.maxWaitMinutes,
+                    "کوین‌ها": ([$trades[0][].symbol] | unique) }' > "/tmp/third_repo/${AGG_DIR_NAME}/${STRAT}/variant.json" 2>/dev/null || true
+                if [ ! -f "/tmp/third_repo/${AGG_DIR_NAME}/README.md" ]; then
+                  printf '%s\n' \
+                    "# نتایج یکپارچه‌ی بازپخش (replay)" \
+                    "" \
+                    "هر پوشه = یک واریانت × یک تایم‌فریم: <استراتژی پایه>__<برچسب>_<tf>" \
+                    "برچسب‌ها: BASE = خودِ استراتژی با ورود و پلکان اصلی (برای مقایسه) | L-<نام> = پلکان/حد ضرر جدید | E-m0.4 = ورود پس از ۰.۴٪ کاهش قیمت، E-p0.4 = ورود پس از ۰.۴٪ افزایش قیمت" \
+                    "" \
+                    "داخل هر پوشه:" \
+                    "- <واحد>_trades.enc : همه‌ی معاملات همه‌ی کوین‌ها (رمزشده) + metadata شامل شرح واریانت و آمار ورود (requested/filled/unfilled ...) هر کوین و مجموع" \
+                    "- variant.json : شرح خوانای واریانت (بدون عدد عملکرد)" \
+                    "" \
+                    "نقاط ورود از فایل یکپارچه‌ی حالت عادی خوانده می‌شود؛ این پوشه به نتایج حالت عادی دست نمی‌زند." \
+                    > "/tmp/third_repo/${AGG_DIR_NAME}/README.md"
+                fi
+              fi
 
               echo "4- پاک‌سازی نتایج خام و فایل‌های قدیمی per-coin ..."
               for D in "${RAW_TO_DELETE[@]}"; do rm -rf "$D" && echo "   🧹 $D"; done
@@ -739,6 +836,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: ساخت واریانت‌های replay و config موقت ابزار
+        if: env.REPLAY_MODE == 'yes'
+        env:
+          REPLAY_ONLY_STRATEGIES: ${{ github.event.inputs.only_strategies }}
+        run: python3 .github/scripts/replay_expand.py --config single_coin_replay_config.json --out-tools-config "$CONFIG"
+
       - name: بررسی کار باقی‌مانده
         id: check
         env:
@@ -762,6 +865,9 @@ jobs:
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${THIRD_REPO}.git" /tmp/third 2>&1 | tail -2
           [ -d /tmp/third/.git ] || { echo "❌ clone مخزن سوم ناموفق بود."; exit 1; }
 
+          # replay: فیلتر only_strategies قبلاً توسط expand اعمال شده؛ ابزار نباید دوباره روی نام واریانت فیلتر کند
+          # و فایل واقعی برای نام مجازی واریانت‌ها وجود ندارد
+          if [ "$REPLAY_MODE" = "yes" ]; then unset ONLY_STRATEGIES; export SKIP_STRATEGY_FILE_CHECK=1; fi
           ROOT="/tmp/third/${RESULTS_DIR_NAME}" python3 .github/scripts/single_coin_tools.py loop
           rm -rf /tmp/third
 
@@ -775,6 +881,7 @@ jobs:
           MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
         run: |
           ARGS=()
+          if [ "$REPLAY_MODE" = "yes" ]; then ARGS+=(-f "mode=replay"); fi
           if [ -n "$ONLY_COINS" ]; then ARGS+=(-f "only_coins=$ONLY_COINS"); fi
           if [ -n "$ONLY_STRATEGIES" ]; then ARGS+=(-f "only_strategies=$ONLY_STRATEGIES"); fi
           if [ -n "$MAX_JOBS" ]; then ARGS+=(-f "max_jobs_per_run=$MAX_JOBS"); fi
@@ -801,6 +908,7 @@ jobs:
           # backtest کاری ندارد ولی هنوز واحدِ یکپارچه‌نشده مانده → همین workflow دوباره صدا زده می‌شود.
           # شرط had_work=true از حلقه‌ی بی‌پایان جلوگیری می‌کند (اگر اجرای قبلی هیچ تغییری نداشت، نمی‌ایستد).
           ARGS=()
+          if [ "$REPLAY_MODE" = "yes" ]; then ARGS+=(-f "mode=replay"); fi
           if [ -n "$ONLY_COINS" ]; then ARGS+=(-f "only_coins=$ONLY_COINS"); fi
           if [ -n "$ONLY_STRATEGIES" ]; then ARGS+=(-f "only_strategies=$ONLY_STRATEGIES"); fi
           if [ -n "$MAX_JOBS" ]; then ARGS+=(-f "max_jobs_per_run=$MAX_JOBS"); fi
