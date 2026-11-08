@@ -117,7 +117,9 @@ def build_pairs():
     cfg = load_json(os.environ.get('CONFIG', 'single_coin_config.json'))
     if not isinstance(cfg, dict):
         die('single_coin_config.json وجود ندارد یا JSON نامعتبر است.')
-    check_dir = 'strategies' if os.environ.get('MODE_CHECK_FILES') == '1' else None
+    # SKIP_STRATEGY_FILE_CHECK=1 (حالت replay): نام واحدها مجازی است و فایلی در strategies/ ندارد
+    check_dir = ('strategies' if os.environ.get('MODE_CHECK_FILES') == '1'
+                 and os.environ.get('SKIP_STRATEGY_FILE_CHECK') != '1' else None)
     strats = parse_strategies(cfg, check_dir)
     coins = parse_coins(cfg)
 
