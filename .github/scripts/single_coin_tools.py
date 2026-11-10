@@ -145,8 +145,63 @@ def build_pairs():
     if only_c:
         coins = [c for c in coins if c in only_c]
         print(f'🎯 فیلتر only_coins: {coins}')
-    return [{'coin': co, 'strategy': s['file'], 'key': s['key'], 'tfs': s['tfs']}
-            for s in strats for co in (s['coins'] or coins) if not only_c or co in only_c]
+    pairs = [{'coin': co, 'strategy': s['file'], 'key': s['key'], 'tfs': s['tfs']}
+             for s in strats for co in (s['coins'] or coins) if not only_c or co in only_c]
+    return drop_blocked(pairs)
+
+
+# ---------------------------------------------------------------- لیست مسدودی
+# blocked_single_coin.txt (ریشه‌ی مخزن اصلی). هر خط: «mode  strategy  COIN»
+#   mode     : normal | replay | *
+#   strategy : نام استراتژی (در replay نام استراتژی پایه، بدون __tag)
+#   COIN     : مثل SOLUSDT یا * برای همه‌ی ارزها
+# متن بعد از # توضیح است. خطِ مسدود تا وقتی که خودت پاکش نکنی دوباره بکتست نمی‌گیرد.
+def _base_of(key):
+    mf = os.environ.get('REPLAY_MANIFEST', '/tmp/replay_variants.json')
+    try:
+        b = ((load_json(mf) or {}).get('variants') or {}).get(key, {}).get('baseKey')
+        if b:
+            return b
+    except Exception:
+        pass
+    return key.rsplit('__', 1)[0]
+
+
+def load_blocked():
+    path = os.environ.get('BLOCKED_FILE', 'blocked_single_coin.txt')
+    rules = []
+    if not os.path.isfile(path):
+        return rules
+    with open(path, encoding='utf-8') as f:
+        for n, raw in enumerate(f, 1):
+            line = raw.split('#', 1)[0].strip()
+            if not line:
+                continue
+            parts = line.split()
+            if len(parts) != 3:
+                print(f'⚠️ {path} خط {n} نامعتبر است (باید «mode strategy COIN» باشد): {raw.strip()}')
+                continue
+            mode, base, coin = parts
+            rules.append((mode.lower(), base.removesuffix('.js'), coin.upper()))
+    return rules
+
+
+def drop_blocked(pairs):
+    rules = load_blocked()
+    if not rules:
+        return pairs
+    mode = 'replay' if os.environ.get('REPLAY_MODE') == 'yes' else 'normal'
+    kept, hit = [], set()
+    for p in pairs:
+        base = _base_of(p['key']) if mode == 'replay' else p['key']
+        if any(m in ('*', mode) and b == base and c in ('*', p['coin']) for m, b, c in rules):
+            hit.add((base, p['coin']))
+        else:
+            kept.append(p)
+    if hit:
+        print('🚫 مسدودشده در blocked_single_coin.txt (برای اجرا، خطش را پاک کن): '
+              + ', '.join(f'{b}/{c}' for b, c in sorted(hit)))
+    return kept
 
 
 # ---------------------------------------------------------------- done / partial
