@@ -11,7 +11,8 @@
   merge   ادغام نتایج تأییدشده در clone مخزن سوم و نوشتن _chunks/_done (finalize)
 
 فرمت config:
-  "strategies": ["a.js", "b.js@1h", "c.js@30m,1h"]   یا   "strategy": "a.js@1h"
+  "strategies": ["a.js", "b.js@1h", "c.js@30m,1h#BTCUSDT,ETHUSDT"]   یا   "strategy": "a.js@1h"
+  بعد از # فقط همان ارزها (بدون # = همه‌ی coins). اگر فایلی چند بار بیاید، ارزها هم ادغام می‌شوند.
   بدون @ یعنی همه‌ی تایم‌فریم‌ها؛ با @ فقط همان تایم‌فریم‌ها (--timeframes-only).
   اگر یک فایل چند بار بیاید (مثلاً x.js@1h و x.js@30m) تایم‌فریم‌ها ادغام می‌شوند.
 """
@@ -82,9 +83,10 @@ def parse_strategies(cfg, strategies_dir=None):
     raw = cfg['strategies'] if isinstance(cfg.get('strategies'), list) else [cfg.get('strategy', '')]
     if not raw:
         die('لیست استراتژی در config خالی است.')
-    merged, order = {}, []
+    merged, order, ccoins = {}, [], {}
     for item in raw:
-        name, _, tf_part = str(item).strip().partition('@')
+        head, _, coin_part = str(item).strip().partition('#')
+        name, _, tf_part = head.partition('@')
         name = name.strip()
         if not NAME_RX.fullmatch(name):
             die(f"نام استراتژی نامعتبر: '{item}'")
@@ -94,6 +96,17 @@ def parse_strategies(cfg, strategies_dir=None):
             die(f"تایم‌فریم نامعتبر در '{item}': {bad} (مجاز: {', '.join(ALL_TFS)})")
         if strategies_dir is not None and not os.path.isfile(os.path.join(strategies_dir, name)):
             die(f'{strategies_dir}/{name} در مخزن وجود ندارد.')
+        cs = []
+        for c in coin_part.split(','):
+            c = re.sub(r'\s', '', c).upper()
+            if c and not COIN_RX.fullmatch(c):
+                die(f"ارز نامعتبر: '{item}'")
+            if c and c not in cs:
+                cs.append(c)
+        if name not in ccoins:
+            ccoins[name] = cs or None                      # None = همه‌ی coins
+        elif ccoins[name] is not None:
+            ccoins[name] = ccoins[name] + [c for c in cs if c not in ccoins[name]] if cs else None
         if name not in merged:
             order.append(name)
             merged[name] = set(tfs) if tfs else None          # None = همه
@@ -101,7 +114,8 @@ def parse_strategies(cfg, strategies_dir=None):
             merged[name] = None
         else:
             merged[name] |= set(tfs)
-    return [{'file': n, 'key': n[:-3], 'tfs': ','.join(canon(merged[n])) if merged[n] else ''} for n in order]
+    return [{'file': n, 'key': n[:-3], 'tfs': ','.join(canon(merged[n])) if merged[n] else '',
+             'coins': ccoins[n] or []} for n in order]
 
 
 def parse_coins(cfg):
@@ -131,7 +145,8 @@ def build_pairs():
     if only_c:
         coins = [c for c in coins if c in only_c]
         print(f'🎯 فیلتر only_coins: {coins}')
-    return [{'coin': co, 'strategy': s['file'], 'key': s['key'], 'tfs': s['tfs']} for s in strats for co in coins]
+    return [{'coin': co, 'strategy': s['file'], 'key': s['key'], 'tfs': s['tfs']}
+            for s in strats for co in (s['coins'] or coins) if not only_c or co in only_c]
 
 
 # ---------------------------------------------------------------- done / partial

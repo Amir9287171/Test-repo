@@ -16,7 +16,7 @@
   "entries_source": "aggregated",                      # پوشه‌ی aggregated مخزن سوم (یکپارچه‌ی loop_analysis)؛ یا "single_coin_aggregated" / "now-test-repo"
   "max_wait_minutes": 60,
   "include_baseline": true,                            # بازپخش خودِ استراتژی (پلکان و ورود اصلی) برای مقایسه
-  "strategies": {"1": "اسم-بلند.js@1h", "2": "دیگری.js"},   # شماره → استراتژی پایه (@ = فقط این تایم‌فریم‌ها)
+  "strategies": {"1": "اسم-بلند.js@1h", "2": "دیگری.js#BTCUSDT,ETHUSDT"},   # شماره → استراتژی پایه (@ = فقط این تایم‌فریم‌ها، # = فقط این ارزها؛ بدون # = همه‌ی coins)
   "ladders": {"LadFib": {"stopLossInitial": 0.4, "stages": [...], "use": [1, 2]}},   # use = شماره‌ها یا "all"
   "entry_offsets": {"-0.4": [1, 2], "0.4": "all"},     # x٪ علامت‌دار نسبت به قیمت ورود → شماره‌ها
   "combos": [{"ladder": "Tight", "x": -0.4, "use": [1]}]   # پلکان و x با هم
@@ -31,6 +31,7 @@ import sys
 
 ALL_TFS = ['5m', '15m', '30m', '1h', '4h', '24h']
 STRAT_RX = re.compile(r'[A-Za-z0-9._+-]+\.js')
+COIN_RX = re.compile(r'[A-Z0-9]{3,20}')
 LABEL_RX = re.compile(r'[A-Za-z0-9.+-]+')       # نام پلکان: بدون زیرخط
 SOURCES = ('aggregated', 'single_coin_aggregated', 'now-test-repo')
 
@@ -62,7 +63,8 @@ def parse_strategies(cfg, sdir):
     for sid, item in raw.items():
         if str(sid).startswith('_'):
             continue
-        name, _, tf_part = str(item).strip().partition('@')
+        head, _, coin_part = str(item).strip().partition('#')
+        name, _, tf_part = head.partition('@')
         name = name.strip()
         if not STRAT_RX.fullmatch(name):
             die(f"نام استراتژی نامعتبر برای شماره {sid}: '{item}'")
@@ -72,7 +74,18 @@ def parse_strategies(cfg, sdir):
             die(f"تایم‌فریم نامعتبر در '{item}': {bad} (مجاز: {', '.join(ALL_TFS)})")
         if not os.path.isfile(os.path.join(sdir, name)):
             die(f'{sdir}/{name} (شماره {sid}) در مخزن وجود ندارد.')
-        out[str(sid)] = {'file': name, 'key': name[:-3], 'tfs': ','.join(t for t in ALL_TFS if t in tfs)}
+        scoins = []
+        for c in coin_part.split(','):
+            c = re.sub(r'\s', '', c).upper()
+            if not c:
+                continue
+            if not COIN_RX.fullmatch(c):
+                die(f"ارز نامعتبر در '{item}': {c}")
+            if c not in scoins:
+                scoins.append(c)
+        if '#' in str(item) and not scoins:
+            die(f"بعد از # در '{item}' هیچ ارزی نیامده.")
+        out[str(sid)] = {'file': name, 'key': name[:-3], 'tfs': ','.join(t for t in ALL_TFS if t in tfs), 'coins': scoins}
     if not out:
         die('هیچ استراتژی‌ای تعریف نشده.')
     return out
@@ -180,10 +193,15 @@ def main():
         if len(key) > 200:
             die(f'نام واریانت بیش از حد طولانی است: {key}')
         if key in variants:
+            v0 = variants[key]                      # همان واریانت از دو شماره: ارزها ادغام می‌شوند (خالی = همه)
+            if v0['coins'] and st['coins']:
+                v0['coins'] += [c for c in st['coins'] if c not in v0['coins']]
+            else:
+                v0['coins'] = []
             return
         variants[key] = {
             'key': key, 'file': key + '.js', 'tag': tag, 'baseFile': st['file'], 'baseKey': st['key'],
-            'tfs': st['tfs'], 'strategyId': sid,
+            'tfs': st['tfs'], 'coins': list(st['coins']), 'strategyId': sid,
             'ladder': ({'name': ladder['name'], 'stopLossInitial': ladder['stopLossInitial'], 'stages': ladder['stages']}
                        if ladder is not None else None),
             'offsetPercent': x, 'maxWaitMinutes': wait,
@@ -226,7 +244,8 @@ def main():
     print(f'🔁 REPLAY: {len(strategies)} استراتژی پایه → {len(variants)} واریانت | منبع ورود: {source} | انتظار: {wait} کندل ۱ دقیقه‌ای')
     for v in variants.values():
         lad = f"پلکان {v['ladder']['name']}" if v['ladder'] else 'پلکان خود استراتژی'
-        print(f"   • [{v['strategyId']}] {v['tag']:<28} {lad} | آفست {fmt(v['offsetPercent'])}٪")
+        cs = ','.join(v['coins']) if v['coins'] else 'همه'
+        print(f"   • [{v['strategyId']}] {v['tag']:<28} {lad} | آفست {fmt(v['offsetPercent'])}٪ | ارز: {cs}")
 
     if a.manifest:
         with open(a.manifest, 'w', encoding='utf-8') as f:
@@ -240,7 +259,7 @@ def main():
     if not sel:
         die('بعد از اعمال فیلتر only_strategies هیچ واریانتی نماند.')
     if a.out_tools_config:
-        tc = {'strategies': [v['file'] + (f"@{v['tfs']}" if v['tfs'] else '') for v in sel], 'coins': coins}
+        tc = {'strategies': [v['file'] + (f"@{v['tfs']}" if v['tfs'] else '') + (f"#{','.join(v['coins'])}" if v['coins'] else '') for v in sel], 'coins': coins}
         with open(a.out_tools_config, 'w', encoding='utf-8') as f:
             json.dump(tc, f, ensure_ascii=False)
         print(f'📝 config موقت ابزار: {a.out_tools_config} ({len(sel)} واحد)')
