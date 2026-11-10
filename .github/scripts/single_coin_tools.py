@@ -25,7 +25,7 @@ import re
 import shutil
 import sys
 
-ALL_TFS = ['5m', '15m', '30m', '1h', '4h', '24h']
+ALL_TFS = ['1m', '5m', '15m', '30m', '1h', '4h', '24h']
 NAME_RX = re.compile(r'[A-Za-z0-9._+-]+\.js')
 COIN_RX = re.compile(r'[A-Z0-9]{3,20}')
 MAX_MATRIX = 256
