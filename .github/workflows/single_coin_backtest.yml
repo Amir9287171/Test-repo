@@ -560,6 +560,8 @@ jobs:
         run: |
           # pipefail: اگر node شکست خورد (یا timeout)، tee جلوی fail شدن استپ را نگیرد
           set -eo pipefail
+          # کد خروج واقعی ذخیره می‌شود تا timeout (بودجه‌ی زمانی) با خطای واقعی اشتباه نشود
+          trap 'echo $? > /tmp/backtest_exit_code' EXIT
           BUDGET=$(( DEADLINE - $(date +%s) ))
           if [ "$BUDGET" -lt 600 ]; then
             echo "⏳ بودجه‌ی زمانی ($BUDGET ثانیه) کافی نیست؛ چانک به اجرای بعد موکول می‌شود."
@@ -626,6 +628,40 @@ jobs:
           else
             echo "⚠️ فایل لاگ وجود ندارد."
           fi
+
+      # 🚫 فقط وقتی خودِ اجرای بکتست با خطای واقعی شکست بخورد؛ timeout/kill بودجه‌ی زمانی (124/137/143) حساب نمی‌شود.
+      # اسم در errors/ می‌رود و finalize (تک‌نویسنده) آن را یک بار در blocked_single_coin.txt می‌نویسد.
+      - name: علامت‌گذاری برای لیست مسدودی (فقط خطای واقعی)
+        if: always() && steps.gate.outputs.run == 'true' && steps.backtest_run.outcome == 'failure'
+        env:
+          STRATEGY: ${{ matrix.strategy }}
+          COIN: ${{ matrix.coin }}
+          CHUNK: ${{ matrix.chunk }}
+        run: |
+          RC=$(cat /tmp/backtest_exit_code 2>/dev/null || echo 1)
+          case "$RC" in
+            124|137|143) echo "⏳ کد خروج $RC (timeout/kill بودجه‌ی زمانی)؛ مسدود نمی‌شود."; exit 0 ;;
+          esac
+          KEY="${STRATEGY%.js}"
+          if [ "$REPLAY_MODE" = "yes" ]; then
+            MODE=replay
+            BASE=$(jq -r --arg k "$KEY" '.variants[$k].baseKey // empty' /tmp/replay_variants.json 2>/dev/null || true)
+            [ -n "$BASE" ] || BASE="${KEY%__*}"
+          else
+            MODE=normal
+            BASE="$KEY"
+          fi
+          SAFE=$(echo "${COIN}__${BASE}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+          mkdir -p errors
+          {
+            echo "mode: $MODE"
+            echo "base: $BASE"
+            echo "coin: $COIN"
+            echo "chunk: $CHUNK"
+            echo "exit_code: $RC"
+            echo "detected_at: $(date -u +%FT%TZ)"
+          } > "errors/BLOCK_${SAFE}.txt"
+          echo "🚩 $MODE | $BASE | $COIN برای مسدود شدن علامت‌گذاری شد (کد خروج $RC)."
 
       - name: بارگذاری نتایج این چانک به‌صورت artifact
         if: always() && steps.gate.outputs.run == 'true'
@@ -758,6 +794,47 @@ jobs:
           done
           [ "$PUSHED" = true ] || { echo "❌ push فایل وضعیت پس از $MAX تلاش ناموفق ماند"; exit 1; }
           echo "✅ coin_data_status.json در مخزن اصلی ثبت شد."
+
+      # 🚫 هر (استراتژی، ارز) خطادار فقط یک بار در blocked_single_coin.txt نوشته می‌شود و دیگر بکتست نمی‌گیرد
+      # تا وقتی که خودت آن خط را پاک کنی. این‌جا عمداً قبل از راستی‌آزمایی است (چانک شکست‌خورده چیزی برای تأیید ندارد).
+      - name: ثبت مسدودی‌ها در مخزن اصلی (blocked_single_coin.txt)
+        run: |
+          set -e
+          BF="blocked_single_coin.txt"
+          ADDED=0
+          for M in /tmp/chunk_out/*/errors/BLOCK_*.txt; do
+            [ -f "$M" ] || continue
+            MODE=$(sed -n 's/^mode:[[:space:]]*//p' "$M" | head -1 | tr -d '[:space:]')
+            BASE=$(sed -n 's/^base:[[:space:]]*//p' "$M" | head -1 | tr -d '[:space:]')
+            COIN=$(sed -n 's/^coin:[[:space:]]*//p' "$M" | head -1 | tr -d '[:space:]')
+            RC=$(sed -n 's/^exit_code:[[:space:]]*//p' "$M" | head -1 | tr -d '[:space:]')
+            if [ -z "$MODE" ] || [ -z "$BASE" ] || [ -z "$COIN" ]; then continue; fi
+            if [ -f "$BF" ] && sed 's/#.*//' "$BF" | tr -d '\r' | awk -v m="$MODE" -v b="$BASE" -v c="$COIN" \
+                 '{ sub(/\.js$/, "", $2) } ($1==m || $1=="*") && $2==b && ($3==c || $3=="*") { f=1 } END { exit f ? 0 : 1 }'; then
+              continue
+            fi
+            if [ ! -f "$BF" ]; then
+              {
+                echo "# هر خط: mode  strategy  COIN   (mode: normal | replay | *  — COIN: مثل SOLUSDT یا * برای همه)"
+                echo "# این‌ها دیگر بکتست نمی‌گیرند؛ برای اجرای دوباره، خط مربوطه را پاک کن. متن بعد از # توضیح است."
+              } > "$BF"
+            fi
+            echo "$MODE  $BASE  $COIN  # خطا در بکتست (کد خروج ${RC:-?}) - $(date -u +%F)" >> "$BF"
+            ADDED=$((ADDED+1))
+            echo "🚫 $MODE | $BASE | $COIN به $BF اضافه شد."
+          done
+          if [ "$ADDED" -eq 0 ]; then echo "ℹ️ مسدودی جدیدی نبود."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+          git add "$BF"
+          git commit -m "blocked_single_coin: block $ADDED failing unit(s) (run ${{ github.run_id }})"
+          RETRY=0; MAX=20; PUSHED=false
+          while [ $RETRY -lt $MAX ]; do
+            if git pull --rebase && git push; then PUSHED=true; break; fi
+            RETRY=$((RETRY+1)); sleep $(( (RANDOM % 5) + 2 ))
+          done
+          [ "$PUSHED" = true ] || { echo "❌ push فایل مسدودی پس از $MAX تلاش ناموفق ماند"; exit 1; }
+          echo "✅ blocked_single_coin.txt در مخزن اصلی ثبت شد."
 
       - name: راستی‌آزمایی هر چانک
         id: verify
