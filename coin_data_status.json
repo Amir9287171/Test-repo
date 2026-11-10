@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T12:37:48Z",
+  "generated_at": "2026-11-10T04:45:19Z",
   "interval": "1m",
   "coins": {
     "ALGOUSDT": {
@@ -75,12 +75,12 @@
     "BTCUSDT": {
       "status": "downloaded",
       "first_month": "2018-01",
-      "last_month": "2026-09",
-      "months_available": 105,
-      "months_downloaded": 105,
-      "csv_files": 315,
-      "size_mb": 348.1,
-      "last_updated": "2026-10-07T11:15:51Z"
+      "last_month": "2026-10",
+      "months_available": 106,
+      "months_downloaded": 106,
+      "csv_files": 318,
+      "size_mb": 351.5,
+      "last_updated": "2026-11-10T04:28:36Z"
     },
     "DOGEUSDT": {
       "status": "downloaded",
@@ -101,6 +101,16 @@
       "csv_files": 221,
       "size_mb": 207.6,
       "last_updated": "2026-10-07T11:42:17Z"
+    },
+    "ETHUSDT": {
+      "status": "downloaded",
+      "first_month": "2018-01",
+      "last_month": "2026-10",
+      "months_available": 106,
+      "months_downloaded": 106,
+      "csv_files": 318,
+      "size_mb": 331.7,
+      "last_updated": "2026-11-10T04:27:56Z"
     },
     "GRTUSDT": {
       "status": "downloaded",
@@ -145,12 +155,12 @@
     "PAXGUSDT": {
       "status": "downloaded",
       "first_month": "2020-08",
-      "last_month": "2026-09",
-      "months_available": 74,
-      "months_downloaded": 74,
-      "csv_files": 220,
-      "size_mb": 219.2,
-      "last_updated": "2026-10-07T12:13:13Z"
+      "last_month": "2026-10",
+      "months_available": 75,
+      "months_downloaded": 75,
+      "csv_files": 223,
+      "size_mb": 222.3,
+      "last_updated": "2026-11-10T04:27:46Z"
     },
     "PEPEUSDT": {
       "status": "downloaded",
@@ -185,12 +195,12 @@
     "SOLUSDT": {
       "status": "downloaded",
       "first_month": "2020-08",
-      "last_month": "2026-09",
-      "months_available": 74,
-      "months_downloaded": 74,
-      "csv_files": 221,
-      "size_mb": 215.1,
-      "last_updated": "2026-10-07T11:16:26Z"
+      "last_month": "2026-10",
+      "months_available": 75,
+      "months_downloaded": 75,
+      "csv_files": 224,
+      "size_mb": 218.2,
+      "last_updated": "2026-11-10T04:25:30Z"
     },
     "SUIUSDT": {
       "status": "downloaded",
@@ -225,12 +235,12 @@
     "XRPUSDT": {
       "status": "downloaded",
       "first_month": "2018-05",
-      "last_month": "2026-09",
-      "months_available": 101,
-      "months_downloaded": 101,
-      "csv_files": 303,
-      "size_mb": 308.6,
-      "last_updated": "2026-10-07T11:23:36Z"
+      "last_month": "2026-10",
+      "months_available": 102,
+      "months_downloaded": 102,
+      "csv_files": 306,
+      "size_mb": 311.7,
+      "last_updated": "2026-11-10T04:29:53Z"
     }
   }
 }
