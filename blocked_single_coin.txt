@@ -1,0 +1,4 @@
+# هر خط: mode  strategy  COIN   (mode: normal | replay | *  — COIN: مثل SOLUSDT یا * برای همه)
+# این‌ها دیگر بکتست نمی‌گیرند؛ برای اجرای دوباره، خط مربوطه را پاک کن. متن بعد از # توضیح است.
+replay  S4NYFib0618_LadFib_BufOn  SOLUSDT  # خطا در بکتست (کد خروج 1) - 2026-11-10
+replay  S4NYFib0618_LadFib_BufOn  XRPUSDT  # خطا در بکتست (کد خروج 1) - 2026-11-10
