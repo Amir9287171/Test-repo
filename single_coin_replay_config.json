@@ -1,5 +1,4 @@
 {
-  "_note": "replay: ورود با تأخیر x٪ (منفی = بعد از x٪ کاهش، مثبت = بعد از x٪ افزایش). coins و max_wait_minutes سراسری‌اند.",
   "coins": [
     "BTCUSDT",
     "ETHUSDT",
@@ -8,196 +7,1604 @@
     "PAXGUSDT"
   ],
   "entries_source": "aggregated",
-  "max_wait_minutes": 480,
+  "max_wait_minutes": 60,
   "include_baseline": true,
   "strategies": {
     "1": "B4Ic14-30-57_TLpP5-mT3-pR04_BrT012_LadLine_BufOn.js@4h#BTCUSDT,ETHUSDT",
     "2": "B4Ic14-30-57_TLpP5-mT4-pR001_BrT012_LadLine_BufOn.js@15m#XRPUSDT",
-    "3": "S4Pdl+Ema50-200_LadFib_BufOn.js@5m,30m#SOLUSDT,ETHUSDT",
-    "4": "B4Thr14-15+Ema50-200_LadFib_BufOn.js@4h#BTCUSDT,ETHUSDT,PAXGUSDT",
-    "5": "S4Ic14-30-57_TLpP5-mT3-pR001_LadFib_BufOff.js@1h#BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT",
-    "6": "B4Pdh+Ema50-200_LadFib_BufOn.js@1h#ETHUSDT,PAXGUSDT",
-    "7": "B4Ic14-30-57_TLpP5-mT3-pR001_BrT012_LadLine_BufOn.js@30m#ETHUSDT",
-    "8": "S4DvgBear_PP12Rsi10Lb2Tol12+Vol20-12+Cnd.js@5m#BTCUSDT,ETHUSDT",
-    "9": "S4Sqz20-2-100+Ema50-200_LadFib_BufOn.js@1h#ETHUSDT,SOLUSDT",
-    "10": "B4Sqz20-2-100+Ema50-200_LadFib_BufOn.js@1h#BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT",
-    "11": "S4Touch_TLpP5-mT3-pR001_LadFib_BufOff.js@1h#BTCUSDT,XRPUSDT",
-    "12": "S4NYFib0618_LadFib_BufOn.js@1m#SOLUSDT,XRPUSDT"
+    "3": "S4NYFib0618_LadFib_BufOn.js@1m#SOLUSDT,XRPUSDT",
+    "4": "S4Pdl+Ema50-200_LadFib_BufOn.js@5m,30m#SOLUSDT,ETHUSDT",
+    "5": "B4Thr14-15+Ema50-200_LadFib_BufOn.js@4h#BTCUSDT,ETHUSDT,PAXGUSDT",
+    "6": "S4Ic14-30-57_TLpP5-mT3-pR001_LadFib_BufOff.js@1h#BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT",
+    "7": "B4Pdh+Ema50-200_LadFib_BufOn.js@1h#ETHUSDT,PAXGUSDT",
+    "8": "B4Ic14-30-57_TLpP5-mT3-pR001_BrT012_LadLine_BufOn.js@30m#ETHUSDT",
+    "9": "S4DvgBear_PP12Rsi10Lb2Tol12+Vol20-12+Cnd.js@5m#BTCUSDT,ETHUSDT",
+    "10": "S4Sqz20-2-100+Ema50-200_LadFib_BufOn.js@1h#ETHUSDT,SOLUSDT",
+    "11": "B4Sqz20-2-100+Ema50-200_LadFib_BufOn.js@1h#BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT",
+    "12": "S4Touch_TLpP5-mT3-pR001_LadFib_BufOff.js@1h#BTCUSDT,XRPUSDT"
   },
-  "entry_offsets": {
-    "-3": [
-      "1",
-      "4"
-    ],
-    "-2.5": [
-      "5",
-      "6",
-      "9",
-      "10",
-      "11"
-    ],
-    "-2": [
-      "1",
-      "4"
-    ],
-    "-1.8": [
-      "5",
-      "6",
-      "9",
-      "10",
-      "11"
-    ],
-    "-1.5": [
-      "2",
-      "3",
-      "7"
-    ],
-    "-1.2": [
-      "1",
-      "4",
-      "5",
-      "6",
-      "9",
-      "10",
-      "11"
-    ],
-    "-1": [
-      "2",
-      "3",
-      "7"
-    ],
-    "-0.8": [
-      "1",
-      "3",
-      "4",
-      "5",
-      "6",
-      "8",
-      "12",
-      "9",
-      "10",
-      "11"
-    ],
-    "-0.7": [
-      "2",
-      "3",
-      "7"
-    ],
-    "-0.6": [
-      "3",
-      "8",
-      "12"
-    ],
-    "-0.4": [
-      "2",
-      "3",
-      "5",
-      "6",
-      "7",
-      "8",
-      "12",
-      "9",
-      "10",
-      "11"
-    ],
-    "-0.2": [
-      "2",
-      "3",
-      "7",
-      "8",
-      "12"
-    ],
-    "-0.1": [
-      "3",
-      "8",
-      "12"
-    ],
-    "0.1": [
-      "3",
-      "8",
-      "12"
-    ],
-    "0.2": [
-      "2",
-      "3",
-      "7",
-      "8",
-      "12"
-    ],
-    "0.4": [
-      "2",
-      "3",
-      "5",
-      "6",
-      "7",
-      "8",
-      "12",
-      "9",
-      "10",
-      "11"
-    ],
-    "0.6": [
-      "3",
-      "8",
-      "12"
-    ],
-    "0.7": [
-      "2",
-      "3",
-      "7"
-    ],
-    "0.8": [
-      "1",
-      "3",
-      "4",
-      "5",
-      "6",
-      "8",
-      "12",
-      "9",
-      "10",
-      "11"
-    ],
-    "1": [
-      "2",
-      "3",
-      "7"
-    ],
-    "1.2": [
-      "1",
-      "4",
-      "5",
-      "6",
-      "9",
-      "10",
-      "11"
-    ],
-    "1.5": [
-      "2",
-      "3",
-      "7"
-    ],
-    "1.8": [
-      "5",
-      "6",
-      "9",
-      "10",
-      "11"
-    ],
-    "2": [
-      "1",
-      "4"
-    ],
-    "2.5": [
-      "5",
-      "6",
-      "9",
-      "10",
-      "11"
-    ],
-    "3": [
-      "1",
-      "4"
-    ]
+  "ladders": {
+    "FibSL0.2": {
+      "stopLossInitial": 0.2,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.2
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 1.9
+        },
+        {
+          "movePercent": 4.2,
+          "stopLossPercent": 3.5
+        },
+        {
+          "movePercent": 6.1,
+          "stopLossPercent": 5.0
+        },
+        {
+          "movePercent": 8.0,
+          "stopLossPercent": 6.6
+        },
+        {
+          "movePercent": 9.9,
+          "stopLossPercent": 8.2
+        },
+        {
+          "movePercent": 11.8,
+          "stopLossPercent": 9.9
+        },
+        {
+          "movePercent": 13.7,
+          "stopLossPercent": 11.6
+        },
+        {
+          "movePercent": 15.6,
+          "stopLossPercent": 13.4
+        },
+        {
+          "movePercent": 17.6,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 19.6,
+          "stopLossPercent": 17.2
+        },
+        {
+          "movePercent": 21.6,
+          "stopLossPercent": 19.1
+        },
+        {
+          "movePercent": 23.7,
+          "stopLossPercent": 21.1
+        },
+        {
+          "movePercent": 25.8,
+          "stopLossPercent": 23.1
+        },
+        {
+          "movePercent": 27.9,
+          "stopLossPercent": 25.1
+        },
+        {
+          "movePercent": 30.0,
+          "stopLossPercent": 27.2
+        },
+        {
+          "movePercent": 32.2,
+          "stopLossPercent": 29.3
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 31.4
+        },
+        {
+          "movePercent": 36.6,
+          "stopLossPercent": 33.5
+        },
+        {
+          "movePercent": 38.8,
+          "stopLossPercent": 35.6
+        },
+        {
+          "movePercent": 41.0,
+          "stopLossPercent": 37.7
+        },
+        {
+          "movePercent": 43.3,
+          "stopLossPercent": 39.8
+        },
+        {
+          "movePercent": 45.6,
+          "stopLossPercent": 41.9
+        },
+        {
+          "movePercent": 47.9,
+          "stopLossPercent": 44.1
+        },
+        {
+          "movePercent": 50.2,
+          "stopLossPercent": 46.2
+        }
+      ],
+      "use": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "12"
+      ]
+    },
+    "LineSL0.2": {
+      "stopLossInitial": 0.2,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.3
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 2.0
+        },
+        {
+          "movePercent": 4.4,
+          "stopLossPercent": 3.7
+        },
+        {
+          "movePercent": 6.4,
+          "stopLossPercent": 5.3
+        },
+        {
+          "movePercent": 8.4,
+          "stopLossPercent": 7.0
+        },
+        {
+          "movePercent": 10.4,
+          "stopLossPercent": 8.7
+        },
+        {
+          "movePercent": 12.4,
+          "stopLossPercent": 10.3
+        },
+        {
+          "movePercent": 14.4,
+          "stopLossPercent": 12.0
+        },
+        {
+          "movePercent": 16.4,
+          "stopLossPercent": 13.7
+        },
+        {
+          "movePercent": 18.4,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 20.4,
+          "stopLossPercent": 17.0
+        },
+        {
+          "movePercent": 22.4,
+          "stopLossPercent": 18.7
+        },
+        {
+          "movePercent": 24.4,
+          "stopLossPercent": 20.3
+        },
+        {
+          "movePercent": 26.4,
+          "stopLossPercent": 22.0
+        },
+        {
+          "movePercent": 28.4,
+          "stopLossPercent": 23.7
+        },
+        {
+          "movePercent": 30.4,
+          "stopLossPercent": 25.3
+        },
+        {
+          "movePercent": 32.4,
+          "stopLossPercent": 27.0
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 28.7
+        },
+        {
+          "movePercent": 36.4,
+          "stopLossPercent": 30.3
+        },
+        {
+          "movePercent": 38.4,
+          "stopLossPercent": 32.0
+        },
+        {
+          "movePercent": 40.4,
+          "stopLossPercent": 33.7
+        },
+        {
+          "movePercent": 42.4,
+          "stopLossPercent": 35.3
+        },
+        {
+          "movePercent": 44.4,
+          "stopLossPercent": 37.0
+        },
+        {
+          "movePercent": 46.4,
+          "stopLossPercent": 38.7
+        },
+        {
+          "movePercent": 48.4,
+          "stopLossPercent": 40.3
+        }
+      ],
+      "use": [
+        "1",
+        "2",
+        "8"
+      ]
+    },
+    "FibSL0.3": {
+      "stopLossInitial": 0.3,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.2
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 1.9
+        },
+        {
+          "movePercent": 4.2,
+          "stopLossPercent": 3.5
+        },
+        {
+          "movePercent": 6.1,
+          "stopLossPercent": 5.0
+        },
+        {
+          "movePercent": 8.0,
+          "stopLossPercent": 6.6
+        },
+        {
+          "movePercent": 9.9,
+          "stopLossPercent": 8.2
+        },
+        {
+          "movePercent": 11.8,
+          "stopLossPercent": 9.9
+        },
+        {
+          "movePercent": 13.7,
+          "stopLossPercent": 11.6
+        },
+        {
+          "movePercent": 15.6,
+          "stopLossPercent": 13.4
+        },
+        {
+          "movePercent": 17.6,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 19.6,
+          "stopLossPercent": 17.2
+        },
+        {
+          "movePercent": 21.6,
+          "stopLossPercent": 19.1
+        },
+        {
+          "movePercent": 23.7,
+          "stopLossPercent": 21.1
+        },
+        {
+          "movePercent": 25.8,
+          "stopLossPercent": 23.1
+        },
+        {
+          "movePercent": 27.9,
+          "stopLossPercent": 25.1
+        },
+        {
+          "movePercent": 30.0,
+          "stopLossPercent": 27.2
+        },
+        {
+          "movePercent": 32.2,
+          "stopLossPercent": 29.3
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 31.4
+        },
+        {
+          "movePercent": 36.6,
+          "stopLossPercent": 33.5
+        },
+        {
+          "movePercent": 38.8,
+          "stopLossPercent": 35.6
+        },
+        {
+          "movePercent": 41.0,
+          "stopLossPercent": 37.7
+        },
+        {
+          "movePercent": 43.3,
+          "stopLossPercent": 39.8
+        },
+        {
+          "movePercent": 45.6,
+          "stopLossPercent": 41.9
+        },
+        {
+          "movePercent": 47.9,
+          "stopLossPercent": 44.1
+        },
+        {
+          "movePercent": 50.2,
+          "stopLossPercent": 46.2
+        }
+      ],
+      "use": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "12"
+      ]
+    },
+    "LineSL0.3": {
+      "stopLossInitial": 0.3,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.3
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 2.0
+        },
+        {
+          "movePercent": 4.4,
+          "stopLossPercent": 3.7
+        },
+        {
+          "movePercent": 6.4,
+          "stopLossPercent": 5.3
+        },
+        {
+          "movePercent": 8.4,
+          "stopLossPercent": 7.0
+        },
+        {
+          "movePercent": 10.4,
+          "stopLossPercent": 8.7
+        },
+        {
+          "movePercent": 12.4,
+          "stopLossPercent": 10.3
+        },
+        {
+          "movePercent": 14.4,
+          "stopLossPercent": 12.0
+        },
+        {
+          "movePercent": 16.4,
+          "stopLossPercent": 13.7
+        },
+        {
+          "movePercent": 18.4,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 20.4,
+          "stopLossPercent": 17.0
+        },
+        {
+          "movePercent": 22.4,
+          "stopLossPercent": 18.7
+        },
+        {
+          "movePercent": 24.4,
+          "stopLossPercent": 20.3
+        },
+        {
+          "movePercent": 26.4,
+          "stopLossPercent": 22.0
+        },
+        {
+          "movePercent": 28.4,
+          "stopLossPercent": 23.7
+        },
+        {
+          "movePercent": 30.4,
+          "stopLossPercent": 25.3
+        },
+        {
+          "movePercent": 32.4,
+          "stopLossPercent": 27.0
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 28.7
+        },
+        {
+          "movePercent": 36.4,
+          "stopLossPercent": 30.3
+        },
+        {
+          "movePercent": 38.4,
+          "stopLossPercent": 32.0
+        },
+        {
+          "movePercent": 40.4,
+          "stopLossPercent": 33.7
+        },
+        {
+          "movePercent": 42.4,
+          "stopLossPercent": 35.3
+        },
+        {
+          "movePercent": 44.4,
+          "stopLossPercent": 37.0
+        },
+        {
+          "movePercent": 46.4,
+          "stopLossPercent": 38.7
+        },
+        {
+          "movePercent": 48.4,
+          "stopLossPercent": 40.3
+        }
+      ],
+      "use": [
+        "1",
+        "2",
+        "8"
+      ]
+    },
+    "FibSL0.6": {
+      "stopLossInitial": 0.6,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.2
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 1.9
+        },
+        {
+          "movePercent": 4.2,
+          "stopLossPercent": 3.5
+        },
+        {
+          "movePercent": 6.1,
+          "stopLossPercent": 5.0
+        },
+        {
+          "movePercent": 8.0,
+          "stopLossPercent": 6.6
+        },
+        {
+          "movePercent": 9.9,
+          "stopLossPercent": 8.2
+        },
+        {
+          "movePercent": 11.8,
+          "stopLossPercent": 9.9
+        },
+        {
+          "movePercent": 13.7,
+          "stopLossPercent": 11.6
+        },
+        {
+          "movePercent": 15.6,
+          "stopLossPercent": 13.4
+        },
+        {
+          "movePercent": 17.6,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 19.6,
+          "stopLossPercent": 17.2
+        },
+        {
+          "movePercent": 21.6,
+          "stopLossPercent": 19.1
+        },
+        {
+          "movePercent": 23.7,
+          "stopLossPercent": 21.1
+        },
+        {
+          "movePercent": 25.8,
+          "stopLossPercent": 23.1
+        },
+        {
+          "movePercent": 27.9,
+          "stopLossPercent": 25.1
+        },
+        {
+          "movePercent": 30.0,
+          "stopLossPercent": 27.2
+        },
+        {
+          "movePercent": 32.2,
+          "stopLossPercent": 29.3
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 31.4
+        },
+        {
+          "movePercent": 36.6,
+          "stopLossPercent": 33.5
+        },
+        {
+          "movePercent": 38.8,
+          "stopLossPercent": 35.6
+        },
+        {
+          "movePercent": 41.0,
+          "stopLossPercent": 37.7
+        },
+        {
+          "movePercent": 43.3,
+          "stopLossPercent": 39.8
+        },
+        {
+          "movePercent": 45.6,
+          "stopLossPercent": 41.9
+        },
+        {
+          "movePercent": 47.9,
+          "stopLossPercent": 44.1
+        },
+        {
+          "movePercent": 50.2,
+          "stopLossPercent": 46.2
+        }
+      ],
+      "use": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "12"
+      ]
+    },
+    "LineSL0.6": {
+      "stopLossInitial": 0.6,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.3
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 2.0
+        },
+        {
+          "movePercent": 4.4,
+          "stopLossPercent": 3.7
+        },
+        {
+          "movePercent": 6.4,
+          "stopLossPercent": 5.3
+        },
+        {
+          "movePercent": 8.4,
+          "stopLossPercent": 7.0
+        },
+        {
+          "movePercent": 10.4,
+          "stopLossPercent": 8.7
+        },
+        {
+          "movePercent": 12.4,
+          "stopLossPercent": 10.3
+        },
+        {
+          "movePercent": 14.4,
+          "stopLossPercent": 12.0
+        },
+        {
+          "movePercent": 16.4,
+          "stopLossPercent": 13.7
+        },
+        {
+          "movePercent": 18.4,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 20.4,
+          "stopLossPercent": 17.0
+        },
+        {
+          "movePercent": 22.4,
+          "stopLossPercent": 18.7
+        },
+        {
+          "movePercent": 24.4,
+          "stopLossPercent": 20.3
+        },
+        {
+          "movePercent": 26.4,
+          "stopLossPercent": 22.0
+        },
+        {
+          "movePercent": 28.4,
+          "stopLossPercent": 23.7
+        },
+        {
+          "movePercent": 30.4,
+          "stopLossPercent": 25.3
+        },
+        {
+          "movePercent": 32.4,
+          "stopLossPercent": 27.0
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 28.7
+        },
+        {
+          "movePercent": 36.4,
+          "stopLossPercent": 30.3
+        },
+        {
+          "movePercent": 38.4,
+          "stopLossPercent": 32.0
+        },
+        {
+          "movePercent": 40.4,
+          "stopLossPercent": 33.7
+        },
+        {
+          "movePercent": 42.4,
+          "stopLossPercent": 35.3
+        },
+        {
+          "movePercent": 44.4,
+          "stopLossPercent": 37.0
+        },
+        {
+          "movePercent": 46.4,
+          "stopLossPercent": 38.7
+        },
+        {
+          "movePercent": 48.4,
+          "stopLossPercent": 40.3
+        }
+      ],
+      "use": [
+        "1",
+        "2",
+        "8"
+      ]
+    },
+    "FibSL0.8": {
+      "stopLossInitial": 0.8,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.2
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 1.9
+        },
+        {
+          "movePercent": 4.2,
+          "stopLossPercent": 3.5
+        },
+        {
+          "movePercent": 6.1,
+          "stopLossPercent": 5.0
+        },
+        {
+          "movePercent": 8.0,
+          "stopLossPercent": 6.6
+        },
+        {
+          "movePercent": 9.9,
+          "stopLossPercent": 8.2
+        },
+        {
+          "movePercent": 11.8,
+          "stopLossPercent": 9.9
+        },
+        {
+          "movePercent": 13.7,
+          "stopLossPercent": 11.6
+        },
+        {
+          "movePercent": 15.6,
+          "stopLossPercent": 13.4
+        },
+        {
+          "movePercent": 17.6,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 19.6,
+          "stopLossPercent": 17.2
+        },
+        {
+          "movePercent": 21.6,
+          "stopLossPercent": 19.1
+        },
+        {
+          "movePercent": 23.7,
+          "stopLossPercent": 21.1
+        },
+        {
+          "movePercent": 25.8,
+          "stopLossPercent": 23.1
+        },
+        {
+          "movePercent": 27.9,
+          "stopLossPercent": 25.1
+        },
+        {
+          "movePercent": 30.0,
+          "stopLossPercent": 27.2
+        },
+        {
+          "movePercent": 32.2,
+          "stopLossPercent": 29.3
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 31.4
+        },
+        {
+          "movePercent": 36.6,
+          "stopLossPercent": 33.5
+        },
+        {
+          "movePercent": 38.8,
+          "stopLossPercent": 35.6
+        },
+        {
+          "movePercent": 41.0,
+          "stopLossPercent": 37.7
+        },
+        {
+          "movePercent": 43.3,
+          "stopLossPercent": 39.8
+        },
+        {
+          "movePercent": 45.6,
+          "stopLossPercent": 41.9
+        },
+        {
+          "movePercent": 47.9,
+          "stopLossPercent": 44.1
+        },
+        {
+          "movePercent": 50.2,
+          "stopLossPercent": 46.2
+        }
+      ],
+      "use": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "12"
+      ]
+    },
+    "LineSL0.8": {
+      "stopLossInitial": 0.8,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.3
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 2.0
+        },
+        {
+          "movePercent": 4.4,
+          "stopLossPercent": 3.7
+        },
+        {
+          "movePercent": 6.4,
+          "stopLossPercent": 5.3
+        },
+        {
+          "movePercent": 8.4,
+          "stopLossPercent": 7.0
+        },
+        {
+          "movePercent": 10.4,
+          "stopLossPercent": 8.7
+        },
+        {
+          "movePercent": 12.4,
+          "stopLossPercent": 10.3
+        },
+        {
+          "movePercent": 14.4,
+          "stopLossPercent": 12.0
+        },
+        {
+          "movePercent": 16.4,
+          "stopLossPercent": 13.7
+        },
+        {
+          "movePercent": 18.4,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 20.4,
+          "stopLossPercent": 17.0
+        },
+        {
+          "movePercent": 22.4,
+          "stopLossPercent": 18.7
+        },
+        {
+          "movePercent": 24.4,
+          "stopLossPercent": 20.3
+        },
+        {
+          "movePercent": 26.4,
+          "stopLossPercent": 22.0
+        },
+        {
+          "movePercent": 28.4,
+          "stopLossPercent": 23.7
+        },
+        {
+          "movePercent": 30.4,
+          "stopLossPercent": 25.3
+        },
+        {
+          "movePercent": 32.4,
+          "stopLossPercent": 27.0
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 28.7
+        },
+        {
+          "movePercent": 36.4,
+          "stopLossPercent": 30.3
+        },
+        {
+          "movePercent": 38.4,
+          "stopLossPercent": 32.0
+        },
+        {
+          "movePercent": 40.4,
+          "stopLossPercent": 33.7
+        },
+        {
+          "movePercent": 42.4,
+          "stopLossPercent": 35.3
+        },
+        {
+          "movePercent": 44.4,
+          "stopLossPercent": 37.0
+        },
+        {
+          "movePercent": 46.4,
+          "stopLossPercent": 38.7
+        },
+        {
+          "movePercent": 48.4,
+          "stopLossPercent": 40.3
+        }
+      ],
+      "use": [
+        "1",
+        "2",
+        "8"
+      ]
+    },
+    "FibSL1": {
+      "stopLossInitial": 1.0,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.2
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 1.9
+        },
+        {
+          "movePercent": 4.2,
+          "stopLossPercent": 3.5
+        },
+        {
+          "movePercent": 6.1,
+          "stopLossPercent": 5.0
+        },
+        {
+          "movePercent": 8.0,
+          "stopLossPercent": 6.6
+        },
+        {
+          "movePercent": 9.9,
+          "stopLossPercent": 8.2
+        },
+        {
+          "movePercent": 11.8,
+          "stopLossPercent": 9.9
+        },
+        {
+          "movePercent": 13.7,
+          "stopLossPercent": 11.6
+        },
+        {
+          "movePercent": 15.6,
+          "stopLossPercent": 13.4
+        },
+        {
+          "movePercent": 17.6,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 19.6,
+          "stopLossPercent": 17.2
+        },
+        {
+          "movePercent": 21.6,
+          "stopLossPercent": 19.1
+        },
+        {
+          "movePercent": 23.7,
+          "stopLossPercent": 21.1
+        },
+        {
+          "movePercent": 25.8,
+          "stopLossPercent": 23.1
+        },
+        {
+          "movePercent": 27.9,
+          "stopLossPercent": 25.1
+        },
+        {
+          "movePercent": 30.0,
+          "stopLossPercent": 27.2
+        },
+        {
+          "movePercent": 32.2,
+          "stopLossPercent": 29.3
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 31.4
+        },
+        {
+          "movePercent": 36.6,
+          "stopLossPercent": 33.5
+        },
+        {
+          "movePercent": 38.8,
+          "stopLossPercent": 35.6
+        },
+        {
+          "movePercent": 41.0,
+          "stopLossPercent": 37.7
+        },
+        {
+          "movePercent": 43.3,
+          "stopLossPercent": 39.8
+        },
+        {
+          "movePercent": 45.6,
+          "stopLossPercent": 41.9
+        },
+        {
+          "movePercent": 47.9,
+          "stopLossPercent": 44.1
+        },
+        {
+          "movePercent": 50.2,
+          "stopLossPercent": 46.2
+        }
+      ],
+      "use": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "12"
+      ]
+    },
+    "LineSL1": {
+      "stopLossInitial": 1.0,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.3
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 2.0
+        },
+        {
+          "movePercent": 4.4,
+          "stopLossPercent": 3.7
+        },
+        {
+          "movePercent": 6.4,
+          "stopLossPercent": 5.3
+        },
+        {
+          "movePercent": 8.4,
+          "stopLossPercent": 7.0
+        },
+        {
+          "movePercent": 10.4,
+          "stopLossPercent": 8.7
+        },
+        {
+          "movePercent": 12.4,
+          "stopLossPercent": 10.3
+        },
+        {
+          "movePercent": 14.4,
+          "stopLossPercent": 12.0
+        },
+        {
+          "movePercent": 16.4,
+          "stopLossPercent": 13.7
+        },
+        {
+          "movePercent": 18.4,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 20.4,
+          "stopLossPercent": 17.0
+        },
+        {
+          "movePercent": 22.4,
+          "stopLossPercent": 18.7
+        },
+        {
+          "movePercent": 24.4,
+          "stopLossPercent": 20.3
+        },
+        {
+          "movePercent": 26.4,
+          "stopLossPercent": 22.0
+        },
+        {
+          "movePercent": 28.4,
+          "stopLossPercent": 23.7
+        },
+        {
+          "movePercent": 30.4,
+          "stopLossPercent": 25.3
+        },
+        {
+          "movePercent": 32.4,
+          "stopLossPercent": 27.0
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 28.7
+        },
+        {
+          "movePercent": 36.4,
+          "stopLossPercent": 30.3
+        },
+        {
+          "movePercent": 38.4,
+          "stopLossPercent": 32.0
+        },
+        {
+          "movePercent": 40.4,
+          "stopLossPercent": 33.7
+        },
+        {
+          "movePercent": 42.4,
+          "stopLossPercent": 35.3
+        },
+        {
+          "movePercent": 44.4,
+          "stopLossPercent": 37.0
+        },
+        {
+          "movePercent": 46.4,
+          "stopLossPercent": 38.7
+        },
+        {
+          "movePercent": 48.4,
+          "stopLossPercent": 40.3
+        }
+      ],
+      "use": [
+        "1",
+        "2",
+        "8"
+      ]
+    },
+    "FibSL1.5": {
+      "stopLossInitial": 1.5,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.2
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 1.9
+        },
+        {
+          "movePercent": 4.2,
+          "stopLossPercent": 3.5
+        },
+        {
+          "movePercent": 6.1,
+          "stopLossPercent": 5.0
+        },
+        {
+          "movePercent": 8.0,
+          "stopLossPercent": 6.6
+        },
+        {
+          "movePercent": 9.9,
+          "stopLossPercent": 8.2
+        },
+        {
+          "movePercent": 11.8,
+          "stopLossPercent": 9.9
+        },
+        {
+          "movePercent": 13.7,
+          "stopLossPercent": 11.6
+        },
+        {
+          "movePercent": 15.6,
+          "stopLossPercent": 13.4
+        },
+        {
+          "movePercent": 17.6,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 19.6,
+          "stopLossPercent": 17.2
+        },
+        {
+          "movePercent": 21.6,
+          "stopLossPercent": 19.1
+        },
+        {
+          "movePercent": 23.7,
+          "stopLossPercent": 21.1
+        },
+        {
+          "movePercent": 25.8,
+          "stopLossPercent": 23.1
+        },
+        {
+          "movePercent": 27.9,
+          "stopLossPercent": 25.1
+        },
+        {
+          "movePercent": 30.0,
+          "stopLossPercent": 27.2
+        },
+        {
+          "movePercent": 32.2,
+          "stopLossPercent": 29.3
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 31.4
+        },
+        {
+          "movePercent": 36.6,
+          "stopLossPercent": 33.5
+        },
+        {
+          "movePercent": 38.8,
+          "stopLossPercent": 35.6
+        },
+        {
+          "movePercent": 41.0,
+          "stopLossPercent": 37.7
+        },
+        {
+          "movePercent": 43.3,
+          "stopLossPercent": 39.8
+        },
+        {
+          "movePercent": 45.6,
+          "stopLossPercent": 41.9
+        },
+        {
+          "movePercent": 47.9,
+          "stopLossPercent": 44.1
+        },
+        {
+          "movePercent": 50.2,
+          "stopLossPercent": 46.2
+        }
+      ],
+      "use": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "12"
+      ]
+    },
+    "LineSL1.5": {
+      "stopLossInitial": 1.5,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.3
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 2.0
+        },
+        {
+          "movePercent": 4.4,
+          "stopLossPercent": 3.7
+        },
+        {
+          "movePercent": 6.4,
+          "stopLossPercent": 5.3
+        },
+        {
+          "movePercent": 8.4,
+          "stopLossPercent": 7.0
+        },
+        {
+          "movePercent": 10.4,
+          "stopLossPercent": 8.7
+        },
+        {
+          "movePercent": 12.4,
+          "stopLossPercent": 10.3
+        },
+        {
+          "movePercent": 14.4,
+          "stopLossPercent": 12.0
+        },
+        {
+          "movePercent": 16.4,
+          "stopLossPercent": 13.7
+        },
+        {
+          "movePercent": 18.4,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 20.4,
+          "stopLossPercent": 17.0
+        },
+        {
+          "movePercent": 22.4,
+          "stopLossPercent": 18.7
+        },
+        {
+          "movePercent": 24.4,
+          "stopLossPercent": 20.3
+        },
+        {
+          "movePercent": 26.4,
+          "stopLossPercent": 22.0
+        },
+        {
+          "movePercent": 28.4,
+          "stopLossPercent": 23.7
+        },
+        {
+          "movePercent": 30.4,
+          "stopLossPercent": 25.3
+        },
+        {
+          "movePercent": 32.4,
+          "stopLossPercent": 27.0
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 28.7
+        },
+        {
+          "movePercent": 36.4,
+          "stopLossPercent": 30.3
+        },
+        {
+          "movePercent": 38.4,
+          "stopLossPercent": 32.0
+        },
+        {
+          "movePercent": 40.4,
+          "stopLossPercent": 33.7
+        },
+        {
+          "movePercent": 42.4,
+          "stopLossPercent": 35.3
+        },
+        {
+          "movePercent": 44.4,
+          "stopLossPercent": 37.0
+        },
+        {
+          "movePercent": 46.4,
+          "stopLossPercent": 38.7
+        },
+        {
+          "movePercent": 48.4,
+          "stopLossPercent": 40.3
+        }
+      ],
+      "use": [
+        "1",
+        "2",
+        "8"
+      ]
+    },
+    "FibSL2": {
+      "stopLossInitial": 2.0,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.2
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 1.9
+        },
+        {
+          "movePercent": 4.2,
+          "stopLossPercent": 3.5
+        },
+        {
+          "movePercent": 6.1,
+          "stopLossPercent": 5.0
+        },
+        {
+          "movePercent": 8.0,
+          "stopLossPercent": 6.6
+        },
+        {
+          "movePercent": 9.9,
+          "stopLossPercent": 8.2
+        },
+        {
+          "movePercent": 11.8,
+          "stopLossPercent": 9.9
+        },
+        {
+          "movePercent": 13.7,
+          "stopLossPercent": 11.6
+        },
+        {
+          "movePercent": 15.6,
+          "stopLossPercent": 13.4
+        },
+        {
+          "movePercent": 17.6,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 19.6,
+          "stopLossPercent": 17.2
+        },
+        {
+          "movePercent": 21.6,
+          "stopLossPercent": 19.1
+        },
+        {
+          "movePercent": 23.7,
+          "stopLossPercent": 21.1
+        },
+        {
+          "movePercent": 25.8,
+          "stopLossPercent": 23.1
+        },
+        {
+          "movePercent": 27.9,
+          "stopLossPercent": 25.1
+        },
+        {
+          "movePercent": 30.0,
+          "stopLossPercent": 27.2
+        },
+        {
+          "movePercent": 32.2,
+          "stopLossPercent": 29.3
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 31.4
+        },
+        {
+          "movePercent": 36.6,
+          "stopLossPercent": 33.5
+        },
+        {
+          "movePercent": 38.8,
+          "stopLossPercent": 35.6
+        },
+        {
+          "movePercent": 41.0,
+          "stopLossPercent": 37.7
+        },
+        {
+          "movePercent": 43.3,
+          "stopLossPercent": 39.8
+        },
+        {
+          "movePercent": 45.6,
+          "stopLossPercent": 41.9
+        },
+        {
+          "movePercent": 47.9,
+          "stopLossPercent": 44.1
+        },
+        {
+          "movePercent": 50.2,
+          "stopLossPercent": 46.2
+        }
+      ],
+      "use": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "9",
+        "10",
+        "11",
+        "12"
+      ]
+    },
+    "LineSL2": {
+      "stopLossInitial": 2.0,
+      "stages": [
+        {
+          "movePercent": 0.4,
+          "stopLossPercent": 0.3
+        },
+        {
+          "movePercent": 2.4,
+          "stopLossPercent": 2.0
+        },
+        {
+          "movePercent": 4.4,
+          "stopLossPercent": 3.7
+        },
+        {
+          "movePercent": 6.4,
+          "stopLossPercent": 5.3
+        },
+        {
+          "movePercent": 8.4,
+          "stopLossPercent": 7.0
+        },
+        {
+          "movePercent": 10.4,
+          "stopLossPercent": 8.7
+        },
+        {
+          "movePercent": 12.4,
+          "stopLossPercent": 10.3
+        },
+        {
+          "movePercent": 14.4,
+          "stopLossPercent": 12.0
+        },
+        {
+          "movePercent": 16.4,
+          "stopLossPercent": 13.7
+        },
+        {
+          "movePercent": 18.4,
+          "stopLossPercent": 15.3
+        },
+        {
+          "movePercent": 20.4,
+          "stopLossPercent": 17.0
+        },
+        {
+          "movePercent": 22.4,
+          "stopLossPercent": 18.7
+        },
+        {
+          "movePercent": 24.4,
+          "stopLossPercent": 20.3
+        },
+        {
+          "movePercent": 26.4,
+          "stopLossPercent": 22.0
+        },
+        {
+          "movePercent": 28.4,
+          "stopLossPercent": 23.7
+        },
+        {
+          "movePercent": 30.4,
+          "stopLossPercent": 25.3
+        },
+        {
+          "movePercent": 32.4,
+          "stopLossPercent": 27.0
+        },
+        {
+          "movePercent": 34.4,
+          "stopLossPercent": 28.7
+        },
+        {
+          "movePercent": 36.4,
+          "stopLossPercent": 30.3
+        },
+        {
+          "movePercent": 38.4,
+          "stopLossPercent": 32.0
+        },
+        {
+          "movePercent": 40.4,
+          "stopLossPercent": 33.7
+        },
+        {
+          "movePercent": 42.4,
+          "stopLossPercent": 35.3
+        },
+        {
+          "movePercent": 44.4,
+          "stopLossPercent": 37.0
+        },
+        {
+          "movePercent": 46.4,
+          "stopLossPercent": 38.7
+        },
+        {
+          "movePercent": 48.4,
+          "stopLossPercent": 40.3
+        }
+      ],
+      "use": [
+        "1",
+        "2",
+        "8"
+      ]
+    }
   }
 }
