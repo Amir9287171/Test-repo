@@ -465,6 +465,35 @@ jobs:
             exit 0
           fi
 
+          # ------------------------------------------------------------
+          # 🎯 اولویت‌بندی دستی: اگر فایل priority_strategies.txt در ریشه‌ی مخزن
+          # باشد، استراتژی‌های داخلش (هر خط یکی، با یا بدون .js، خط‌های خالی و
+          # توضیح با # نادیده گرفته می‌شوند) به همان ترتیب فایل اول بررسی می‌شوند؛
+          # بعد از آن بقیه‌ی استراتژی‌ها با همان ترتیب الفبایی قبلی.
+          # ------------------------------------------------------------
+          PRIORITY_FILE="priority_strategies.txt"
+          PRIORITY_LIST=""
+          if [ -f "$PRIORITY_FILE" ]; then
+            echo "🎯 فایل $PRIORITY_FILE پیدا شد؛ ترتیب دستی اعمال می‌شود."
+            while IFS= read -r LINE || [ -n "$LINE" ]; do
+              LINE="${LINE%%#*}"
+              LINE=$(printf '%s' "$LINE" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+              [ -z "$LINE" ] && continue
+              NAME="${LINE%.js}.js"
+              if ! printf '%s\n' "$STRATEGIES" | grep -qxF "$NAME"; then
+                echo "   ⚠️ $NAME در پوشه strategies وجود ندارد؛ نادیده گرفته شد."
+                continue
+              fi
+              if printf '%s' "$PRIORITY_LIST" | grep -qxF "$NAME"; then
+                continue
+              fi
+              PRIORITY_LIST+="${NAME}"$'\n'
+            done < "$PRIORITY_FILE"
+            echo "   ترتیب اولویت: $(printf '%s' "$PRIORITY_LIST" | tr '\n' ' ')"
+          fi
+          REST_LIST=$(printf '%s\n' "$STRATEGIES" | grep -vxF -f <(printf '%s' "$PRIORITY_LIST") || true)
+          STRATEGIES=$(printf '%s\n%s\n' "$PRIORITY_LIST" "$REST_LIST" | sed '/^$/d')
+
           # ⚠️ رفع باگ ریشه‌ای: قبلاً اینجا فایل‌ها بر اساس رشته‌ی کامل نام‌فایل
           # (الفبایی) مرتب می‌شدند و TOTAL_CSV هم از یک find/wc -l جدا (شامل هر
           # فایلی با پسوند csv.، حتی بدون الگوی تاریخ) محاسبه می‌شد. اما
@@ -609,6 +638,19 @@ jobs:
             echo "✅ استراتژی $STRAT انتخاب شد. چانک‌های ناقص: $TARGET_CHUNKS_JSON (تلاش $NEW_COUNT از $STUCK_THRESHOLD قبل از رد‌شدن خودکار)"
             break
           done
+
+          # 🎯 پاک‌کردن فایل اولویت: اگر هیچ‌کدام از استراتژی‌های فایل اولویت برای
+          # اجرا انتخاب نشدند (یعنی همه کامل‌اند: بکتست‌شان گرفته شده و آپلود
+          # شده یا منتظر انتقال‌اند؛ یا به‌خاطر قطع‌کننده‌ی مدار رد شده‌اند)، فایل
+          # از ریشه‌ی مخزن حذف می‌شود تا در commit پایین‌تر push شود.
+          if [ -f "$PRIORITY_FILE" ]; then
+            if [ -z "$SELECTED" ] || ! printf '%s' "$PRIORITY_LIST" | grep -qxF "$SELECTED"; then
+              echo "🧹 همه‌ی استراتژی‌های $PRIORITY_FILE انجام شده‌اند؛ فایل پاک می‌شود."
+              git rm -q -f --ignore-unmatch "$PRIORITY_FILE" 2>/dev/null || rm -f "$PRIORITY_FILE"
+            else
+              echo "⏳ $SELECTED هنوز از فایل اولویت در حال اجراست؛ فایل می‌ماند."
+            fi
+          fi
 
           # هر تغییری در stuck_tracker.json یا errors/ (چه استراتژی انتخاب
           # شده باشد چه نه) را commit و push می‌کنیم تا دفعه‌ی بعد لحاظ شود.
