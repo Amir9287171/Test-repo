@@ -1,5 +1,0 @@
-strategy: S4DvgBear_PP12Rsi10Lb2Tol12+Vol20-12+Cnd.js
-missing_chunks: [0]
-attempts: 3
-detected_at: 2026-11-18T15:09:56Z
-note: این استراتژی با همین چانک‌های ناقص چند بار پیاپی از نو اجرا شده ولی فایل‌های results.enc مربوطه هرگز کامل روی دیسک ننشسته‌اند. منطق «قبلاً انجام‌شده» در run-backtest.js (چک در برابر now-test-repo) را برای همین چانک‌ها دستی بررسی کنید.
